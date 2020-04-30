@@ -5,13 +5,13 @@
 
 # Usage
 
+Once the application is installed, just run `lovebrew` in a directory with your game content that also has `lovebrew.toml` inside.
+
 ## Nintendo 3DS
 By default, 3DS games will only compile as "raw". This means they only output the converted assets (textures and fonts) with any lua source code. This makes it easy to test games through the `game` directory method.
 
 ## Nintendo Switch
 Switch games will compile normally; they build into the proper homebrew binary format.
-
-Once the application is installed, just run `lovebrew` in a directory with your game content that also has `lovebrew.toml` inside.
 
 ## Options
 | Command | Help |
