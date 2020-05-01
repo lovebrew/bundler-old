@@ -58,6 +58,12 @@ def main(argv=None):
 
     CONFIG = get_config_data()
 
+    # Handle if there's no config or invalid config
+    if not CONFIG and CONFIG is not None:
+        return LOGGER.critical("Invalid configuration file")
+    elif CONFIG is None:
+        return LOGGER.critical("No build config file found")
+
     targets = []
 
     # get the provided targets, validate them too
