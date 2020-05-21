@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='lovebrew',
-    version='0.1.1',
+    version='0.2.0',
     url='',
     author='TurtleP',
     license='MIT',

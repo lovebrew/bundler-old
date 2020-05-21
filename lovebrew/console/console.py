@@ -14,7 +14,6 @@ class Console:
 
     def __init__(self, config, is_fused):
         self.is_fused = is_fused
-
         self.__dict__.update(config)
 
     def clean(self):

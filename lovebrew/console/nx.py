@@ -11,10 +11,10 @@ class NX(Console):
 
     ENV_PATH = Path(os.getenv("DEVKITPRO"))
 
-    NACP_CMD = 'nacptool --create "{}" "{}" "{}" {}.nacp'
-    ELF2NRO_CMD = "elf2nro '{}' '{name}.nro' --icon '{}' --nacp '{name}.nacp" \
-                  "--romfsdir=build"
-    BUILD_ROMFS_CMD = "build_romfs 'build' '{}.lpx'"
+    NACP_CMD = 'nacptool --create "{name}" "{}" "{}" {name}.nacp'
+    ELF2NRO_CMD = "elf2nro '{}' '{name}.nro' --icon '{}' --nacp '{name}.nacp' " \
+                  "--romfsdir=game"
+    BUILD_ROMFS_CMD = "build_romfs 'game' '{}.lpx'"
 
     def __init__(self, config, is_fused):
         super().__init__(config, True)
@@ -40,7 +40,7 @@ class NX(Console):
             zfile.write(ARTIFACT)
 
     def _build_romfs(self):
-        fmt_cmd = NX.BUILD_ROMFS_CMD.format(self.title)
+        fmt_cmd = NX.BUILD_ROMFS_CMD.format(self.name)
 
         try:
             subprocess.run(fmt_cmd, shell=True, check=True,
@@ -54,11 +54,12 @@ class NX(Console):
         if not LOVEPOTION_SWITCH.exists() and not self.is_fused == "lpx":
             raise FileNotFoundError(f"Missing {LOVEPOTION_SWITCH}?")
         else:
-            self._build_romfs()
+            if self.is_fused == "lpx":
+                self._build_romfs()
 
         icon_path = self.get_icon(True)
 
-        fmt_cmd = NX.NACP_CMD.format(self.name, self.author, self.version)
+        fmt_cmd = NX.NACP_CMD.format(self.author, self.version, name=self.name)
 
         try:
             subprocess.run(fmt_cmd, shell=True, check=True,
@@ -67,10 +68,14 @@ class NX(Console):
             raise Exception(error)
 
         fmt_cmd = NX.ELF2NRO_CMD.format(LOVEPOTION_SWITCH,
-                                        icon_path, name=self.title)
+                                        icon_path, name=self.name)
 
         try:
             subprocess.run(fmt_cmd, shell=True, check=True,
                            capture_output=True)
         except subprocess.CalledProcessError as error:
             raise Exception(error)
+
+    @staticmethod
+    def name():
+        return "Nintendo Switch"
