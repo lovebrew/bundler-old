@@ -1,8 +1,9 @@
 # Installation
-1. Clone the repository
-2. Change your directory to where `setup.py` is
-3. Run `sudo pip install -U .`
-
+To get the latest version from Github, just run
+```
+sudo pip3 install -U git+git://github.com/TurtleP/lovebrew.git
+```
+and you should be able to run `lovebrew -h`!
 # Usage
 
 Once the application is installed, just run `lovebrew` in a directory with your game content that also has `lovebrew.toml` inside.
