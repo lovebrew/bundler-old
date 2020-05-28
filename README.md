@@ -1,7 +1,5 @@
 # Installation
-1. Clone the repository
-2. Change your directory to where `setup.py` is
-3. Run `sudo pip install -U .`
+`sudo pip3 install -U git+git://github.com/TurtleP/lovebrew.git`
 
 # Usage
 
