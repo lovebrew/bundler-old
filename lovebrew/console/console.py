@@ -8,13 +8,23 @@ from ..data.constants import LOGGER, TOP_DIR
 class Console:
 
     def __init__(self, config):
-        self.__dict__.update(config)
+        if config:
+            self.__dict__.update(config)
 
         self.build_directory = get_item_path("build_directory")
         self.source_directory = get_item_path("source_directory")
 
-    def clean(self):
-        shutil.rmtree(self.build_directory)
+    @staticmethod
+    def clean():
+        EXTENSIONS = [".3dsx", ".smdh",
+                      ".nro", ".nacp",
+                      ".pfs0", ".nso"]
+
+        for item in TOP_DIR.iterdir():
+            if item.suffix in EXTENSIONS:
+                item.unlink()
+
+        shutil.rmtree(get_item_path("build_directory"))
 
     def get_icon(self, is_nx=False):
         """

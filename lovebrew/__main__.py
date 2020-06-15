@@ -1,16 +1,21 @@
+#!/usr/bin/env python
+
 __author__ = "TurtleP"
 __copyright__ = f"Copyright (c) 2020 {__author__}"
 __license__ = "MIT"
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 import os
 import shutil
 from argparse import ArgumentParser
 
+from .console.console import Console
 from .console.ctr import CTR
 from .console.nx import NX
 from .data.config import get_config_data, get_section_item
-from .data.constants import BUILD_FILE_CWD_PATH, DEFAULT_CONFIG_PATH, LOGGER
+from .data.constants import (BUILD_FILE_CWD_PATH, DEFAULT_CONFIG_PATH,
+                             DEVKITPRO_ERROR, FIRST_RUN_DIALOG, FIRST_RUN_PATH,
+                             LOGGER, set_logging)
 
 BUILD_FAILED_STR = "Failed to build for %s (%s)"
 TARGET_CLASSES = {"switch": NX, "3ds": CTR}
@@ -24,8 +29,14 @@ def has_help_or_version(args):
 
 
 def main(argv=None):
+    if not FIRST_RUN_PATH.exists():
+        print(FIRST_RUN_DIALOG)
+        FIRST_RUN_PATH.touch()
+
+        return
+
     if not os.getenv("DEVKITARM") or not os.getenv("DEVKITPRO"):
-        print("WARNING: ")
+        print(DEVKITPRO_ERROR)
         return
 
     parser = ArgumentParser(prog='lovebrew',
@@ -48,8 +59,8 @@ def main(argv=None):
     if has_help_or_version(args):
         return
 
-    #if not args.verbose:
-        #LOGGER.disabled = True
+    if args.verbose:
+        set_logging(True)
 
     if args.init:
         try:
@@ -61,6 +72,10 @@ def main(argv=None):
         except Exception as e:
             LOGGER.critical(e)
 
+        return
+
+    if args.clean:
+        Console.clean()
         return
 
     CONFIG = get_config_data()
@@ -82,9 +97,6 @@ def main(argv=None):
     for console in targets:
         try:
             item = console(CONFIG["meta"])
-
-            if args.clean:
-                return item.clean()
 
             item.build()
 

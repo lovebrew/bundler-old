@@ -1,11 +1,24 @@
 import logging
 from pathlib import Path
 
+def set_logging(enable):
+    if enable:
+        logging.disable(logging.NOTSET)
+    else:
+        logging.disable()
+
 # PATHS & STUFF #
 
 HOME_DIR = Path().home()
 BINARIES_DIR = HOME_DIR / ".lovepotion"
 TOP_DIR = Path().cwd()
+
+BINARIES_DIR.mkdir(exist_ok=True)
+
+FIRST_RUN_PATH = BINARIES_DIR / ".first_run"
+FIRST_RUN_DIALOG = "This software is not endorsed nor maintained by devkitPro.\nIf there are issues, please report them to the GitHub repository:\nhttps://github.com/TurtleP/lovebrew"
+
+DEVKITPRO_ERROR = "Error: Could not find DEVKITARM or DEVKITPRO environment variables.\nPlease follow the wiki for proper setup:\nhttp://TurtleP.github.io/LovePotion/wiki/#"""
 
 DEFAULT_CONFIG_PATH = Path(__file__).parent / "meta/lovebrew.toml"
 
@@ -38,3 +51,4 @@ _handler.setFormatter(_formatter)
 LOGGER.setLevel(logging.INFO)
 
 LOGGER.addHandler(_handler)
+set_logging(False)

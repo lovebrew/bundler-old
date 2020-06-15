@@ -89,15 +89,6 @@ class CTR(Console):
             fmt_cmd = CTR.MKBCFNT_CMD.format(path, out_path / path.stem)
             subprocess.run(fmt_cmd, shell=True)
 
-    def clean(self):
-        EXTENSIONS = [".3dsx", ".smdh", ".love", ".zip"]
-
-        for item in TOP_DIR.iterdir():
-            if item.suffix in EXTENSIONS:
-                item.unlink()
-
-        super().clean()
-
     def build_meta(self):
         LOGGER.info("Building smdh meta file")
 

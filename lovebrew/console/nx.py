@@ -18,15 +18,6 @@ class NX(Console):
         super().__init__(config)
         self.elf_binary_path = self.get_elf_binary(NX.name())
 
-    def clean(self):
-        EXTENSIONS = [".nro", ".nacp", ".love", ".zip"]
-
-        for item in TOP_DIR.iterdir():
-            if item.suffix in EXTENSIONS:
-                item.unlink()
-
-        super().clean()
-
     def build(self):
         LOGGER.info("Building for Nintendo Switch..")
 
@@ -46,7 +37,7 @@ class NX(Console):
                                         romfs=self.source_directory.name, name=self.name)
 
         try:
-            subprocess.run(fmt_cmd, shell=True, check=True, capture_output=False)
+            subprocess.run(fmt_cmd, shell=True, check=True, capture_output=True)
         except subprocess.CalledProcessError as error:
             raise Exception(error)
 
