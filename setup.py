@@ -1,5 +1,8 @@
 from setuptools import setup, find_packages
 
+with open('README.md', 'r', encoding='utf-8') as f:
+    readme = f.read()
+
 setup(
     name='lovebrew',
     version='0.2.1',
@@ -8,6 +11,8 @@ setup(
     license='MIT',
     url='https://github.com/TurtleP/lovebrew',
     description='Löve Potion Game Helper',
+    long_description=readme,
+    long_description_content_type='text/markdown',
     install_requires=["toml>=0.10"],
     packages=find_packages(),
     package_data={'lovebrew': ['data/meta/*']},
