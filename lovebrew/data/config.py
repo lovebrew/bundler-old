@@ -68,5 +68,5 @@ def get_config_data():
             except toml.TomlDecodeError as e:
                 LOGGER.error(str(e))
 
-    LOGGER.critica("No build config found. Run lovebrew --init to create one.")
+    LOGGER.critical("No build config found. Run lovebrew --init to create one.")
     return None
