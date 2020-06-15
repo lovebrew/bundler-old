@@ -5,7 +5,7 @@ with open('README.md', 'r', encoding='utf-8') as f:
 
 setup(
     name='lovebrew',
-    version='0.2.1',
+    version='0.2.3',
     author='TurtleP',
     author_email='jpostelnek@outlook.com',
     license='MIT',
