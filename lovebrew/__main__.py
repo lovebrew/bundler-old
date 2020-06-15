@@ -3,7 +3,7 @@
 __author__ = "TurtleP"
 __copyright__ = f"Copyright (c) 2020 {__author__}"
 __license__ = "MIT"
-__version__ = "0.2.3"
+__version__ = "0.2.4"
 
 import os
 import shutil

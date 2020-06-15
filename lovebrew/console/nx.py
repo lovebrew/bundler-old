@@ -26,18 +26,21 @@ class NX(Console):
 
         icon_path = self.get_icon(True)
 
-        fmt_cmd = NX.NACP_CMD.format(self.author, self.version, name=self.name)
+        fmt_cmd = NX.NACP_CMD.format(
+            self.author, self.version, name=self.output_directory / self.name)
 
         try:
-            subprocess.run(fmt_cmd, shell=True, check=True, capture_output=True)
+            subprocess.run(fmt_cmd, shell=True,
+                           check=True, capture_output=True)
         except subprocess.CalledProcessError as error:
             raise Exception(error)
 
         fmt_cmd = NX.ELF2NRO_CMD.format(self.elf_binary_path, icon_path,
-                                        romfs=self.source_directory.name, name=self.name)
+                                        romfs=self.source_directory.name, name=self.output_directory / self.name)
 
         try:
-            subprocess.run(fmt_cmd, shell=True, check=True, capture_output=True)
+            subprocess.run(fmt_cmd, shell=True,
+                           check=True, capture_output=True)
         except subprocess.CalledProcessError as error:
             raise Exception(error)
 

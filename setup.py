@@ -5,11 +5,12 @@ with open('README.md', 'r', encoding='utf-8') as f:
 
 setup(
     name='lovebrew',
-    version='0.2.3',
+    version='0.2.4',
     author='TurtleP',
     author_email='jpostelnek@outlook.com',
     license='MIT',
     url='https://github.com/TurtleP/lovebrew',
+    python_requires='>=3.8.0',
     description='Löve Potion Game Helper',
     long_description=readme,
     long_description_content_type='text/markdown',

@@ -5,7 +5,7 @@ def set_logging(enable):
     if enable:
         logging.disable(logging.NOTSET)
     else:
-        logging.disable()
+        logging.disable(logging.ERROR)
 
 # PATHS & STUFF #
 
@@ -28,7 +28,8 @@ DEFAULT_PATHS = {
     "icon_file":        Path(__file__).parent / "meta/icon",
     "source_directory": TOP_DIR / "game",
     "build_directory":  TOP_DIR / "build",
-    "love_directory":   BINARIES_DIR
+    "love_directory":   BINARIES_DIR,
+    "output_to_build": TOP_DIR
 }
 
 BUILD_FILE_NAME = "lovebrew.toml"

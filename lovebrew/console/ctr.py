@@ -96,7 +96,7 @@ class CTR(Console):
 
         fmt_cmd = CTR.SMDH_CMD.format(self.name, self.description,
                                       self.author, icon_path,
-                                      TOP_DIR / self.name)
+                                      self.output_directory / self.name)
 
         try:
             subprocess.run(fmt_cmd, shell=True, check=True)
@@ -107,10 +107,11 @@ class CTR(Console):
 
         fmt_cmd = CTR.TDSXTOOL_CMD.format(self.elf_binary_path,
                                           romfs=self.build_directory / self.source_directory.name,
-                                          name=TOP_DIR / self.name)
+                                          name=self.output_directory / self.name)
 
         try:
-            subprocess.run(fmt_cmd, shell=True, check=True, capture_output=True)
+            subprocess.run(fmt_cmd, shell=True,
+                           check=True, capture_output=True)
         except subprocess.CalledProcessError as error:
             raise Exception(error)
 

@@ -13,18 +13,28 @@ class Console:
 
         self.build_directory = get_item_path("build_directory")
         self.source_directory = get_item_path("source_directory")
+        self.output_directory = get_item_path("output_to_build")
 
     @staticmethod
     def clean():
         EXTENSIONS = [".3dsx", ".smdh",
-                      ".nro", ".nacp",
-                      ".pfs0", ".nso"]
+                      ".nro", ".nacp"]
 
-        for item in TOP_DIR.iterdir():
-            if item.suffix in EXTENSIONS:
-                item.unlink()
+        local_out_dir = get_item_path("output_to_build")
 
-        shutil.rmtree(get_item_path("build_directory"))
+        if local_out_dir:
+            local_out_dir = get_item_path("build_directory")
+        else:
+            local_out_dir = TOP_DIR
+
+        try:
+            for item in local_out_dir.iterdir():
+                if item.suffix in EXTENSIONS:
+                    item.unlink()
+
+            shutil.rmtree(local_out_dir)
+        except FileNotFoundError:
+            print("All clean. Nothing to do.")
 
     def get_icon(self, is_nx=False):
         """

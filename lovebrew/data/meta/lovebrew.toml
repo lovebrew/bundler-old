@@ -24,10 +24,12 @@ version     = "0.1.0"
 # [false/string] @love_directory   : Where lovebrew looks for Löve Potion binaries
 #                                    relative to the config file, default: false.
 #
-# [array]        @targts : Target console(s) to build for, default: ["3ds", "switch"]
+# [array]        @targts           : Target console(s) to build for, default: ["3ds", "switch"]
+# [bool]         @output_to_build  : When set to true, will output artifacts to the @build_directory
 [build]
 icon_file        = "icon"
 source_directory = "game"
 build_directory  = false
 love_directory   = false
 targets          = ["3ds", "switch"]
+output_to_build  = false
