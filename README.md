@@ -17,9 +17,6 @@ and you should be able to run `lovebrew -h`!
 
 Once the application is installed, just run `lovebrew` in a directory with your game content that also has `lovebrew.toml` inside.
 
-## Nintendo Switch
-Switch games will compile normally; they build into the proper homebrew binary format.
-
 ## Options
 ```
 usage: lovebrew [-h] [-v] [--version] [-c] [-i]
