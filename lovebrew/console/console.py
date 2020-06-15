@@ -1,23 +1,20 @@
 import shutil
 from pathlib import Path
 
-from ..data.constants import DEFAULT_ICON_PATH, LOGGER
+from ..data.config import get_item_path
+from ..data.constants import LOGGER, TOP_DIR
 
 
 class Console:
 
-    SRC_DIR = Path().cwd() / "game"
-    BUILD_DIR = Path().cwd() / "build"
-    TOP_DIR = Path().cwd()
-
-    ICON = Path().cwd() / "icon"
-
-    def __init__(self, config, is_fused):
-        self.is_fused = is_fused
+    def __init__(self, config):
         self.__dict__.update(config)
 
+        self.build_directory = get_item_path("build_directory")
+        self.source_directory = get_item_path("source_directory")
+
     def clean(self):
-        shutil.rmtree(Console.BUILD_DIR)
+        shutil.rmtree(self.build_directory)
 
     def get_icon(self, is_nx=False):
         """
@@ -30,9 +27,25 @@ class Console:
         if is_nx:
             ext = ".jpg"
 
-        if not Path(str(Console.ICON) + ext).exists():
-            LOGGER.warning("No icon was provided. Using default.")
-            return str(DEFAULT_ICON_PATH) + ext
+        icon_path = get_item_path("icon_file")
+
+        return icon_path.with_suffix(ext)
+
+    def get_elf_binary(self, which):
+        directory = get_item_path("love_directory")
+
+        if "3DS" in which:
+            directory /= "3ds"
+        else:
+            directory /= "switch"
+
+        return directory.with_suffix(".elf")
+
+    def build_love_game(self):
+        ARTIFACT = self.build_directory / self.source_directory
+
+        shutil.make_archive(self.name, 'zip', ARTIFACT)
+        shutil.move(f"{self.name}.zip", f"{self.name}.love")
 
     def build_meta(self):
         """

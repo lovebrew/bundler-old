@@ -1,15 +1,13 @@
+from pathlib import Path
+
 import toml
 
-from .constants import BUILD_FILE_CWD_PATH, LOGGER, TOP_DIR
+from .constants import (BUILD_FILE_CWD_PATH, DEFAULT_CONFIG_PATH,
+                        DEFAULT_PATHS, LOGGER, TOP_DIR)
 
-DEFAULT_CONFIG = {
-    "author": "SuperAuthor",
-    "description": "SuperDescription",
-    "name": "SuperGame",
-    "targets": ["3ds", "switch"],
-    "version": "0.0.0",
-    "zip_artifacts": True
-}
+DEFAULT_CONFIG = None
+with open(DEFAULT_CONFIG_PATH, "r") as file:
+    DEFAULT_CONFIG = toml.loads(file.read())
 
 
 def key_exists(key, exists):
@@ -30,12 +28,37 @@ def key_exists(key, exists):
     return exists
 
 
+def get_section_item(name, item=None):
+    if name in DEFAULT_CONFIG:
+        if not item:
+            return DEFAULT_CONFIG[name]
+        else:
+            if item in DEFAULT_CONFIG[name]:
+                return DEFAULT_CONFIG[name][item]
+
+    return None
+
+
+def get_item_path(item):
+    """
+        Checks for the CONFIG item first.\n
+        If not found, use the DEFAULT
+    """
+    build_item = DEFAULT_CONFIG["build"][item]
+    if type(build_item) is str and build_item:
+        local_path = TOP_DIR / build_item
+
+        return local_path
+
+    return DEFAULT_PATHS[item]
+
+
 def update_config(user_config):
     DEFAULT_CONFIG.update(user_config)
 
-    if "name" not in user_config:
+    if "name" not in user_config["meta"]:
         LOGGER.info("No 'name' provided. Using Directory name.")
-        DEFAULT_CONFIG.update({"name": TOP_DIR.stem})
+        DEFAULT_CONFIG.update(user_config["meta"], {"name": TOP_DIR.stem})
 
     return DEFAULT_CONFIG
 

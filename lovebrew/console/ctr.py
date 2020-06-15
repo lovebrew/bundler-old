@@ -3,9 +3,8 @@ import re
 import shutil
 import subprocess
 from pathlib import Path
-from zipfile import ZipFile
 
-from ..data.constants import LOGGER, LOVEPOTION_3DS
+from ..data.constants import LOGGER, TOP_DIR
 from .console import Console
 
 
@@ -20,10 +19,11 @@ class CTR(Console):
     TEX3DS_CMD = "tex3ds '{}' --format=rgba8888 -z auto -o '{}.t3x'"
     MKBCFNT_CMD = "mkbcfnt '{}' -o {}.bcfnt"
     SMDH_CMD = 'smdhtool --create "{}" "{}" "{}" "{}" "{}.smdh"'
-    TDSXTOOL_CMD = "3dsxtool {} {name}.3dsx --smdh={name}.smdh --romfs=build"
+    TDSXTOOL_CMD = "3dsxtool '{}' '{name}.3dsx' --smdh='{name}.smdh' --romfs='{romfs}'"
 
-    def __init__(self, config, is_fused):
-        super().__init__(config, is_fused)
+    def __init__(self, config):
+        super().__init__(config)
+        self.elf_binary_path = self.get_elf_binary(CTR.name())
 
     def _copy_file(self, path):
         """
@@ -48,9 +48,9 @@ class CTR(Console):
             out = re.findall("game/(.+)", str(path.parent))
 
             if len(out) > 0:
-                out_path = super().BUILD_DIR / out[0]
+                out_path = self.build_directory / out[0]
             else:
-                out_path = super().BUILD_DIR
+                out_path = self.build_directory
 
             # make the directories for the item
             out_path.mkdir(parents=True, exist_ok=True)
@@ -90,22 +90,13 @@ class CTR(Console):
             subprocess.run(fmt_cmd, shell=True)
 
     def clean(self):
-        EXTENSIONS = [".3dsx", ".smdh"]
+        EXTENSIONS = [".3dsx", ".smdh", ".love", ".zip"]
 
-        for item in Console.TOP_DIR.iterdir():
+        for item in TOP_DIR.iterdir():
             if item.suffix in EXTENSIONS:
                 item.unlink()
 
         super().clean()
-
-    def zip_artifacts(self):
-        ARTIFACT = f"{self.name}.3dsx"
-
-        if not self.is_fused:
-            ARTIFACT = super().SRC_DIR
-
-        with ZipFile(f"{self.name}.zip", "w") as zfile:
-            zfile.write(ARTIFACT)
 
     def build_meta(self):
         LOGGER.info("Building smdh meta file")
@@ -114,32 +105,31 @@ class CTR(Console):
 
         fmt_cmd = CTR.SMDH_CMD.format(self.name, self.description,
                                       self.author, icon_path,
-                                      super().TOP_DIR / self.name)
+                                      TOP_DIR / self.name)
 
         try:
-            subprocess.run(fmt_cmd, shell=True,
-                           check=True)
+            subprocess.run(fmt_cmd, shell=True, check=True)
         except subprocess.CalledProcessError as error:
             raise Exception(error)
 
         LOGGER.info("Building 3dsx executable file")
 
-        fmt_cmd = CTR.TDSXTOOL_CMD.format(LOVEPOTION_3DS,
-                                          name=super().TOP_DIR / self.name)
+        fmt_cmd = CTR.TDSXTOOL_CMD.format(self.elf_binary_path,
+                                          romfs=self.build_directory / self.source_directory.name,
+                                          name=TOP_DIR / self.name)
 
         try:
-            subprocess.run(fmt_cmd, shell=True,
-                           check=True, capture_output=True)
+            subprocess.run(fmt_cmd, shell=True, check=True, capture_output=True)
         except subprocess.CalledProcessError as error:
             raise Exception(error)
 
     def build(self):
         LOGGER.info("Building for Nintendo 3DS..")
 
-        if not LOVEPOTION_3DS.exists():
-            raise FileNotFoundError(f"Missing {LOVEPOTION_3DS}?")
+        if not self.elf_binary_path.exists():
+            raise FileNotFoundError(f"Missing {self.elf_binary_path}?")
 
-        for item in super().SRC_DIR.glob("**/*"):
+        for item in self.source_directory.glob("**/*"):
             if item.suffix in CTR.VALID_TEXTURE_EXTS:
                 self._convert_texture(item)
             elif item.suffix in CTR.VALID_FONT_EXTS:
@@ -147,10 +137,10 @@ class CTR(Console):
             elif item.suffix in CTR.VALID_SRC_EXTS:
                 self._copy_file(item)
 
-        if not self.is_fused:
-            return
-
         self.build_meta()
+
+    def __str__(self):
+        return CTR.name()
 
     @staticmethod
     def name():

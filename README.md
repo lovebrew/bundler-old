@@ -1,7 +1,7 @@
 # Installation
 To get the latest version from Github, just run
 ```
-sudo pip3 install -U git+git://github.com/TurtleP/lovebrew.git
+sudo pip3 install -U git + git://github.com/TurtleP/lovebrew.git
 ```
 and you should be able to run `lovebrew -h`!
 # Usage
@@ -15,13 +15,15 @@ By default, 3DS games will only compile as "raw". This means they only output th
 Switch games will compile normally; they build into the proper homebrew binary format.
 
 ## Options
-| Command | Help |
-|:--------|:-----|
-| -h --help | Show help | 
-| -v --verbose | Show logging output |
-| -f --fused FUSED | Create a fused game. Pass 'lpx' to only create the romfs (Switch Only) | 
-| --version | show program's version number and exit |
-| -c --clean | Clean the directory |
+```
+usage: lovebrew [-h] [-v] [--version] [-c] [-i]
 
-## Configuring Builds
-See [the template file](lovebrew.toml)
+Löve Potion Game Helper
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -v, --verbose  Show logging output.
+  --version      show program's version number and exit
+  -c, --clean    Clean the directory
+  -i, --init     Initialize a lovebrew config in the current directory
+```

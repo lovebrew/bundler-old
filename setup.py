@@ -9,6 +9,6 @@ setup(
     description='Löve Potion Game Helper',
     install_requires=["toml>=0.10"],
     packages=find_packages(),
-    package_data={"lovebrew": ["data/icons/*"]},
+    package_data={"lovebrew": ["data/meta/*"]},
     entry_points={'console_scripts': ['lovebrew=lovebrew.__main__:main']}
 )

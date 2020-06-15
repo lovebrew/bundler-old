@@ -1,18 +1,25 @@
-from pathlib import Path
 import logging
+from pathlib import Path
 
 # PATHS & STUFF #
 
-BINARIES_DIR = ".lovepotion"
+HOME_DIR = Path().home()
+BINARIES_DIR = HOME_DIR / ".lovepotion"
 TOP_DIR = Path().cwd()
 
-LOVEPOTION_3DS = Path().home() / BINARIES_DIR / "3ds.elf"
-LOVEPOTION_SWITCH = Path().home() / BINARIES_DIR / "switch.elf"
+DEFAULT_CONFIG_PATH = Path(__file__).parent / "meta/lovebrew.toml"
 
-DEFAULT_ICON_PATH = Path(__file__).parent / "icons/icon"
+# DEFAULT ITEM PATHS #
+
+DEFAULT_PATHS = {
+    "icon_file":        Path(__file__).parent / "meta/icon",
+    "source_directory": TOP_DIR / "game",
+    "build_directory":  TOP_DIR / "build",
+    "love_directory":   BINARIES_DIR
+}
 
 BUILD_FILE_NAME = "lovebrew.toml"
-BUILD_FILE_CWD_PATH = Path().cwd() / BUILD_FILE_NAME
+BUILD_FILE_CWD_PATH = TOP_DIR / BUILD_FILE_NAME
 
 # LOGGER STUFF #
 
@@ -28,5 +35,6 @@ _formatter = logging.Formatter(BUILD_LOG_FORMAT, "%Y-%m-%d %H:%M:%S")
 _handler = logging.StreamHandler()
 _handler.setLevel(logging.INFO)
 _handler.setFormatter(_formatter)
+LOGGER.setLevel(logging.INFO)
 
 LOGGER.addHandler(_handler)
