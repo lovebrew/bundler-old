@@ -45,12 +45,12 @@ class CTR(Console):
 
         try:
             # we only want the paths after the game directory
-            out = re.findall("game/(.+)", str(path.parent))
+            out = re.findall(f"{self.source_directory.name}/(.+)", str(path.parent))
 
             if len(out) > 0:
-                out_path = self.build_directory / out[0]
+                out_path = self.build_directory / self.source_directory.name / out[0]
             else:
-                out_path = self.build_directory
+                out_path = self.build_directory / self.source_directory.name
 
             # make the directories for the item
             out_path.mkdir(parents=True, exist_ok=True)
@@ -106,7 +106,7 @@ class CTR(Console):
         LOGGER.info("Building 3dsx executable file")
 
         fmt_cmd = CTR.TDSXTOOL_CMD.format(self.elf_binary_path,
-                                          romfs=self.build_directory / self.source_directory.name,
+                                          romfs=self.build_directory,
                                           name=self.output_directory / self.name)
 
         try:

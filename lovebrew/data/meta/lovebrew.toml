@@ -10,7 +10,7 @@ description = "SuperDescription"
 version     = "0.1.0"
 
 # Build options
-# [string]       @icon_file        : Icon to use. Do not provide the extension.
+# [false/string]       @icon_file        : Icon to use. Do not provide the extension.
 #                                    lovebrew will automatically provide this.
 #                                    It can include a prepended path. This is relative
 #                                    to the config file.
@@ -27,7 +27,7 @@ version     = "0.1.0"
 # [array]        @targts           : Target console(s) to build for, default: ["3ds", "switch"]
 # [bool]         @output_to_build  : When set to true, will output artifacts to the @build_directory
 [build]
-icon_file        = "icon"
+icon_file        = false
 source_directory = "game"
 build_directory  = false
 love_directory   = false

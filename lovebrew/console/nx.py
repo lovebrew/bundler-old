@@ -36,7 +36,8 @@ class NX(Console):
             raise Exception(error)
 
         fmt_cmd = NX.ELF2NRO_CMD.format(self.elf_binary_path, icon_path,
-                                        romfs=self.source_directory.name, name=self.output_directory / self.name)
+                                        romfs=self.source_directory.name,
+                                        name=self.output_directory / self.name)
 
         try:
             subprocess.run(fmt_cmd, shell=True,
