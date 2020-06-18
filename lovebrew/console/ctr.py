@@ -45,10 +45,11 @@ class CTR(Console):
 
         try:
             # we only want the paths after the game directory
-            out = re.findall(f"{self.source_directory.name}/(.+)", str(path.parent))
+            out = re.findall(f"{self.source_directory.name}/.+", str(path.parent))
 
+            print(out, self.source_directory.name, path.parent)
             if len(out) > 0:
-                out_path = self.build_directory / self.source_directory.name / out[0]
+                out_path = self.build_directory / out[0]
             else:
                 out_path = self.build_directory / self.source_directory.name
 
