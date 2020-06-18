@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 with open('README.md', 'r', encoding='utf-8') as f:
     readme = f.read()
 
-with open('ninfs/__init__.py', 'r', encoding='utf-8') as f:
+with open('lovebrew/__init__.py', 'r', encoding='utf-8') as f:
     for line in f:
         if line.startswith('__version__'):
             version = eval(line.split('=')[1])
