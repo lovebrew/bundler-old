@@ -10,7 +10,7 @@ class NX(Console):
 
     ENV_PATH = Path(os.getenv("DEVKITPRO"))
 
-    NACP_CMD = "nacptool --create {name} {} {} {name}.nacp"
+    NACP_CMD = 'nacptool --create "{}" "{}" "{}" {name}.nacp'
     ELF2NRO_CMD = "elf2nro {} {name}.nro --icon={} --nacp={name}.nacp --romfsdir={romfs}"
 
     def __init__(self, config):
@@ -25,7 +25,7 @@ class NX(Console):
 
         icon_path = self.get_icon(True)
 
-        fmt_cmd = NX.NACP_CMD.format(
+        fmt_cmd = NX.NACP_CMD.format(self.name,
             self.author, self.version, name=self.output_directory / self.name)
 
         try:
@@ -34,7 +34,7 @@ class NX(Console):
         except subprocess.CalledProcessError as error:
             raise Exception(error)
 
-        fmt_cmd = NX.ELF2NRO_CMD.format(self.elf_binary_path, icon_path,
+        fmt_cmd = NX.ELF2NRO_CMD.format(self.elf_binary_path, icon_path.as_posix(),
                                         romfs=self.source_directory.name,
                                         name=self.output_directory / self.name)
 

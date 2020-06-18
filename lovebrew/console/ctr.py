@@ -18,7 +18,7 @@ class CTR(Console):
 
     TEX3DS_CMD = "tex3ds {} --format=rgba8888 -z auto -o {}.t3x"
     MKBCFNT_CMD = "mkbcfnt {} -o {}.bcfnt"
-    SMDH_CMD = "smdhtool --create {} {} {} {} {}.smdh"
+    SMDH_CMD = 'smdhtool --create "{}" "{}" "{}" {} {}.smdh'
     TDSXTOOL_CMD = "3dsxtool {} {name}.3dsx --smdh={name}.smdh --romfs={romfs}"
 
     def __init__(self, config):
@@ -95,7 +95,7 @@ class CTR(Console):
         icon_path = self.get_icon()
 
         fmt_cmd = CTR.SMDH_CMD.format(self.name, self.description,
-                                      self.author, icon_path,
+                                      self.author, icon_path.as_posix(),
                                       self.output_directory / self.name)
 
         try:
