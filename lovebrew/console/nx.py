@@ -10,9 +10,8 @@ class NX(Console):
 
     ENV_PATH = Path(os.getenv("DEVKITPRO"))
 
-    NACP_CMD = 'nacptool --create "{name}" "{}" "{}" {name}.nacp'
-    ELF2NRO_CMD = "elf2nro '{}' '{name}.nro' --icon='{}' --nacp='{name}.nacp' " \
-        "--romfsdir='{romfs}'"
+    NACP_CMD = "nacptool --create {name} {} {} {name}.nacp"
+    ELF2NRO_CMD = "elf2nro {} {name}.nro --icon={} --nacp={name}.nacp --romfsdir={romfs}"
 
     def __init__(self, config):
         super().__init__(config)

@@ -14,12 +14,12 @@ class CTR(Console):
 
     VALID_TEXTURE_EXTS = [".png", ".jpg", ".jpeg"]
     VALID_FONT_EXTS = [".ttf", ".otf"]
-    VALID_SRC_EXTS = [".lua"]
+    VALID_SRC_EXTS = [".lua", ".t3x", ".bcfnt"]
 
-    TEX3DS_CMD = "tex3ds '{}' --format=rgba8888 -z auto -o '{}.t3x'"
-    MKBCFNT_CMD = "mkbcfnt '{}' -o {}.bcfnt"
-    SMDH_CMD = 'smdhtool --create "{}" "{}" "{}" "{}" "{}.smdh"'
-    TDSXTOOL_CMD = "3dsxtool '{}' '{name}.3dsx' --smdh='{name}.smdh' --romfs='{romfs}'"
+    TEX3DS_CMD = "tex3ds {} --format=rgba8888 -z auto -o {}.t3x"
+    MKBCFNT_CMD = "mkbcfnt {} -o {}.bcfnt"
+    SMDH_CMD = "smdhtool --create {} {} {} {} {}.smdh"
+    TDSXTOOL_CMD = "3dsxtool {} {name}.3dsx --smdh={name}.smdh --romfs={romfs}"
 
     def __init__(self, config):
         super().__init__(config)
@@ -106,7 +106,7 @@ class CTR(Console):
         LOGGER.info("Building 3dsx executable file")
 
         fmt_cmd = CTR.TDSXTOOL_CMD.format(self.elf_binary_path,
-                                          romfs=self.build_directory,
+                                          romfs=self.build_directory / self.source_directory.name,
                                           name=self.output_directory / self.name)
 
         try:

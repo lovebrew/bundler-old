@@ -1,10 +1,5 @@
 #!/usr/bin/env python
 
-__author__ = "TurtleP"
-__copyright__ = f"Copyright (c) 2020 {__author__}"
-__license__ = "MIT"
-__version__ = "0.2.7"
-
 import os
 import shutil
 from argparse import ArgumentParser
@@ -17,9 +12,10 @@ from .data.constants import (BUILD_FILE_CWD_PATH, DEFAULT_CONFIG_PATH,
                              DEVKITPRO_ERROR, FIRST_RUN_DIALOG, FIRST_RUN_PATH,
                              LOGGER, set_logging)
 
+from lovebrew import __version__
+
 BUILD_FAILED_STR = "Failed to build for %s (%s)"
 TARGET_CLASSES = {"switch": NX, "3ds": CTR}
-
 
 def has_help_or_version(args):
     result = (hasattr(args, "help") and args.help) or hasattr(
