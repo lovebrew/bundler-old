@@ -7,4 +7,4 @@
 __author__    = 'TurtleP'
 __copyright__ = 'Copyright ⓒ Jeremy Postelnek'
 __license__   = 'MIT'
-__version__   = '0.2.9'
+__version__   = '0.2.10'
