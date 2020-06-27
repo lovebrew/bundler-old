@@ -10,7 +10,7 @@ description = "SuperDescription"
 version     = "0.1.0"
 
 # Build options
-# [false/string]       @icon_file        : Icon to use. Do not provide the extension.
+# [false/string] @icon_file        : Icon to use. Do not provide the extension.
 #                                    lovebrew will automatically provide this.
 #                                    It can include a prepended path. This is relative
 #                                    to the config file.
