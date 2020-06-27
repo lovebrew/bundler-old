@@ -23,7 +23,6 @@ class CTR(Console):
 
     def __init__(self, data):
         super().__init__(data)
-        self.build()
 
     def _get_destination_path(self, filepath, ext):
         """
@@ -64,13 +63,13 @@ class CTR(Console):
                                               author=self.author,
                                               desc=self.description,
                                               icon=self.get_icon(),
-                                              dst=self.output_directory / self.name)
+                                              dst=self.output_directory / self.target_name.name)
 
         self._run_command(command)
 
         command = CTR.COMMANDS["binary"].format(elf=self.get_binary(),
                                                 name=self.name,
-                                                dst=self.output_directory / self.name,
+                                                dst=self.output_directory / self.target_name.name,
                                                 romfs=self.build_directory / self.source_directory.name)
 
         self._run_command(command)

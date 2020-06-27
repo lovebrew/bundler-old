@@ -21,9 +21,9 @@ class Console:
         """
 
         try:
-            subprocess.run(command, shell=True, check=True, capture_output=False)
+            subprocess.run(command, capture_output=True, check=True, shell=True, universal_newlines=True)
         except subprocess.CalledProcessError as error:
-            print(error)
+            raise Exception(error)
 
     def get_icon(self):
         suffix = ".png"

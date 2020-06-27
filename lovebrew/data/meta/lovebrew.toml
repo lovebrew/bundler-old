@@ -26,6 +26,8 @@ version     = "0.1.0"
 #
 # [array]        @targts           : Target console(s) to build for, default: ["3ds", "switch"]
 # [bool]         @output_to_build  : When set to true, will output artifacts to the @build_directory
+# [bool/string]  @target_name      : Target name for the output binary. When false, use the top directory name.
+#                                    Cannot contain spaces.
 [build]
 icon_file        = false
 source_directory = "game"
@@ -33,3 +35,4 @@ build_directory  = false
 love_directory   = false
 targets          = ["3ds", "switch"]
 output_to_build  = false
+target_name      = false

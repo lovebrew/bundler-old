@@ -16,7 +16,8 @@ BASE_CONFIG = PATH / "meta/lovebrew.toml"
 DEFAULT_PATHS = {
     "icon_file": PATH / "meta/icon",
     "love_directory": PATH / Path.home() / ".lovepotion",
-    "build_directory": Path("build")
+    "build_directory": Path("build"),
+    "target_name": Path.cwd()
 }
 
 FIRST_RUN_FILE = DEFAULT_PATHS["love_directory"] / ".first_run"
@@ -76,7 +77,7 @@ def load():
         print("Config not found. Try creating one with --init.")
 
 
-def get():
+def get_data():
     out = {**base["meta"], **base["build"]}
 
     return out
@@ -84,13 +85,18 @@ def get():
 
 def get_targets():
     out = []
+
+    target_consoles = {
+        "3ds": CTR,
+        "switch": HAC
+    }
+
+    meta_data = get_data()
     targets = [x.lower() for x in base["build"]["targets"]]
 
     for item in targets:
-        if item == "3ds":
-            out.append(CTR)
-        else:
-            out.append(HAC)
+        if target_consoles[item]:
+            out.append(target_consoles[item](meta_data))
 
     return out
 

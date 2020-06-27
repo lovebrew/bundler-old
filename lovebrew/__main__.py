@@ -26,10 +26,8 @@ def main(argv=None):
     elif args.clean:
         return config.clean()
 
-    config_info = config.get()
-
     for target in config.get_targets():
         try:
-            target(config_info)
+            target.build()
         except Exception as error:
-            print(f"Failed to build for {target.__name__}: ({error})")
+            print(f"Failed to build for {str(target)}: ({error})")
