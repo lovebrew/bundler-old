@@ -5,7 +5,10 @@ from pathlib import Path
 
 import toml
 
-from lovebrew.data import RUN_DIALOG, DEVKITARM_DIALOG, DEVKITPRO_DIALOG
+from lovebrew.data import DEVKITARM_DIALOG, DEVKITPRO_DIALOG, RUN_DIALOG
+
+from .classes.ctr import CTR
+from .classes.hac import HAC
 
 PATH = Path(__file__).parent
 BASE_CONFIG = PATH / "meta/lovebrew.toml"
@@ -13,7 +16,7 @@ BASE_CONFIG = PATH / "meta/lovebrew.toml"
 DEFAULT_PATHS = {
     "icon_file": PATH / "meta/icon",
     "love_directory": PATH / Path.home() / ".lovepotion",
-    "build_directory": "build"
+    "build_directory": Path("build")
 }
 
 FIRST_RUN_FILE = DEFAULT_PATHS["love_directory"] / ".first_run"
@@ -23,6 +26,7 @@ with open(BASE_CONFIG, "r") as file:
     base = toml.loads(file.read())
 
 TOP_DIR = Path.cwd()
+USER_CONFIG = Path("lovebrew.toml")
 
 
 def run_prompt():
@@ -31,17 +35,17 @@ def run_prompt():
         Otherwise, will error if it cannot find the proper environment variables.
     """
 
-    if not FIRST_RUN_FILE.exists():
+    if FIRST_RUN_FILE.exists():
+        if os.getenv("DEVKITPRO"):
+            if os.getenv("DEVKITARM"):
+                return True
+            else:
+                return print(DEVKITARM_DIALOG)
+        else:
+            return print(DEVKITPRO_DIALOG)
+    else:
         FIRST_RUN_FILE.touch()
         return print(RUN_DIALOG)
-
-    if not os.getenv("DEVKITPRO"):
-        return print(DEVKITPRO_DIALOG)
-
-    if not os.getenv("DEVKITARM"):
-        return print(DEVKITARM_DIALOG)
-
-    return True
 
 
 def load():
@@ -62,11 +66,33 @@ def load():
             # Update build section key/value if it's not false
             for key, value in new_base["build"].items():
                 if value:
-                    base["build"][key] = value
+                    if type(value) is str:
+                        base["build"][key] = Path(value)
+                    else:
+                        base["build"][key] = value
 
             return base
     except FileNotFoundError:
         print("Config not found. Try creating one with --init.")
+
+
+def get():
+    out = {**base["meta"], **base["build"]}
+
+    return out
+
+
+def get_targets():
+    out = []
+    targets = [x.lower() for x in base["build"]["targets"]]
+
+    for item in targets:
+        if item == "3ds":
+            out.append(CTR)
+        else:
+            out.append(HAC)
+
+    return out
 
 
 def init():
@@ -76,7 +102,7 @@ def init():
     """
 
     try:
-        if BASE_CONFIG.exists():
+        if USER_CONFIG.exists():
             return print("Config already exists. Nothing to do.")
 
         shutil.copy2(BASE_CONFIG, TOP_DIR)
@@ -95,9 +121,11 @@ def clean():
 
     try:
         shutil.rmtree(base["build"]["build_directory"])
-    except Exception as e:
-        print(e)
+    except:
+        pass
 
     for item in TOP_DIR.glob("**/*"):
         if item.suffix in search:
             item.unlink()
+
+load()

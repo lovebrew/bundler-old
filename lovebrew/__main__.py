@@ -1,10 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
 from argparse import ArgumentParser
 
 import lovebrew.data.config as config
-from lovebrew import __version__, __description__
+from lovebrew import __description__, __version__
 
 
 def main(argv=None):
@@ -26,9 +26,10 @@ def main(argv=None):
     elif args.clean:
         return config.clean()
 
-    meta = config.load()
-    print(f"Full Meta\n{meta}")
+    config_info = config.get()
 
-
-if __name__ == "__main__":
-    main()
+    for target in config.get_targets():
+        try:
+            target(config_info)
+        except Exception as error:
+            print(f"Failed to build for {target.__name__}: ({error})")
