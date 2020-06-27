@@ -1,8 +1,11 @@
+import os
+import pprint
 import shutil
 from pathlib import Path
 
 import toml
 
+from lovebrew.data import RUN_DIALOG, DEVKITARM_DIALOG, DEVKITPRO_DIALOG
 
 PATH = Path(__file__).parent
 BASE_CONFIG = PATH / "meta/lovebrew.toml"
@@ -13,13 +16,39 @@ DEFAULT_PATHS = {
     "build_directory": "build"
 }
 
+FIRST_RUN_FILE = DEFAULT_PATHS["love_directory"] / ".first_run"
+
 base = None
 with open(BASE_CONFIG, "r") as file:
     base = toml.loads(file.read())
 
 TOP_DIR = Path.cwd()
 
+
+def run_prompt():
+    """
+        Displays the 'First Run Dialog' if this is the first time running.
+        Otherwise, will error if it cannot find the proper environment variables.
+    """
+
+    if not FIRST_RUN_FILE.exists():
+        FIRST_RUN_FILE.touch()
+        return print(RUN_DIALOG)
+
+    if not os.getenv("DEVKITPRO"):
+        return print(DEVKITPRO_DIALOG)
+
+    if not os.getenv("DEVKITARM"):
+        return print(DEVKITARM_DIALOG)
+
+    return True
+
+
 def load():
+    """
+        Loads the user-defined config values.
+    """
+
     try:
         # Update the build section with defaults
         base["build"].update(DEFAULT_PATHS)

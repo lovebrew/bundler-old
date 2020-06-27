@@ -8,6 +8,9 @@ from lovebrew import __version__, __description__
 
 
 def main(argv=None):
+    if not config.run_prompt():
+        return
+
     parser = ArgumentParser("lovebrew", description=__description__)
 
     parser.add_argument("--version", action="store_true")
