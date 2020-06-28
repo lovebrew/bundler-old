@@ -94,8 +94,11 @@ def get_targets():
     meta_data = get_data()
     targets = [x.lower() for x in base["build"]["targets"]]
 
+    if base["pre_hook"]["clean"]:
+        clean()
+
     for item in targets:
-        if target_consoles[item]:
+        if item in target_consoles:
             out.append(target_consoles[item](meta_data))
 
     return out

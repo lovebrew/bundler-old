@@ -9,6 +9,12 @@ author      = "SuperAuthor"
 description = "SuperDescription"
 version     = "0.1.0"
 
+# Pre-Build options
+# [bool] @clean : Clean the build artifacts and directory before a new build.
+#                 This helps reduce chances of cluttering the built data.
+[pre_hook]
+clean = false
+
 # Build options
 # [false/string] @icon_file        : Icon to use. Do not provide the extension.
 #                                    lovebrew will automatically provide this.
