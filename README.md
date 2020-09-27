@@ -3,7 +3,7 @@
 ## GitHub
 To get the latest version from Github, just run
 ```
-sudo pip3 install -U git + git://github.com/TurtleP/lovebrew.git
+sudo pip3 install -U git+git://github.com/TurtleP/lovebrew.git
 ```
 
 ## PyPi
