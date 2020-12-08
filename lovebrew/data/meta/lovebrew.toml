@@ -34,6 +34,7 @@ clean = false
 # [bool]         @output_to_build  : When set to true, will output artifacts to the @build_directory
 # [bool/string]  @target_name      : Target name for the output binary. When false, use the top directory name.
 #                                    Cannot contain spaces.
+# [bool]         @is_raw           : 3DS Only! Outputs the converted build data without packaging it to a 3dsx.
 [build]
 icon_file        = false
 source_directory = "game"
@@ -42,3 +43,4 @@ love_directory   = false
 targets          = ["3ds", "switch"]
 output_to_build  = false
 target_name      = false
+is_raw           = false

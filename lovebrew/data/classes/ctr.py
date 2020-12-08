@@ -67,6 +67,9 @@ class CTR(Console):
 
         self._run_command(command)
 
+        if self.is_raw:
+            return
+
         command = CTR.COMMANDS["binary"].format(elf=self.get_binary(),
                                                 name=self.name,
                                                 dst=self.output_directory / self.target_name.name,
@@ -75,7 +78,8 @@ class CTR(Console):
         self._run_command(command)
 
     def build(self):
-        super().build()
+        if not self.is_raw:
+            super().build()
 
         for file in self.source_directory.rglob("*"):
             if file.suffix in CTR.TEXTURE_EXTENSIONS:
