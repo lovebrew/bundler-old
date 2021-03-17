@@ -23,9 +23,8 @@ jobs:
       - name: Setup Nim environment
         uses: jiro4989/setup-nim-action@v1.1.4
 
-      - run: |
-        nimble install parsetoml cligen
-        nim c source/main.nim
+      - run: nimble install parsetoml cligen
+      - run: nim c source/main.nim
 
   macOS:
     runs-on: macos-latest
@@ -36,9 +35,8 @@ jobs:
       - name: Setup Nim environment
         uses: jiro4989/setup-nim-action@v1.1.4
 
-      - run: |
-        nimble install parsetoml cligen
-        nim c source/main.nim
+      - run: nimble install parsetoml cligen
+      - run: nim c source/main.nim
 
   Linux:
     runs-on: ubuntu-latest
@@ -49,6 +47,5 @@ jobs:
       - name: Setup Nim environment
         uses: jiro4989/setup-nim-action@v1.1.4
 
-      - run: |
-        nimble install parsetoml cligen
-        nim c source/main.nim
+      - run: nimble install parsetoml cligen
+      - run: nim c source/main.nim
