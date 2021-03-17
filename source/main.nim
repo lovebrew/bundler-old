@@ -47,7 +47,7 @@ proc checkDevkitProTools() : bool =
     # Check for environment variable DEVKITPRO
     if not existsEnv("DEVKITPRO"):
         showPrompt("DEVKITPRO")
-        return
+        return false
 
     ## Check for 3DS and Switch requirements
     ##
