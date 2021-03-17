@@ -23,6 +23,13 @@ jobs:
       - name: Setup Nim environment
         uses: jiro4989/setup-nim-action@v1.1.4
 
+      - run: |
+          curl -fO https://curl.se/ca/cacert.pem
+          install cacert.pem ~/.nimble/bin
+          ls ~/.nimble/bin
+        shell: bash
+        if: runner.os == 'Windows'
+
       - name: Install dependencies
         run: nimble install -Y parsetoml cligen
 
