@@ -1,9 +1,19 @@
-import tables
+import tables, strutils, os, strformat
 
 var prompts = initTable[string, string]()
 
 proc showPrompt*(name : string) =
     echo("\n" & prompts[name])
+
+proc findBinary*(name : string) : bool =
+    if findExe(name).isEmptyOrWhitespace():
+        showPrompt(name.toUpper())
+        return false
+    else:
+        echo("\n" & fmt("Binary '{name}' was found, but not in your PATH environment. Please add it."))
+        return false
+
+    return true
 
 prompts["FIRST_RUN"] = """
 This software is not endorsed nor maintained by devkitPro.
