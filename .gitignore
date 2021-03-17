@@ -1,7 +1,0 @@
-*.pyc
-__pycache__
-build
-dist
-*.egg-info
-.vscode/settings.json
-lovebrew/test
