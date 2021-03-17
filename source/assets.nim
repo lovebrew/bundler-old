@@ -1,4 +1,4 @@
-import os, tables, strformat, base64, ospaths
+import tables, base64
 
 var assets = initTable[string, string]()
 

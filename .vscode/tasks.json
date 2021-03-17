@@ -12,7 +12,7 @@
         {
             "label": "Compile",
             "type": "shell",
-            "command": "nim c -o:${workspaceFolder}/lovebrew ${workspaceFolder}/source/main.nim",
+            "command": "nim c -o:${workspaceFolder}/dist/lovebrew ${workspaceFolder}/source/main.nim",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
