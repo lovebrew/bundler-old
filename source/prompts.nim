@@ -1,4 +1,4 @@
-import tables, strutils, os, strformat
+import tables, strutils, os, paths
 
 var prompts = initTable[string, string]()
 
@@ -6,11 +6,15 @@ proc showPrompt*(name : string) =
     echo("\n" & prompts[name])
 
 proc findBinary*(name : string) : bool =
-    if findExe(name).isEmptyOrWhitespace():
+    var path = when defined windows:
+                    getConfigPath("BIN_DIR_WIN")
+               elif defined linux:
+                    getConfigPath("BIN_DIR_LINUX")
+
+    let binaryPath = normalizedPath(path & name)
+
+    if not fileExists(binaryPath):
         showPrompt(name.toUpper())
-        return false
-    else:
-        echo("\n" & fmt("Binary '{name}' was found, but not in your PATH environment. Please add it."))
         return false
 
     return true
@@ -44,4 +48,10 @@ Please install the tex3ds package from devkitpro-pacman.
 prompts["NACPTOOL"] = """
 The binary "nacptool" could not be found.
 Please install the switch-tools package from devkitpro-pacman.
+"""
+
+prompts["BINARY_FOUND_NO_PATH"] = """
+Binary '$1' is not in your PATH environment.
+On macOS and Linux, install the devkit-env package. Windows users need
+to add the path 'C:\devkitPro\tools\bin' to their PATH.
 """

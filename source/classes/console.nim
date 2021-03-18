@@ -5,7 +5,7 @@ import strutils
 type
     Console* = ref object of RootObj
 
-        app_name*: string
+        name*: string
         author*: string
         description*: string
         version*: string
@@ -13,6 +13,9 @@ type
 method run_command(self: Console, command: string) {.base.} =
     ## Runs a specified command
     let output = execCmdEx(command)
+
+method compile*(self: Console) {.base.} =
+    echo ""
 
 method console_name(self: Console) : string {.base.} =
     return "Console"

@@ -1,6 +1,7 @@
 # If the name is not specified
 # it will use the top directory's name
 # Specify this!
+[metadata]
 name = "SuperGame"
 
 # The author of the game
@@ -9,16 +10,17 @@ author = "SuperAuthor"
 # Game description
 description = "SuperDescription"
 
+# Version number
+version = "0.1.0"
+
+[build]
 # Build targets
 # Default is ["3ds", "switch"]
 targets = ["3ds", "switch"]
 
-# Version number
-version = "0.1.0"
-
 # Artifact zipping
 # Zips contents after build for distribution
-# Zipping is true by default. 
+# Zipping is true by default.
 # Does not clean builds by default.
 [artifacts]
 zip = true

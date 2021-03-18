@@ -7,7 +7,9 @@ import cligen
 import parsetoml
 
 import assets, paths, prompts
+
 import classes/hac
+import classes/ctr
 
 let APP_NAME = "LÖVEBrew"
 let APP_DESCRIPTION = "LÖVE Potion Game Distribution Helper"
@@ -24,22 +26,6 @@ proc init() =
 proc clean() =
     ## Clean the set output directory
     quit(0)
-
-proc build() =
-    ## Build the project for the console(s)
-
-    if not CONFIG_FILE.fileExists():
-        showPrompt("CONFIG_NOT_FOUND")
-        return
-
-    let config = parseFile(CONFIG_FILE)
-    echo config
-
-    var console = HAC(app_name: "Test", author: "someone", description: "aaaaaa", version: "0.1.0")
-
-proc version() =
-    ## Show version info and exit
-    echo(fmt("{APP_NAME} {VERSION}"))
 
 proc checkDevkitProTools() : bool =
     ## Check if the proper tools are installed
@@ -58,12 +44,41 @@ proc checkDevkitProTools() : bool =
     ## nacptool and elf2nro are provided by switch-tools
     ## so we only need to check for one of them
 
-    let findBinaries = @["3dstool", "tex3ds", "nacptool"]
+    let find3DSBinaries = @["3dsxtool", "tex3ds"]
+    let findSwitchBinaries = @["nacptool"]
 
-    if findBinaries.anyIt(not it.findBinary):
-        return false
+    return find3DSBinaries.anyIt(it.findBinary) or findSwitchBinaries.anyIt(it.findBinary)
 
-    return true
+proc build() =
+    if not checkDevkitProTools():
+        quit(-1)
+
+    ## Build the project for the console(s)
+    if not CONFIG_FILE.fileExists():
+        showPrompt("CONFIG_NOT_FOUND")
+        return
+
+    let config = parseFile(CONFIG_FILE)
+
+    let targets = config["build"]["targets"].getElems()
+    let meta = config["metadata"]
+
+    template makeConsoleChild(child: type): untyped =
+        child(name: meta.getStr("name"), author: meta.getStr("author"),
+              description: meta.getStr("description"), version: meta.getStr("version"))
+
+    for element in targets:
+        var console =
+          if element.stringVal == "switch":
+            HAC.makeConsoleChild()
+          else:
+            CTR.makeConsoleChild()
+
+        console.compile()
+
+proc version() =
+    ## Show version info and exit
+    echo(fmt("{APP_NAME} {VERSION}"))
 
 if not FIRST_RUN_FILE.fileExists():
     ## Show the first run dialog if necessary
@@ -71,9 +86,6 @@ if not FIRST_RUN_FILE.fileExists():
     FIRST_RUN_FILE.writeFile("")
 
     quit(0)
-
-if not checkDevkitProTools():
-    quit(-1)
 
 dispatchMulti([ init,    cmdName = "init",    "Create a new lovebrew project"    ],
               [ clean,   cmdName = "clean",   "Clean the output directory"       ],
