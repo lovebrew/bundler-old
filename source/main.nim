@@ -3,25 +3,23 @@ import strformat
 import sequtils
 import os
 
-import cligen
-import parsetoml
+import cligen, parsetoml
 
 import assets, paths, prompts
+import config
 
 import classes/hac
 import classes/ctr
 
 let APP_NAME = "LÖVEBrew"
-let APP_DESCRIPTION = "LÖVE Potion Game Distribution Helper"
-let VERSION = "4.0.0"
+let VERSION = "0.4.0"
 
-let CONFIG_FILE = getConfigPath("CONFIG_FILE")
-let FIRST_RUN_FILE = getConfigPath("FIRST_RUN_FILE")
+let FIRST_RUN_FILE = getPath("FIRST_RUN_FILE")
 
 proc init() =
     ## Initialize a new lovebrew.toml file in the current directory
     let fileData = getAsset("lovebrew.toml")
-    CONFIG_FILE.writeFile(fileData)
+    getPath("CONFIG_FILE").writeFile(fileData)
 
 proc clean() =
     ## Clean the set output directory
@@ -53,26 +51,22 @@ proc build() =
     if not checkDevkitProTools():
         quit(-1)
 
-    ## Build the project for the console(s)
-    if not CONFIG_FILE.fileExists():
-        showPrompt("CONFIG_NOT_FOUND")
-        return
+    if not loadConfigFile():
+        quit(-1)
 
-    let config = parseFile(CONFIG_FILE)
+    let targets = config.getBuildValue("targets").getElems()
+    let metadata = config.getMetadata()
 
-    let targets = config["build"]["targets"].getElems()
-    let meta = config["metadata"]
-
-    template makeConsoleChild(child: type): untyped =
-        child(name: meta.getStr("name"), author: meta.getStr("author"),
-              description: meta.getStr("description"), version: meta.getStr("version"))
+    template makeConsoleChild(child : type) : untyped =
+        child(name: metadata.getStr("name"), author: metadata.getStr("author"),
+              description: metadata.getStr("description"), version: metadata.getStr("version"))
 
     for element in targets:
         var console =
-          if element.stringVal == "switch":
-            HAC.makeConsoleChild()
-          else:
-            CTR.makeConsoleChild()
+            if element.getStr() == "switch":
+                HAC.makeConsoleChild()
+            else:
+                CTR.makeConsoleChild()
 
         console.compile()
 

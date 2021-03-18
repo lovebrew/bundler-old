@@ -7,15 +7,17 @@ proc showPrompt*(name : string) =
 
 proc findBinary*(name : string) : bool =
     var path = when defined windows:
-                    getConfigPath("BIN_DIR_WIN")
+                    getPath("BIN_DIR_WIN")
                elif defined linux:
-                    getConfigPath("BIN_DIR_LINUX")
+                    getPath("BIN_DIR_LINUX")
 
     let binaryPath = normalizedPath(path & name)
 
     if not fileExists(binaryPath):
         showPrompt(name.toUpper())
         return false
+    elif findExe(name).isEmptyOrWhitespace():
+        echo("\n" & prompts["BINARY_FOUND_NO_PATH"].format(name))
 
     return true
 

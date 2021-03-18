@@ -2,7 +2,7 @@ import tables, os
 
 var paths = initTable[string, string]()
 
-proc getConfigPath*(name : string) : string =
+proc getPath*(name : string) : string =
     return paths[name]
 
 paths["FIRST_RUN_FILE"] = normalizedPath(getHomeDir() & "/.first_run")

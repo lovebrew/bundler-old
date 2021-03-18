@@ -1,27 +1,40 @@
-# If the name is not specified
-# it will use the top directory's name
-# Specify this!
+## --- Metadata Options --- ##
+
+# [string] @name        : Name of the game, default: name of the directory.
+# [string] @author      : Author of the game.
+# [string] @description : Description of the game.
+# [string] @version     : Version of the game in {major}.{minor}.{revision} format.
 [metadata]
 name = "SuperGame"
-
-# The author of the game
 author = "SuperAuthor"
-
-# Game description
 description = "SuperDescription"
-
-# Version number
 version = "0.1.0"
 
-[build]
-# Build targets
-# Default is ["3ds", "switch"]
-targets = ["3ds", "switch"]
+## --- Build Options --- ##
 
-# Artifact zipping
-# Zips contents after build for distribution
-# Zipping is true by default.
-# Does not clean builds by default.
-[artifacts]
-zip = true
-build_clean = false
+# [bool]   @clean  : Clean the build artifacts and directory before a new build.
+#                    This helps reduce chances of cluttering the built data.
+#                    Default: false.
+#
+# [array]  @targts : Target console(s) to build for. Default: ["3ds", "switch"].
+#
+# [string] @source : Game source directory; relative to the config
+#                    file. Default: "game".
+#
+# [string] @icon   : Icon name. Do not provide the extension.
+#                    lovebrew will automatically provide this.
+#                    It can include a prepended path. This is relative
+#                    to the config file. Default: "icon".
+[build]
+clean = false
+targets = ["3ds", "switch"]
+source = "game"
+icon = "icon"
+
+## --- Output Options --- ##
+
+# [string] @build_directory  : Output directory for compilation; relative to the config
+#                              file. When false, it will use current directory.
+#                              Default: "build".
+[output]
+build = "build"
