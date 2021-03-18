@@ -1,5 +1,5 @@
 import system
-import strformat
+import strformat, strutils
 import sequtils
 import os
 
@@ -17,6 +17,17 @@ let VERSION = "0.4.0"
 let FIRST_RUN_FILE = getPath("FIRST_RUN_FILE")
 
 proc init() =
+    ## Check that lovebrew.toml doesn't already exist
+    if getPath("CONFIG_FILE").fileExists():
+        write(stdout, "Config file already exists. Overwrite? [y/N]: ")
+        let answer = readLine(stdin).toLower()
+
+        if answer.isEmptyOrWhitespace() or answer == "n" or answer != "y":
+            echo("Config file was not overwritten.")
+            return
+        else:
+            echo("Config file was overwritten successfully.")
+
     ## Initialize a new lovebrew.toml file in the current directory
     let fileData = getAsset("lovebrew.toml")
     getPath("CONFIG_FILE").writeFile(fileData)
