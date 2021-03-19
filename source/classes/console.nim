@@ -2,7 +2,7 @@ import osproc
 import strformat
 import strutils
 
-import os
+import ../config
 
 type
     Console* = ref object of RootObj
@@ -12,20 +12,21 @@ type
         description*: string
         version*: string
 
-method run_command(self: Console, command: string) {.base.} =
+method runCommand*(self : Console, command : string) {.base.} =
     ## Runs a specified command
-    let output = execCmdEx(command)
+    discard execCmd(command)
 
-method compile*(self: Console) {.base.} =
+method compile*(self : Console, source : string) {.base, locks: "unknown".} =
     echo ""
 
-method getName(self: Console) : string {.base.} =
+method getName(self : Console) : string {.base.} =
     return "Console"
 
-method get_icon*(self: Console) : string {.base.} =
+method getIcon*(self : Console) : string {.base.} =
     var suffix = "png"
 
     if "Switch" in self.getName():
         suffix = "jpg"
 
-    return fmt("icon.{suffix}")
+    let path = getBuildValue("icon")
+    return fmt("{path}{suffix}")

@@ -25,16 +25,27 @@ version = "0.1.0"
 #                    lovebrew will automatically provide this.
 #                    It can include a prepended path. This is relative
 #                    to the config file. Default: "icon".
+#
+# [string] @elfBinary : Location to search for the elf binaries.
+#                       Default: "" (expands to ~/.config/.lovepotion on build)
 [build]
 clean = false
 targets = ["3ds", "switch"]
-source = "game"
+source = "TurtleInvaders"
 icon = "icon"
+elfBinary = ""
 
 ## --- Output Options --- ##
 
 # [string] @build_directory  : Output directory for compilation; relative to the config
 #                              file. When false, it will use current directory.
 #                              Default: "build".
+#
+# [bool]   @raw              : Whether or not to properly build a 3DS project binary.
+#                              This will not build a 3DS application. See @build.targets.
+#                              When false, outputs as a 3dsx; when true, output only
+#                              as the "raw" game folder used for testing purposes.
+#                              Default: false.
 [output]
 build = "build"
+raw = false

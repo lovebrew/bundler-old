@@ -3,7 +3,7 @@ import strformat, strutils
 import sequtils
 import os
 
-import cligen, parsetoml
+import cligen
 
 import assets, paths, prompts
 import config
@@ -34,7 +34,10 @@ proc init() =
 
 proc clean() =
     ## Clean the set output directory
-    quit(0)
+    try:
+        getOutputValue("build").removeDir()
+    except OSError:
+        echo "Failed to clean the build directory."
 
 proc checkDevkitProTools() : bool =
     ## Check if the proper tools are installed
@@ -72,6 +75,12 @@ proc build() =
         child(name: metadata.getStr("name"), author: metadata.getStr("author"),
               description: metadata.getStr("description"), version: metadata.getStr("version"))
 
+    ## Create the build directory
+    createDir(getOutputValue("build"))
+
+    ## Get the source directory
+    let source = config.getBuildValue("source").getStr()
+
     for element in targets:
         var console =
             if element.getStr() == "switch":
@@ -79,7 +88,7 @@ proc build() =
             else:
                 CTR.makeConsoleChild()
 
-        console.compile()
+        console.compile(source)
 
 proc version() =
     ## Show version info and exit
