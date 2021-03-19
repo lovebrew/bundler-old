@@ -35,7 +35,7 @@ proc init() =
 proc clean() =
     ## Clean the set output directory
     try:
-        getOutputValue("build").removeDir()
+        getOutputValue("build").getStr().removeDir()
     except OSError:
         echo "Failed to clean the build directory."
 
@@ -76,7 +76,7 @@ proc build() =
               description: metadata.getStr("description"), version: metadata.getStr("version"))
 
     ## Create the build directory
-    createDir(getOutputValue("build"))
+    getOutputValue("build").getStr().createDir()
 
     ## Get the source directory
     let source = config.getBuildValue("source").getStr()

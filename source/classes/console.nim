@@ -22,6 +22,10 @@ method compile*(self : Console, source : string) {.base, locks: "unknown".} =
 method getName(self : Console) : string {.base.} =
     return "Console"
 
+method getElfBinary*(self : Console) : string {.base.} =
+    let expected = self.getName().split(" ")[1]
+    return fmt("{elfPath}/{expected}.elf")
+
 method getIcon*(self : Console) : string {.base.} =
     var suffix = "png"
 
@@ -29,4 +33,4 @@ method getIcon*(self : Console) : string {.base.} =
         suffix = "jpg"
 
     let path = getBuildValue("icon")
-    return fmt("{path}{suffix}")
+    return fmt("{path}.{suffix}")

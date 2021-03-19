@@ -27,7 +27,7 @@ type
     CTR* = ref object of Console
 
 method compile(self : CTR, source : string) =
-    let buildDirectory = getOutputValue("build")
+    let buildDirectory = getOutputValue("build").getStr()
 
     for path in walkDirRec(source, relative = true):
         let (dir, name, extension) = splitFile(path)
@@ -48,16 +48,20 @@ method compile(self : CTR, source : string) =
             copyFile(relativePath, fmt("{destination}/{name}{extension}"))
 
     ## Building in "raw" mode
-    if config.getOutputValue("raw").parseBool():
+    if config.getOutputValue("raw").getBool():
         return
 
     ## Create the smdh metadata
-    let metaFile = fmt("{buildDirectory}/{self.name}")
-    self.runCommand(COMMANDS["meta"].format(self.name, self.description, self.author, self.version, self.getIcon(), metaFile))
+    let outputFile = fmt("{buildDirectory}/{self.name}")
+    self.runCommand(COMMANDS["meta"].format(self.name, self.description, self.author, self.getIcon(), outputFile))
+
+    if not self.getElfBinary().fileExists():
+        echo(fmt("ELF Binary at path {elfPath} does not exist! Aborting!"))
+        return
 
     ## Create the 3dsx binary
     let elfBinary = fmt("{config.elfPath}/3DS.elf")
-    self.runCommand(COMMANDS["binary"].format(elfBinary, metaFile, buildDirectory))
+    self.runCommand(COMMANDS["binary"].format(elfBinary, outputFile, buildDirectory))
 
 method getName(self : CTR) : string =
     return "Nintendo 3DS"

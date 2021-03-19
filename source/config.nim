@@ -21,8 +21,8 @@ proc loadConfigFile*() : bool =
 
     configTable = CONFIG_FILE.parseFile()
 
-    if configTable["build"]["elfFile"].getStr().isEmptyOrWhitespace():
-        elfPath = configTable["build"]["elfFile"].getStr()
+    if not configTable["build"]["elfBinary"].getStr().isEmptyOrWhitespace():
+        elfPath = configTable["build"]["elfBinary"].getStr()
 
     return true
 
@@ -37,6 +37,6 @@ proc getBuildValue*(key : string) : TomlValueRef =
     let sectionRef = configTable["build"]
     return sectionRef[key]
 
-proc getOutputValue*(key : string) : string =
+proc getOutputValue*(key : string) : TomlValueRef =
     let sectionRef = configTable["output"]
-    return sectionRef[key].getStr()
+    return sectionRef[key]
