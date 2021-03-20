@@ -46,6 +46,10 @@ elfBinary = ""
 #                              When false, outputs as a 3dsx; when true, output only
 #                              as the "raw" game folder used for testing purposes.
 #                              Default: false.
+#
+# [string] @romFS            : The directory within the build directory to output to.
+#                              This gets appended to the build directory. Default: "game".
 [output]
 build = "build"
 raw = false
+romFS = "game"

@@ -72,8 +72,8 @@ proc build() =
     let metadata = config.getMetadata()
 
     template makeConsoleChild(child : type) : untyped =
-        child(name: metadata.getStr("name"), author: metadata.getStr("author"),
-              description: metadata.getStr("description"), version: metadata.getStr("version"))
+        child(name: metadata["name"].getStr(), author: metadata["author"].getStr(),
+              description: metadata["description"].getStr(), version: metadata["version"].getStr())
 
     ## Create the build directory
     getOutputValue("build").getStr().createDir()

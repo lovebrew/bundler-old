@@ -27,8 +27,14 @@ type
     CTR* = ref object of Console
 
 method compile(self : CTR, source : string) =
-    let buildDirectory = getOutputValue("build").getStr()
+    # Get our important directories
+    let romFSDirectory = self.getRomFSDirectory()
+    let buildDirectory = self.getBuildDirectory()
 
+    # Create the romFS directory
+    createDir(romFSDirectory)
+
+    # Walk through the source directory
     for path in walkDirRec(source, relative = true):
         let (dir, name, extension) = splitFile(path)
 
@@ -36,10 +42,14 @@ method compile(self : CTR, source : string) =
             continue
 
         let relativePath = fmt("{source}/{path}")
-        let destination = fmt("{buildDirectory}/{dir}")
+        let destination = fmt("{romFSDirectory}/{dir}")
 
+        # May or may not be horribly inefficient because it attempt to create all directories
+        # for pretty much every file multiple times, but it shouldn't be *that* bad
         createDir(destination)
 
+        # If the file we're currently looking at has its extension in one of these sets, operate on it
+        # See the COMMANDS table for more information
         if extension in textures:
             self.runCommand(COMMANDS["texture"].format(relativePath, fmt("{destination}/{name}")))
         elif extension in fonts:
@@ -47,21 +57,26 @@ method compile(self : CTR, source : string) =
         elif extension in sources:
             copyFile(relativePath, fmt("{destination}/{name}{extension}"))
 
-    ## Building in "raw" mode
+    # If we're building in "raw" mode, don't create a
+    # smdh or 3dsx
     if config.getOutputValue("raw").getBool():
         return
 
-    ## Create the smdh metadata
+    # Create the smdh metadata
     let outputFile = fmt("{buildDirectory}/{self.name}")
-    self.runCommand(COMMANDS["meta"].format(self.name, self.description, self.author, self.getIcon(), outputFile))
+    let properDescription = fmt("{self.description} • {self.version}")
 
-    if not self.getElfBinary().fileExists():
-        echo(fmt("ELF Binary at path {elfPath} does not exist! Aborting!"))
+    self.runCommand(COMMANDS["meta"].format(self.name, properDescription, self.author, self.getIcon(), outputFile))
+
+    let elfBinaryFull = self.getElfBinary()
+
+    # Ensure the required ELF binary exists. If it doesn't, we should abort and inform the user.
+    if not elfBinaryFull.fileExists():
+        echo(fmt("The ELF Binary ({self.getElfBinaryName()}) at path {self.getElfBinaryPath()} does not exist! Aborting!"))
         return
 
-    ## Create the 3dsx binary
-    let elfBinary = fmt("{config.elfPath}/3DS.elf")
-    self.runCommand(COMMANDS["binary"].format(elfBinary, outputFile, buildDirectory))
+    # Create the 3dsx binary
+    self.runCommand(COMMANDS["binary"].format(elfBinaryFull, outputFile, self.getRomFSDirectory()))
 
 method getName(self : CTR) : string =
     return "Nintendo 3DS"
