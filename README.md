@@ -12,8 +12,13 @@ Usage:
   main {SUBCMD}  [sub-command options & parameters]
 where {SUBCMD} is one of:
   help     print comprehensive or per-cmd help
-  init     Create a new lovebrew project
-  clean    Clean the output directory
-  build    Build the game for the target(s)
+  init     Initializes a new config file
+  build    Build the project for the current targets in the config file
+  clean    Clean the set output directory
   version  Show version info and exit
+
+main {-h|--help} or with no args at all prints this message.
+main --help-syntax gives general cligen syntax help.
+Run "main {help SUBCMD|SUBCMD --help}" to see help for just SUBCMD.
+Run "main help" to get *comprehensive* help.
 ```
