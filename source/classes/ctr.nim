@@ -66,14 +66,14 @@ method compile(self : CTR, source : string) =
     let outputFile = fmt("{buildDirectory}/{self.name}")
     let properDescription = fmt("{self.description} • {self.version}")
 
-    self.runCommand(COMMANDS["meta"].format(self.name, properDescription, self.author, self.getIcon(), outputFile))
-
     let elfBinaryFull = self.getElfBinary()
 
     # Ensure the required ELF binary exists. If it doesn't, we should abort and inform the user.
     if not elfBinaryFull.fileExists():
         echo(fmt("The ELF Binary ({self.getElfBinaryName()}) at path {self.getElfBinaryPath()} does not exist! Aborting!"))
         return
+
+    self.runCommand(COMMANDS["meta"].format(self.name, properDescription, self.author, self.getIcon(), outputFile))
 
     # Create the 3dsx binary
     self.runCommand(COMMANDS["binary"].format(elfBinaryFull, outputFile, self.getRomFSDirectory()))
