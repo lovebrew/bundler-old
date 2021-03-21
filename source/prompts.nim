@@ -5,6 +5,9 @@ var prompts = initTable[string, string]()
 proc showPrompt*(name : string) =
     echo("\n" & prompts[name])
 
+proc showPromptFormatted*(name : string, args : varargs[string]) =
+    echo("\n" & prompts[name].format(args))
+
 proc findBinary*(name : string) : bool =
     var path = when defined windows:
                     getPath("BIN_DIR_WIN")
@@ -56,4 +59,10 @@ prompts["BINARY_FOUND_NO_PATH"] = """
 Binary '$1' is not in your PATH environment.
 On macOS and Linux, install the devkit-env package. Windows users need
 to add the path 'C:\devkitPro\tools\bin' to their PATH.
+"""
+
+prompts["BUILD_FAIL"] = """
+Could not build the project '$1' for $2!
+The ELF binary ($3) at path $4 does not exist!
+Aborting!
 """

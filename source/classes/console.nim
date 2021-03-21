@@ -19,12 +19,7 @@ method runCommand*(self : Console, command : string) {.base.} =
 
     discard execCmd(command)
 
-method compile*(self : Console, source : string) {.base, locks: "unknown".} =
-    ## Compiles a 3DS or Switch project -- see child classes for implementation
-
-    echo ""
-
-method getName(self : Console) : string {.base.} =
+method getName*(self : Console) : string {.base.} =
     ## Returns the console name -- see child classes for implementation
 
     return "Console"
@@ -32,8 +27,7 @@ method getName(self : Console) : string {.base.} =
 method getElfBinaryPath*(self : Console) : string {.base.} =
     ## Returns the full path and name to the expected ELF binary
 
-    let expected = self.getName().split(" ")[1]
-    return fmt("{elfPath}/{expected}.elf")
+    return elfPath
 
 method getElfBinaryName*(self : Console) : string {.base.} =
     ## Returns the name of the expected ELF binary
@@ -60,6 +54,12 @@ method getBuildDirectory*(self : Console) : string {.base.} =
     ## Returns the build directory, relative to the project root
 
     return getOutputValue("build").getStr()
+
+method compile*(self : Console, source : string) {.base, locks: "unknown".} =
+    ## Compiles a 3DS or Switch project -- see child classes for implementation
+
+    # Create the romFS directory
+    createDir(self.getRomFSDirectory())
 
 method getIcon*(self : Console) : string {.base.} =
     ## Returns the relative path to the icon for the project.

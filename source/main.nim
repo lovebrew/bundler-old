@@ -17,7 +17,9 @@ let VERSION = "0.4.0"
 let FIRST_RUN_FILE = getPath("FIRST_RUN_FILE")
 
 proc init() =
-    ## Check that lovebrew.toml doesn't already exist
+    ## Initializes a new config file
+
+    # Check that lovebrew.toml doesn't already exist
     if getPath("CONFIG_FILE").fileExists():
         write(stdout, "Config file already exists. Overwrite? [y/N]: ")
         let answer = readLine(stdin).toLower()
@@ -28,14 +30,19 @@ proc init() =
         else:
             echo("Config file was overwritten successfully.")
 
-    ## Initialize a new lovebrew.toml file in the current directory
+    # Initialize a new lovebrew.toml file in the current directory
     let fileData = getAsset("lovebrew.toml")
     getPath("CONFIG_FILE").writeFile(fileData)
 
 proc clean() =
     ## Clean the set output directory
+
+    if not loadConfigFile():
+        quit(-1)
+
     try:
-        getOutputValue("build").getStr().removeDir()
+        let buildDirectory = getOutputValue("build").getStr()
+        buildDirectory.removeDir()
     except OSError:
         echo "Failed to clean the build directory."
 
@@ -62,6 +69,8 @@ proc checkDevkitProTools() : bool =
     return find3DSBinaries.anyIt(it.findBinary) or findSwitchBinaries.anyIt(it.findBinary)
 
 proc build() =
+    ## Build the project for the current targets in the config file
+
     if not checkDevkitProTools():
         quit(-1)
 
@@ -75,10 +84,7 @@ proc build() =
         child(name: metadata["name"].getStr(), author: metadata["author"].getStr(),
               description: metadata["description"].getStr(), version: metadata["version"].getStr())
 
-    ## Create the build directory
-    getOutputValue("build").getStr().createDir()
-
-    ## Get the source directory
+    # Get the source directory
     let source = config.getBuildValue("source").getStr()
 
     for element in targets:
@@ -101,7 +107,4 @@ if not FIRST_RUN_FILE.fileExists():
 
     quit(0)
 
-dispatchMulti([ init,    cmdName = "init",    "Create a new lovebrew project"    ],
-              [ clean,   cmdName = "clean",   "Clean the output directory"       ],
-              [ build,   cmdName = "build",   "Build the game for the target(s)" ],
-              [ version, cmdName = "version", "Show version info and exit"       ])
+dispatchMulti([init], [build], [clean], [version])

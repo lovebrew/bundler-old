@@ -7,6 +7,7 @@ import strutils
 import strformat
 import os
 
+import ../prompts
 import ../config
 
 ## Command line stuff to run
@@ -31,14 +32,20 @@ method compile(self : CTR, source : string) =
     let romFSDirectory = self.getRomFSDirectory()
     let buildDirectory = self.getBuildDirectory()
 
-    # Create the romFS directory
-    createDir(romFSDirectory)
+    # Ensure the required ELF binary exists. If it doesn't, we should abort and inform the user.
+    # This should only be an issue if compiling non-raw builds
+    let elfBinaryFull = self.getElfBinary()
+
+    if not elfBinaryFull.fileExists() and not config.getOutputValue("raw").getBool():
+        showPromptFormatted("BUILD_FAIL", source, self.getName(), self.getElfBinaryName(), self.getElfBinaryPath())
+        return
 
     # Walk through the source directory
     for path in walkDirRec(source, relative = true):
         let (dir, name, extension) = splitFile(path)
 
         if ignoreList.anyIt(it.find(path) != -1):
+            echo "!"
             continue
 
         let relativePath = fmt("{source}/{path}")
@@ -66,12 +73,6 @@ method compile(self : CTR, source : string) =
     let outputFile = fmt("{buildDirectory}/{self.name}")
     let properDescription = fmt("{self.description} • {self.version}")
 
-    let elfBinaryFull = self.getElfBinary()
-
-    # Ensure the required ELF binary exists. If it doesn't, we should abort and inform the user.
-    if not elfBinaryFull.fileExists():
-        echo(fmt("The ELF Binary ({self.getElfBinaryName()}) at path {self.getElfBinaryPath()} does not exist! Aborting!"))
-        return
 
     self.runCommand(COMMANDS["meta"].format(self.name, properDescription, self.author, self.getIcon(), outputFile))
 
