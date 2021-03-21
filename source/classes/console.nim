@@ -17,7 +17,7 @@ type
 method runCommand*(self : Console, command : string) {.base.} =
     ## Runs a specified command
 
-    discard execCmd(command)
+    discard execCmdEx(command)
 
 method getName*(self : Console) : string {.base.} =
     ## Returns the console name -- see child classes for implementation
