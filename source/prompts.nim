@@ -9,17 +9,7 @@ proc showPromptFormatted*(name : string, args : varargs[string]) =
     echo("\n" & prompts[name].format(args))
 
 proc findBinary*(name : string) : bool =
-    var path = when defined windows:
-                    getPath("BIN_DIR_WIN")
-               elif defined linux:
-                    getPath("BIN_DIR_LINUX")
-
-    let binaryPath = normalizedPath(path & name)
-
-    if not fileExists(binaryPath):
-        showPrompt(name.toUpper())
-        return false
-    elif findExe(name).isEmptyOrWhitespace():
+    if findExe(name).isEmptyOrWhitespace():
         echo("\n" & prompts["BINARY_FOUND_NO_PATH"].format(name))
 
     return true
@@ -40,19 +30,9 @@ prompts["CONFIG_NOT_FOUND"] = """
 Config not found! Try creating one with the init argument.
 """
 
-prompts["3DSXTOOL"] = """
-The binary "3dsxtool" could not be found.
-Please install the 3dstools package from devkitpro-pacman.
-"""
-
-prompts["TEX3DS"] = """
-The binary "tex3ds" could not be found.
-Please install the tex3ds package from devkitpro-pacman.
-"""
-
-prompts["NACPTOOL"] = """
-The binary "nacptool" could not be found.
-Please install the switch-tools package from devkitpro-pacman.
+prompts["SOURCE_NOT_FOUND"] = """
+Could not find the source directory '$1'! Please double check your
+configuration file for misspellings or errors.
 """
 
 prompts["BINARY_FOUND_NO_PATH"] = """

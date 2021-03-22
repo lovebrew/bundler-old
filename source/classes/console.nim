@@ -5,6 +5,7 @@ import os
 
 import ../config
 import ../assets
+import ../prompts
 
 type
     Console* = ref object of RootObj
@@ -57,6 +58,10 @@ method getBuildDirectory*(self : Console) : string {.base.} =
 
 method compile*(self : Console, source : string) {.base, locks: "unknown".} =
     ## Compiles a 3DS or Switch project -- see child classes for implementation
+
+    if not source.dirExists():
+        showPrompt("SOURCE_NOT_FOUND")
+        return
 
     # Create the romFS directory
     createDir(self.getRomFSDirectory())

@@ -44,10 +44,6 @@ method compile(self : CTR, source : string) =
     for path in walkDirRec(source, relative = true):
         let (dir, name, extension) = splitFile(path)
 
-        if ignoreList.anyIt(it.find(path) != -1):
-            echo "!"
-            continue
-
         let relativePath = fmt("{source}/{path}")
         let destination = fmt("{romFSDirectory}/{dir}")
 
