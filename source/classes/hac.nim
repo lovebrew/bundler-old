@@ -28,18 +28,19 @@ method compile(self : HAC, source : string) =
 
     # Ensure the required ELF binary exists. If it doesn't, we should abort and inform the user.
     # This should only be an issue if compiling non-raw builds
-    let elfBinaryFull = self.getElfBinary()
+    let binaryFull = self.getBinary()
 
-    if not elfBinaryFull.fileExists() and not config.getOutputValue("raw").getBool():
-        showPromptFormatted("BUILD_FAIL", source, self.getName(), self.getElfBinaryName(), self.getElfBinaryPath())
+    if not binaryFull.fileExists() and not config.getOutputValue("raw").getBool():
+        showPromptFormatted("BUILD_FAIL", source, self.getName(), self.getBinaryName(), self.getBinaryPath())
         return
 
     # Create the nacp metadata
     let outputFile = fmt("{buildDirectory}/{self.name}")
     # let properDescription = fmt("{self.description} • {self.version}")
 
-
     self.runCommand(COMMANDS["meta"].format(self.name, self.author, self.version, outputFile))
 
     # Create the nro binary
-    self.runCommand(COMMANDS["binary"].format(elfBinaryFull, outputFile, self.getIcon(), romFSDirectory))
+    self.runCommand(COMMANDS["binary"].format(binaryFull, outputFile, self.getIcon(), romFSDirectory))
+
+    echo(fmt("Build successful. Please check {buildDirectory} for your files."))

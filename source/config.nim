@@ -11,7 +11,7 @@ var configTable : TomlValueRef
 var ignoreList* = @[".git", ".vscode"]
 
 let configDir = getConfigDir()
-var elfPath* = normalizedPath(configDir & "/.lovepotion")
+var elfPath* = normalizedPath(configDir & "/.lovebrew")
 
 proc loadConfigFile*() : bool =
     ## Build the project for the console(s)

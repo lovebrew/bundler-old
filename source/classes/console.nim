@@ -10,10 +10,10 @@ import ../prompts
 type
     Console* = ref object of RootObj
 
-        name*: string
-        author*: string
-        description*: string
-        version*: string
+        name*        : string
+        author*      : string
+        description* : string
+        version*     : string
 
 method runCommand*(self : Console, command : string) {.base.} =
     ## Runs a specified command
@@ -25,22 +25,25 @@ method getName*(self : Console) : string {.base.} =
 
     return "Console"
 
-method getElfBinaryPath*(self : Console) : string {.base.} =
+method getBinaryPath*(self : Console) : string {.base.} =
     ## Returns the full path and name to the expected ELF binary
 
     return elfPath
 
-method getElfBinaryName*(self : Console) : string {.base.} =
+method getBinaryName*(self : Console) : string {.base.} =
     ## Returns the name of the expected ELF binary
     ## This would be "3DS.elf" or "Switch.elf"
 
-    let expected = self.getName().split(" ")[1]
-    return fmt("{expected}.elf")
+    var extension = "3dsx"
+    if "Switch" in self.getName():
+        extension = "nro"
 
-method getElfBinary*(self : Console) : string {.base.} =
+    return fmt("LOVEPotion.{extension}")
+
+method getBinary*(self : Console) : string {.base.} =
     ## Returns the full path and name of the ELF binary
 
-    return fmt("{self.getElfBinaryPath()}/{self.getElfBinaryName()}")
+    return fmt("{self.getBinaryPath()}/{self.getBinaryName()}")
 
 method getRomFSDirectory*(self : Console) : string {.base.} =
     ## Returns the relative directory to use as the romFS directory
@@ -56,7 +59,7 @@ method getBuildDirectory*(self : Console) : string {.base.} =
 
     return getOutputValue("build").getStr()
 
-method compile*(self : Console, source : string) {.base, locks: "unknown".} =
+method publish*(self : Console, source : string) {.base, locks: "unknown".} =
     ## Compiles a 3DS or Switch project -- see child classes for implementation
 
     if not source.dirExists():
@@ -70,15 +73,15 @@ method getIcon*(self : Console) : string {.base.} =
     ## Returns the relative path to the icon for the project.
     ## If one isn't found, it uses the default icon.
 
-    var suffix = "png"
+    var extension = "png"
 
     if "Switch" in self.getName():
-        suffix = "jpg"
+        extension = "jpg"
 
     let path = getBuildValue("icon")
-    let filename = fmt("{path}.{suffix}")
+    let filename = fmt("{path}.{extension}")
 
     if not filename.fileExists():
-        writeFile(filename, getAsset(fmt("icon.{suffix}")))
+        writeFile(filename, getAsset(fmt("icon.{extension}")))
 
     return filename

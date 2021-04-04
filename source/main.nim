@@ -50,9 +50,9 @@ proc checkDevkitProTools() : bool =
     ## Check if the proper tools are installed
 
     # Check for environment variable DEVKITPRO
-    if not existsEnv("DEVKITPRO"):
-        showPrompt("DEVKITPRO")
-        return false
+    # if not existsEnv("DEVKITPRO"):
+    #     showPrompt("DEVKITPRO")
+    #     return false
 
     ## Check for 3DS and Switch requirements
     ##
@@ -94,7 +94,7 @@ proc build() =
             else:
                 CTR.makeConsoleChild()
 
-        console.compile(source)
+        console.publish(source)
 
 proc version() =
     ## Show version info and exit
@@ -103,6 +103,8 @@ proc version() =
 if not FIRST_RUN_FILE.fileExists():
     ## Show the first run dialog if necessary
     showPrompt("FIRST_RUN")
+
+    createDir(getConfigDir() & "/.lovebrew")
     FIRST_RUN_FILE.writeFile("")
 
     quit(0)
