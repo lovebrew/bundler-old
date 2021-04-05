@@ -8,6 +8,7 @@ import os
 import bitops
 import lenientops
 import system
+import times
 
 import ../prompts
 import ../config
@@ -15,6 +16,7 @@ import ../config
 import nimtenbrew
 import nimPNG
 import flatty/binny
+import zippy
 
 ## Command line stuff to run
 var COMMANDS : Table[string, string]
@@ -32,6 +34,11 @@ type
 {.push base.}
 
 method convertFiles*(self : CTR, source : string) =
+    write(stdout, "Converting and copying files.. please wait.. ")
+    flushFile(stdout)
+
+    let start = getTime()
+
     # Get our important directories
     let romFSDirectory = self.getRomFSDirectory()
 
@@ -63,6 +70,9 @@ method convertFiles*(self : CTR, source : string) =
         else:
             copyFile(relativePath, fmt("{destination}/{name}{extension}"))
 
+    let delta = (getTime() - start).inSeconds()
+    echo(fmt("done in {delta}s"))
+
 method convertARGBToRGB565(self : CTR, a, r, g, b : var uint8) : uint16 =
     r = (1.0 * r * a / 255.0).uint8
     g = (1.0 * g * a / 255.0).uint8
@@ -78,14 +88,23 @@ method convertARGBToRGB565(self : CTR, a, r, g, b : var uint8) : uint16 =
     return bitor(r, g, b).uint16
 
 method blendColor(self: CTR, a, b, c, d : uint8) : uint8 =
-    var x = 0
-    x = (a + b + c + d).int
+    var x : uint8
 
-    return ((x + 2) div 4).uint8
+    x += a
+    x += b
+    x += c
+    x += d
 
-method createAndSetIcon(self : CTR, outFile : var Ctrbin) {.base.} =
-    let image = nimPNG.loadPNG32(self.getIcon())
-    var bitmap = image.data
+    return (x + 2) div 4
+
+method createAndSetIcon(self : CTR, outFile : var Ctrbin) =
+    write(stdout, "Setting 3dsx icon.. please wait.. ")
+    flushFile(stdout)
+
+    let start = getTime()
+
+    let largeImage = nimPNG.loadPNG32(self.getIcon())
+    var bitmap = largeImage.data
 
     let tileOrder = @[0, 1, 8, 9, 2, 3, 10, 11, 16, 17, 24, 25, 18, 19, 26, 27,
                       4, 5, 12, 13, 6, 7, 14, 15, 20, 21, 28, 29, 22, 23, 30, 31,
@@ -97,7 +116,7 @@ method createAndSetIcon(self : CTR, outFile : var Ctrbin) {.base.} =
 
     # Create the large icon
 
-    iterator countTo(n: int, step: int): int =
+    iterator countTo(n : int, step : int) : int =
         var i = 0
         while i < n:
             yield i
@@ -129,6 +148,9 @@ method createAndSetIcon(self : CTR, outFile : var Ctrbin) {.base.} =
 
     index = 0
 
+    let smallImage = nimPNG.loadPNG32(self.getIcon())
+    bitmap = smallImage.data
+
     for y in countTo(24, 8):
         for x in countTo(24, 8):
             for k in countTo(8 * 8, 1):
@@ -149,31 +171,34 @@ method createAndSetIcon(self : CTR, outFile : var Ctrbin) {.base.} =
                 smallIcon[index] = bswap16(self.convertARGBToRGB565(a, r, g, b))
                 inc index
 
-    outfile.largeIcon = largeIcon
     outfile.smallIcon = smallIcon
+    outfile.largeIcon = largeIcon
+
+    let delta = (getTime() - start).inSeconds()
+    echo(fmt("done in {delta}s"))
 
 {.pop base}
 
 method publish(self : CTR, source : string) =
+    let buildDirectory = self.getBuildDirectory()
+    self.convertFiles(source)
+
     # If we're building in "raw" mode, don't create a 3dsx
     if config.getOutputValue("raw").getBool():
         return
 
-    let buildDirectory = self.getBuildDirectory()
-    self.convertFiles(source)
-
     # Create the smdh metadata
-    let outputFile = fmt("{buildDirectory}/{self.name}.3dsx")
+    let outputFile = fmt("{buildDirectory}/{self.name.strip()}.3dsx")
     let properDescription = fmt("{self.description} • {self.version}")
 
     var outfile = toCTRBin(self.getBinary().readFile())
-    # setTitles(outfile, self.name, properDescription, self.author)
+    setTitles(outfile, self.name, properDescription, self.author)
 
     self.createAndSetIcon(outFile)
 
     writeFile(outputFile, fromCtrbin(outfile))
 
-    echo(fmt("Build successful. Please check {buildDirectory} for your files."))
+    echo(fmt("Build successful. Please check '{buildDirectory}' for your files."))
 
 method getName(self : CTR) : string =
     return "Nintendo 3DS"

@@ -9,11 +9,8 @@ import os
 import ../prompts
 import ../config
 
-## Command line stuff to run
-var COMMANDS : Table[string, string]
-
-COMMANDS["meta"]    = "nacptool --create '$1' '$2' '$3' '$1'.nacp"
-COMMANDS["binary"]  = "elf2nro $1 '$2'.nro --icon=$3 --nacp='$2'.nacp --romfsdir=$4"
+import nimtenbrew
+import FreeImage
 
 type
     HAC* = ref object of Console
@@ -21,26 +18,20 @@ type
 method getName(self : HAC) : string =
     return "Nintendo Switch"
 
-method compile(self : HAC, source : string) =
-    # Get our important directories
-    let romFSDirectory = self.getRomFSDirectory()
+method publish(self : HAC, source : string) =
     let buildDirectory = self.getBuildDirectory()
 
-    # Ensure the required ELF binary exists. If it doesn't, we should abort and inform the user.
-    # This should only be an issue if compiling non-raw builds
-    let binaryFull = self.getBinary()
+    # Create the smdh metadata
+    let outputFile = fmt("{buildDirectory}/{self.name.strip()}.nro")
 
-    if not binaryFull.fileExists() and not config.getOutputValue("raw").getBool():
-        showPromptFormatted("BUILD_FAIL", source, self.getName(), self.getBinaryName(), self.getBinaryPath())
-        return
+    var outFile = toHacBin(self.getBinary().readFile())
 
-    # Create the nacp metadata
-    let outputFile = fmt("{buildDirectory}/{self.name}")
-    # let properDescription = fmt("{self.description} • {self.version}")
+    var nacp = outFile.nacp
+    setTitles(nacp, self.name, self.author)
 
-    self.runCommand(COMMANDS["meta"].format(self.name, self.author, self.version, outputFile))
+    let jpegBuffer = readFile(self.getIcon())
+    outFile.icon = cast[seq[int8]](jpegBuffer)
 
-    # Create the nro binary
-    self.runCommand(COMMANDS["binary"].format(binaryFull, outputFile, self.getIcon(), romFSDirectory))
+    writeFile(outputFile, fromHacbin(outfile))
 
-    echo(fmt("Build successful. Please check {buildDirectory} for your files."))
+    echo(fmt("Build successful. Please check '{buildDirectory}' for your files."))
