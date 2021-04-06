@@ -2,10 +2,13 @@ import osproc
 import strformat
 import strutils
 import os
+import times
 
 import ../config
 import ../assets
 import ../prompts
+
+import zippy/ziparchives
 
 type
     Console* = ref object of RootObj
@@ -18,7 +21,10 @@ type
 method runCommand*(self : Console, command : string) {.base.} =
     ## Runs a specified command
 
-    discard execCmdEx(command)
+    var commandResult = execCmdEx(command)
+
+    if commandResult.exitCode != 0:
+        echo(fmt("\nError Code {commandResult.exitCode}: {commandResult.output}"))
 
 method getName*(self : Console) : string {.base.} =
     ## Returns the console name -- see child classes for implementation
@@ -59,15 +65,69 @@ method getBuildDirectory*(self : Console) : string {.base.} =
 
     return getOutputValue("build").getStr()
 
-method publish*(self : Console, source : string) {.base, locks: "unknown".} =
+method getOutputName(self : Console) : string =
+    ## Returns the filename (with extension)
+
+    var extension = "3dsx"
+    if "Switch" in self.getName():
+        extension = "nro"
+
+    return fmt("{self.name}.{extension}")
+
+method getOutputPath*(self : Console) : string {.base.} =
+    ## Returns the output filename relative to the build directory
+
+    return fmt("{self.getBuildDirectory()}/{self.getOutputName()}")
+
+method packGameDirectory*(self: Console, binaryData : string, source : string) : bool {.base.} =
+    ## Pack the game directory into the binary data
+
+    write(stdout, "Packing game content.. please wait.. ")
+    flushFile(stdout)
+
+    let start = getTime()
+
+    let romFS = fmt("{self.getRomFSDirectory()}.love")
+    let sourceDirectory = fmt("{source}/")
+
+    var extension = "3dsx"
+    if "Switch" in self.getName():
+        extension = "nro"
+
+    let binaryPath = fmt("{self.getBuildDirectory()}/{self.getBinaryName()}")
+
+    try:
+        writeFile(binaryPath, binaryData)
+        createZipArchive(sourceDirectory,  romFS)
+
+        # Run the command to append the zip data to the binary
+        var command = fmt("$1 '{binaryPath}' $2 '{romFS}' $3 '{self.getOutputPath()}'")
+
+        when defined(Windows):
+            self.runCommand(command.format("copy /b", "+", ""))
+        when defined(MacOS) or defined(MacOSX) or defined(Linux):
+            self.runCommand(command.format("cat", "", ">"))
+
+        removeFile(romFS)
+        removeFile(binaryPath)
+    except Exception:
+        return false
+
+    let delta = (getTime() - start).inSeconds()
+    echo(fmt("done in {delta}s"))
+
+    return true
+
+method publish*(self : Console, source : string) : bool {.base, locks: "unknown".} =
     ## Compiles a 3DS or Switch project -- see child classes for implementation
 
     if not source.dirExists():
         showPrompt("SOURCE_NOT_FOUND")
-        return
+        return false
 
     # Create the romFS directory
     createDir(self.getRomFSDirectory())
+    return true
 
 method getIcon*(self : Console) : string {.base.} =
     ## Returns the relative path to the icon for the project.

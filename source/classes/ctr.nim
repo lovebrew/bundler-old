@@ -16,7 +16,6 @@ import ../config
 import nimtenbrew
 import nimPNG
 import flatty/binny
-import zippy
 
 ## Command line stuff to run
 var COMMANDS : Table[string, string]
@@ -179,26 +178,22 @@ method createAndSetIcon(self : CTR, outFile : var Ctrbin) =
 
 {.pop base}
 
-method publish(self : CTR, source : string) =
-    let buildDirectory = self.getBuildDirectory()
+method publish(self : CTR, source : string) : bool =
     self.convertFiles(source)
 
     # If we're building in "raw" mode, don't create a 3dsx
     if config.getOutputValue("raw").getBool():
         return
 
-    # Create the smdh metadata
-    let outputFile = fmt("{buildDirectory}/{self.name.strip()}.3dsx")
     let properDescription = fmt("{self.description} • {self.version}")
 
-    var outfile = toCTRBin(self.getBinary().readFile())
+    var outFile = toCTRBin(self.getBinary().readFile())
     setTitles(outfile, self.name, properDescription, self.author)
 
     self.createAndSetIcon(outFile)
 
-    writeFile(outputFile, fromCtrbin(outfile))
-
-    echo(fmt("Build successful. Please check '{buildDirectory}' for your files."))
+    let outputBinary = fromCtrbin(outfile)
+    return self.packGameDirectory(outputBinary, self.getRomFSDirectory())
 
 method getName(self : CTR) : string =
     return "Nintendo 3DS"

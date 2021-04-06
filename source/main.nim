@@ -94,7 +94,10 @@ proc build() =
             else:
                 CTR.makeConsoleChild()
 
-        console.publish(source)
+        if console.publish(source):
+            echo(fmt("Build for {console.getName()} was successful. Please check '{console.getBuildDirectory()}' for your files."))
+        else:
+            echo(fmt("Build for {console.getName()} failed."))
 
 proc version() =
     ## Show version info and exit
