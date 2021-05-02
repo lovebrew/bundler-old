@@ -1,4 +1,4 @@
-import tables, strutils, os, paths
+import tables, strutils, os
 
 var prompts = initTable[string, string]()
 

@@ -3,24 +3,26 @@ export console
 
 import tables
 
-import nimtenbrew
+import strformat
+import strutils
+
+let meta_cmd = "nacptool --create '$1' '$2' $3 $4.nacp"
+let bin_cmd  = "elf2nro $1 $2.nro --icon=$3 --nacp=$2.nacp"
 
 type
     HAC* = ref object of Console
 
+method publish(self : HAC, source : string) : bool =
+    let binaryPath = fmt("{self.getBuildDirectory()}/{self.name}")
+
+    # Create metadata
+    self.runCommand(meta_cmd.format(self.name, self.author, self.version, binaryPath))
+
+    # Create binary
+    self.runCommand(bin_cmd.format(self.getBinary(), self.name, self.getIcon()))
+
+    let binaryData = readFile(self.getOutputPath())
+    return self.packGameDirectory(binaryData, source)
+
 method getName(self : HAC) : string =
     return "Nintendo Switch"
-
-method publish(self : HAC, source : string) : bool =
-    var outFile = toHacBin(self.getBinary().readFile())
-
-    var nacp = outFile.nacp
-    setTitles(nacp, self.name, self.author)
-
-    write(stdout, "Setting nro icon... ")
-    let jpegBuffer = readFile(self.getIcon())
-    outFile.icon = cast[seq[int8]](jpegBuffer)
-    echo("Done!")
-
-    let outputBinary = fromHacbin(outfile)
-    return self.packGameDirectory(outputBinary, source)

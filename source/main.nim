@@ -50,9 +50,9 @@ proc checkDevkitProTools() : bool =
     ## Check if the proper tools are installed
 
     # Check for environment variable DEVKITPRO
-    # if not existsEnv("DEVKITPRO"):
-    #     showPrompt("DEVKITPRO")
-    #     return false
+    if not existsEnv("DEVKITPRO"):
+        showPrompt("DEVKITPRO")
+        return false
 
     ## Check for 3DS and Switch requirements
     ##
@@ -86,13 +86,22 @@ proc build() =
 
     # Get the source directory
     let source = config.getBuildValue("source").getStr()
+    if source.isEmptyOrWhitespace():
+        echo("Cannot compile. Source directory is empty in lovebrew.toml!")
+        return
+
+    if len(targets) == 0:
+        echo("Cannot compile. Targets not specified in lovebrew.toml!")
+        return
 
     for element in targets:
         var console =
             if element.getStr() == "switch":
                 HAC.makeConsoleChild()
-            else:
+            elif element.getStr() == "3ds":
                 CTR.makeConsoleChild()
+            else:
+                continue
 
         if console.publish(source):
             echo(fmt("Build for {console.getName()} was successful. Please check '{console.getBuildDirectory()}' for your files."))

@@ -18,7 +18,9 @@ type
         description* : string
         version*     : string
 
-method runCommand*(self : Console, command : string) {.base.} =
+{.push base.}
+
+method runCommand*(self : Console, command : string) =
     ## Runs a specified command
 
     var commandResult = execCmdEx(command)
@@ -26,32 +28,32 @@ method runCommand*(self : Console, command : string) {.base.} =
     if commandResult.exitCode != 0:
         echo(fmt("\nError Code {commandResult.exitCode}: {commandResult.output}"))
 
-method getName*(self : Console) : string {.base.} =
+method getName*(self : Console) : string =
     ## Returns the console name -- see child classes for implementation
 
     return "Console"
 
-method getBinaryPath*(self : Console) : string {.base.} =
+method getBinaryPath*(self : Console) : string =
     ## Returns the full path and name to the expected ELF binary
 
     return elfPath
 
-method getBinaryName*(self : Console) : string {.base.} =
+method getBinaryName*(self : Console) : string =
     ## Returns the name of the expected ELF binary
     ## This would be "3DS.elf" or "Switch.elf"
 
-    var extension = "3dsx"
+    var name = "3DS"
     if "Switch" in self.getName():
-        extension = "nro"
+        name = "Switch"
 
-    return fmt("LOVEPotion.{extension}")
+    return fmt("{name}.elf")
 
-method getBinary*(self : Console) : string {.base.} =
+method getBinary*(self : Console) : string =
     ## Returns the full path and name of the ELF binary
 
     return fmt("{self.getBinaryPath()}/{self.getBinaryName()}")
 
-method getRomFSDirectory*(self : Console) : string {.base.} =
+method getRomFSDirectory*(self : Console) : string =
     ## Returns the relative directory to use as the romFS directory
     ## It gets appended to the build directory
 
@@ -60,7 +62,7 @@ method getRomFSDirectory*(self : Console) : string {.base.} =
 
     return fmt("{buildDirectory}/{romfsDirectory}")
 
-method getBuildDirectory*(self : Console) : string {.base.} =
+method getBuildDirectory*(self : Console) : string =
     ## Returns the build directory, relative to the project root
 
     return getOutputValue("build").getStr()
@@ -74,12 +76,12 @@ method getOutputName(self : Console) : string =
 
     return fmt("{self.name}.{extension}")
 
-method getOutputPath*(self : Console) : string {.base.} =
+method getOutputPath*(self : Console) : string =
     ## Returns the output filename relative to the build directory
 
     return fmt("{self.getBuildDirectory()}/{self.getOutputName()}")
 
-method packGameDirectory*(self: Console, binaryData : string, source : string) : bool {.base.} =
+method packGameDirectory*(self: Console, binaryData : string, source : string) : bool =
     ## Pack the game directory into the binary data
 
     write(stdout, "Packing game content.. please wait.. ")
@@ -89,10 +91,6 @@ method packGameDirectory*(self: Console, binaryData : string, source : string) :
 
     let romFS = fmt("{self.getRomFSDirectory()}.love")
     let sourceDirectory = fmt("{source}/")
-
-    var extension = "3dsx"
-    if "Switch" in self.getName():
-        extension = "nro"
 
     let binaryPath = fmt("{self.getBuildDirectory()}/{self.getBinaryName()}")
 
@@ -118,7 +116,7 @@ method packGameDirectory*(self: Console, binaryData : string, source : string) :
 
     return true
 
-method publish*(self : Console, source : string) : bool {.base, locks: "unknown".} =
+method publish*(self : Console, source : string) : bool =
     ## Compiles a 3DS or Switch project -- see child classes for implementation
 
     if not source.dirExists():
@@ -129,7 +127,7 @@ method publish*(self : Console, source : string) : bool {.base, locks: "unknown"
     createDir(self.getRomFSDirectory())
     return true
 
-method getIcon*(self : Console) : string {.base.} =
+method getIcon*(self : Console) : string =
     ## Returns the relative path to the icon for the project.
     ## If one isn't found, it uses the default icon.
 
@@ -145,3 +143,5 @@ method getIcon*(self : Console) : string {.base.} =
         writeFile(filename, getAsset(fmt("icon.{extension}")))
 
     return filename
+
+{.pop base}
