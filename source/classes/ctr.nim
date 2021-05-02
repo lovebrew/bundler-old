@@ -12,7 +12,7 @@ import ../prompts
 import ../config
 
 ## Command line stuff to run
-let tex_cmd = "tex3ds $1 --format=rgba8888 -z auto -o $2.t3x"
+let tex_cmd = "tex3ds $1 --format=rgba8888 -z auto --border -o $2.t3x"
 let fnt_cmd = "mkbcfnt $1 -o $2.bcfnt"
 
 let meta_cmd = "smdhtool --create '$1' '$2' '$3' '$4' '$5.smdh'"

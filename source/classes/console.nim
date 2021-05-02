@@ -95,7 +95,6 @@ method packGameDirectory*(self: Console, binaryData : string, source : string) :
     let binaryPath = fmt("{self.getBuildDirectory()}/{self.getBinaryName()}")
 
     try:
-        writeFile(binaryPath, binaryData)
         createZipArchive(sourceDirectory,  romFS)
 
         # Run the command to append the zip data to the binary
@@ -107,7 +106,6 @@ method packGameDirectory*(self: Console, binaryData : string, source : string) :
             self.runCommand(command.format("cat", "", ">"))
 
         removeFile(romFS)
-        removeFile(binaryPath)
     except Exception:
         return false
 
