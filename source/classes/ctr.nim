@@ -74,10 +74,10 @@ method publish(self : CTR, source : string) : bool =
 
     # If we're building in "raw" mode, don't create a 3dsx
     if config.getOutputValue("raw").getBool():
-        return
+        return true
 
     let properDescription = fmt("{self.description} • {self.version}")
-    let binaryPath = fmt("{self.getBuildDirectory()}/{self.name}")
+    let binaryPath = fmt("{self.getBuildDirectory()}/SuperGame")
 
     # Meta Command
     self.runCommand(meta_cmd.format(self.name, properDescription, self.author, self.getIcon(), binaryPath))
@@ -85,11 +85,7 @@ method publish(self : CTR, source : string) : bool =
     # Binary Command
     self.runCommand(bin_cmd.format(self.getBinary(), binaryPath))
 
-    if not self.getOutputPath().fileExists():
-        return false
-
-    let binaryData = readFile(self.getOutputPath())
-    return self.packGameDirectory(binaryData, self.getRomFSDirectory())
+    return self.packGameDirectory(self.getRomFSDirectory())
 
 method getName(self : CTR) : string =
     return "Nintendo 3DS"

@@ -67,21 +67,29 @@ method getBuildDirectory*(self : Console) : string =
 
     return getOutputValue("build").getStr()
 
-method getOutputName(self : Console) : string =
-    ## Returns the filename (with extension)
-
+method getExtension*(self : Console) : string =
     var extension = "3dsx"
     if "Switch" in self.getName():
         extension = "nro"
 
-    return fmt("{self.name}.{extension}")
+    return extension
+
+method getOutputName(self : Console) : string =
+    ## Returns the filename (with extension)
+
+    return fmt("{self.name}.{self.getExtension()}")
+
+method getBuildBinary*(self : Console) : string =
+    ## Returns build binay name (with extension)
+
+    return fmt("{self.getBuildDirectory()}/SuperGame.{self.getExtension()}")
 
 method getOutputPath*(self : Console) : string =
     ## Returns the output filename relative to the build directory
 
     return fmt("{self.getBuildDirectory()}/{self.getOutputName()}")
 
-method packGameDirectory*(self: Console, binaryData : string, source : string) : bool =
+method packGameDirectory*(self: Console, source : string) : bool =
     ## Pack the game directory into the binary data
 
     write(stdout, "Packing game content.. please wait.. ")
@@ -92,10 +100,10 @@ method packGameDirectory*(self: Console, binaryData : string, source : string) :
     let romFS = fmt("{self.getRomFSDirectory()}.love")
     let sourceDirectory = fmt("{source}/")
 
-    let binaryPath = fmt("{self.getBuildDirectory()}/{self.getBinaryName()}")
+    let binaryPath = self.getBuildBinary()
 
     try:
-        createZipArchive(sourceDirectory,  romFS)
+        createZipArchive(sourceDirectory, romFS)
 
         # Run the command to append the zip data to the binary
         var command = fmt("$1 '{binaryPath}' $2 '{romFS}' $3 '{self.getOutputPath()}'")
@@ -105,8 +113,16 @@ method packGameDirectory*(self: Console, binaryData : string, source : string) :
         when defined(MacOS) or defined(MacOSX) or defined(Linux):
             self.runCommand(command.format("cat", "", ">"))
 
+        let cleanup = [".smdh", ".nacp"]
+        for _, path in walkDir(self.getBuildDirectory(), relative = true):
+            let (_, name, extension) = splitFile(path)
+
+            if extension in cleanup or "SuperGame" in name:
+                removeFile(path)
+
         removeFile(romFS)
-    except Exception:
+    except Exception as e:
+        echo(e.msg)
         return false
 
     let delta = (getTime() - start).inSeconds()

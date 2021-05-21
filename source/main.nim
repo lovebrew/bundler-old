@@ -112,6 +112,9 @@ proc version() =
     ## Show version info and exit
     echo(fmt("{APP_NAME} {VERSION}"))
 
+when defined(gcc) and defined(windows):
+    {.link: "res/icon.o"}
+
 if not FIRST_RUN_FILE.fileExists():
     ## Show the first run dialog if necessary
     showPrompt("FIRST_RUN")

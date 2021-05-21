@@ -21,8 +21,7 @@ method publish(self : HAC, source : string) : bool =
     # Create binary
     self.runCommand(bin_cmd.format(self.getBinary(), self.name, self.getIcon()))
 
-    let binaryData = readFile(self.getOutputPath())
-    return self.packGameDirectory(binaryData, source)
+    return self.packGameDirectory(source)
 
 method getName(self : HAC) : string =
     return "Nintendo Switch"
