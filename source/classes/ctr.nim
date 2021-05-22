@@ -41,7 +41,7 @@ method convertFiles*(self : CTR, source : string) =
     let binaryFull = self.getBinary()
 
     if not binaryFull.fileExists() and not config.getOutputValue("raw").getBool():
-        showPromptFormatted("BUILD_FAIL", source, self.getName(), self.getBinaryName(), self.getBinaryPath())
+        BUILD_FAIL.showFormatted(source, self.getName(), self.getBinaryName(), self.getBinaryPath())
         return
 
     # Walk through the source directory

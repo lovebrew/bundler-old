@@ -134,7 +134,7 @@ method publish*(self : Console, source : string) : bool =
     ## Compiles a 3DS or Switch project -- see child classes for implementation
 
     if not source.dirExists():
-        showPrompt("SOURCE_NOT_FOUND")
+        SOURCE_NOT_FOUND.show()
         return false
 
     # Create the romFS directory

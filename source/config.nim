@@ -16,7 +16,7 @@ var elfPath* = normalizedPath(configDir & "/.lovebrew")
 proc loadConfigFile*() : bool =
     ## Build the project for the console(s)
     if not CONFIG_FILE.fileExists():
-        showPrompt("CONFIG_NOT_FOUND")
+        CONFIG_NOT_FOUND.show()
         return false
 
     configTable = CONFIG_FILE.parseFile()
@@ -27,7 +27,7 @@ proc loadConfigFile*() : bool =
 
         return true
     except Exception:
-        showPrompt("BAD_CONFIG")
+        BAD_CONFIG.show()
 
 proc getMetadata*() : TomlValueRef =
     return configTable["metadata"]

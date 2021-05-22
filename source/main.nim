@@ -51,7 +51,7 @@ proc checkDevkitProTools() : bool =
 
     # Check for environment variable DEVKITPRO
     if not existsEnv("DEVKITPRO"):
-        showPrompt("DEVKITPRO")
+        DEVKITPRO.show()
         return false
 
     ## Check for 3DS and Switch requirements
@@ -117,7 +117,7 @@ when defined(gcc) and defined(windows):
 
 if not FIRST_RUN_FILE.fileExists():
     ## Show the first run dialog if necessary
-    showPrompt("FIRST_RUN")
+    FIRST_RUN.show()
 
     createDir(getConfigDir() & "/.lovebrew")
     FIRST_RUN_FILE.writeFile("")
