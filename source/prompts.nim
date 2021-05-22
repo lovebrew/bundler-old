@@ -6,13 +6,12 @@ proc show*(prompt : string) =
     echo "\n" & prompt
 
 proc showFormatted*(prompt : string, args : varargs[string]) =
-    echo "\n" & prompt.format(args)
+    show(prompt.format(args))
 
 proc findBinary*(name : string) : bool =
-    if findExe(name).isEmptyOrWhitespace():
-        echo "\n" & BINARY_FOUND_NO_PATH.format(name)
-
-    return true
+    if not findExe(name).isEmptyOrWhitespace():
+        return true
+    BINARY_FOUND_NO_PATH.showFormatted(name)
 
 const FIRST_RUN* = """
 This software is not endorsed nor maintained by devkitPro.
@@ -51,3 +50,8 @@ const BAD_CONFIG* = """
 Failed to load config properly (corrupt or old version).
 Please create a fresh one with the init command.
 """
+when isMainModule:
+    import unittest
+    test "Find Binary":
+        check not findBinary("asdf")
+        check findBinary("echo")
