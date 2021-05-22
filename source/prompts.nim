@@ -46,3 +46,8 @@ Could not build the project '$1' for $2!
 The ELF binary ($3) at path $4 does not exist!
 Aborting!
 """
+
+prompts["BAD_CONFIG"] = """
+Failed to load config properly (corrupt or old version).
+Please create a fresh one with the init command.
+"""

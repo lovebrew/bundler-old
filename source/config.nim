@@ -21,10 +21,13 @@ proc loadConfigFile*() : bool =
 
     configTable = CONFIG_FILE.parseFile()
 
-    if not configTable["build"]["elfBinary"].getStr().isEmptyOrWhitespace():
-        elfPath = configTable["build"]["elfBinary"].getStr()
+    try:
+        if not configTable["build"]["elfBinary"].getStr().isEmptyOrWhitespace():
+            elfPath = configTable["build"]["elfBinary"].getStr()
 
-    return true
+        return true
+    except Exception:
+        showPrompt("BAD_CONFIG")
 
 proc getMetadata*() : TomlValueRef =
     return configTable["metadata"]
