@@ -20,7 +20,7 @@ type
 
 {.push base.}
 
-method runCommand*(self : Console, command : string) =
+proc runCommand*(command : string) =
     ## Runs a specified command
 
     var commandResult = execCmdEx(command)
@@ -109,9 +109,9 @@ method packGameDirectory*(self: Console, source : string) : bool =
         var command = fmt("$1 '{binaryPath}' $2 '{romFS}' $3 '{self.getOutputPath()}'")
 
         when defined(Windows):
-            self.runCommand(command.format("copy /b", "+", ""))
+            runCommand(command.format("copy /b", "+", ""))
         when defined(MacOS) or defined(MacOSX) or defined(Linux):
-            self.runCommand(command.format("cat", "", ">"))
+            runCommand(command.format("cat", "", ">"))
 
         let cleanup = [".smdh", ".nacp"]
         for _, path in walkDir(self.getBuildDirectory(), relative = true):

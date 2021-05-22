@@ -58,9 +58,9 @@ method convertFiles*(self : CTR, source : string) =
         # If the file we're currently looking at has its extension in one of these sets, operate on it
         # See the COMMANDS table for more information
         if extension in textures:
-            self.runCommand(tex_cmd.format(relativePath, fmt("{destination}/{name}")))
+            runCommand(tex_cmd.format(relativePath, fmt("{destination}/{name}")))
         elif extension in fonts:
-            self.runCommand(fnt_cmd.format(relativePath, fmt("{destination}/{name}")))
+            runCommand(fnt_cmd.format(relativePath, fmt("{destination}/{name}")))
         else:
             copyFile(relativePath, fmt("{destination}/{name}{extension}"))
 
@@ -80,10 +80,10 @@ method publish(self : CTR, source : string) : bool =
     let binaryPath = fmt("{self.getBuildDirectory()}/SuperGame")
 
     # Meta Command
-    self.runCommand(meta_cmd.format(self.name, properDescription, self.author, self.getIcon(), binaryPath))
+    runCommand(meta_cmd.format(self.name, properDescription, self.author, self.getIcon(), binaryPath))
 
     # Binary Command
-    self.runCommand(bin_cmd.format(self.getBinary(), binaryPath))
+    runCommand(bin_cmd.format(self.getBinary(), binaryPath))
 
     return self.packGameDirectory(self.getRomFSDirectory())
 

@@ -16,10 +16,10 @@ method publish(self : HAC, source : string) : bool =
     let binaryPath = fmt("{self.getBuildDirectory()}/{self.name}")
 
     # Create metadata
-    self.runCommand(meta_cmd.format(self.name, self.author, self.version, binaryPath))
+    runCommand(meta_cmd.format(self.name, self.author, self.version, binaryPath))
 
     # Create binary
-    self.runCommand(bin_cmd.format(self.getBinary(), self.name, self.getIcon()))
+    runCommand(bin_cmd.format(self.getBinary(), self.name, self.getIcon()))
 
     return self.packGameDirectory(source)
 
