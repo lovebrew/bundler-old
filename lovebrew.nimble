@@ -13,4 +13,5 @@ bin           = @["lovebrew"]
 requires "nim >= 1.5.0"
 requires "zippy"
 requires "parsetoml"
+requires "cligen"
 requires "https://github.com/yglukhov/iface"
