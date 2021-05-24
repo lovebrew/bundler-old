@@ -1,32 +1,39 @@
-# Installation
+## Installation
+The easiest way to "install" LÖVEBrew is from the [releases page](https://github.com/TurtleP/lovebrew/releases). Download the respective platform's release and put it in the following directory for your operating system:
 
-## GitHub
-To get the latest version from Github, just run
-```
-sudo pip3 install -U git+git://github.com/TurtleP/lovebrew.git
-```
+- Windows: `%appdata%/.lovebrew/bin`
+  - Create this directory and add it to your PATH!
+- Linux: `/usr/bin`
+- macOS: TBD
 
-## PyPi
-To get the latest version from PyPi, just run
-```
-sudo pip3 install lovebrew
-```
-and you should be able to run `lovebrew -h`!
+## Building a Project
+LÖVEBrew will look for the LÖVE Potion ELF binaries by default in ~/.config/.lovebrew. They must be named accordingly as `3DS.elf` or `Switch.elf`, depending on the build targets.
+However, you *can* override this setting inside the config file and it will search relative to the project's root. The config directory is at the following locations:
 
-# Usage
-
-Once the application is installed, just run `lovebrew` in a directory with your game content that also has `lovebrew.toml` inside.
+- Windows: `%appdata%/.lovebrew`
+- Linux: `~/.config/.lovebrew`
+- macOS: TBD
 
 ## Options
 ```
-usage: lovebrew [-h] [-v] [--version] [-c] [-i]
+Usage:
+  main {SUBCMD}  [sub-command options & parameters]
+where {SUBCMD} is one of:
+  help     print comprehensive or per-cmd help
+  init     Initializes a new config file
+  build    Build the project for the current targets in the config file
+  clean    Clean the set output directory
+  version  Show version info and exit
 
-Löve Potion Game Helper
-
-optional arguments:
-  -h, --help     show this help message and exit
-  -v, --verbose  Show logging output.
-  --version      show program's version number and exit
-  -c, --clean    Clean the directory
-  -i, --init     Initialize a lovebrew config in the current directory
+main {-h|--help} or with no args at all prints this message.
+main --help-syntax gives general cligen syntax help.
+Run "main {help SUBCMD|SUBCMD --help}" to see help for just SUBCMD.
+Run "main help" to get *comprehensive* help.
 ```
+
+## Development
+To build the program do `nimble build`
+
+To build and run, do `nimble run`
+
+To run all the tests, simply do `nimble test`

@@ -1,0 +1,35 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Clean",
+            "type": "shell",
+            "command": "rm -Recurse res/*.o , dist"
+        },
+
+        {
+            "label": "Build Icon",
+            "type": "shell",
+            "windows":
+            {
+                "command": "cmd.exe /c 'windres res/icon.rc -o res/icon.o'"
+            },
+        },
+
+        {
+            "dependsOn": ["Build Icon"],
+
+            "label": "Compile",
+            "type": "shell",
+            "command": "nim c -o:${workspaceFolder}/dist/lovebrew ${workspaceFolder}/source/main.nim",
+            "problemMatcher": [],
+            "group":
+            {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
