@@ -22,19 +22,42 @@ let bin_cmd  = "3dsxtool $1 '$2.3dsx' --smdh='$2.smdh'"
 let textures = @[".png", ".jpg", ".jpeg"]
 let fonts    = @[".ttf", ".otf"]
 
-type
-    CTR* = ref object of Console
+type CTR* = ref object of ConsoleBase
 
-{.push base.}
+proc getName*(self : CTR) : string = "Nintendo 3DS"
+# proc getProjectName(self: CTR) : string = self.name
+proc getBinaryName*(self : CTR) : string = "3DS.elf"
+proc getIconExtension*(self : CTR) : string = "png"
+proc getExtension*(self : CTR) : string = "3dsx"
+proc convertFiles*(self : CTR, source : string)
 
-method convertFiles*(self : CTR, source : string) =
+proc publish*(self : CTR, source : string) : bool =
+    self.convertFiles(source)
+
+    # If we're building in "raw" mode, don't create a 3dsx
+    if config.getOutputValue("raw").getBool():
+        return true
+
+    let properDescription = fmt("{self.description} • {self.version}")
+    let binaryPath = fmt("{getBuildDirectory()}/SuperGame")
+
+    # Meta Command
+    runCommand(meta_cmd.format(self.name, properDescription, self.author, self.getIcon(), binaryPath))
+
+    # Binary Command
+    runCommand(bin_cmd.format(self.getBinary(), binaryPath))
+
+    return self.packGameDirectory(getRomFSDirectory())
+
+
+proc convertFiles*(self : CTR, source : string) =
     write(stdout, "Converting and copying files.. please wait.. ")
     flushFile(stdout)
 
     let start = getTime()
 
     # Get our important directories
-    let romFSDirectory = self.getRomFSDirectory()
+    let romFSDirectory = getRomFSDirectory()
 
     # Ensure the required ELF binary exists. If it doesn't, we should abort and inform the user.
     # This should only be an issue if compiling non-raw builds
@@ -67,25 +90,4 @@ method convertFiles*(self : CTR, source : string) =
     let delta = (getTime() - start).inSeconds()
     echo(fmt("done in {delta}s"))
 
-{.pop base}
 
-method publish(self : CTR, source : string) : bool =
-    self.convertFiles(source)
-
-    # If we're building in "raw" mode, don't create a 3dsx
-    if config.getOutputValue("raw").getBool():
-        return true
-
-    let properDescription = fmt("{self.description} • {self.version}")
-    let binaryPath = fmt("{self.getBuildDirectory()}/SuperGame")
-
-    # Meta Command
-    runCommand(meta_cmd.format(self.name, properDescription, self.author, self.getIcon(), binaryPath))
-
-    # Binary Command
-    runCommand(bin_cmd.format(self.getBinary(), binaryPath))
-
-    return self.packGameDirectory(self.getRomFSDirectory())
-
-method getName(self : CTR) : string =
-    return "Nintendo 3DS"

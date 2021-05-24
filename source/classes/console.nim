@@ -3,7 +3,6 @@ import iface
 
 import ../config
 import ../assets
-import ../prompts
 
 import zippy/ziparchives
 
@@ -12,6 +11,8 @@ type ConsoleBase* = ref object of RootObj
     author*      : string
     description* : string
     version*     : string
+
+proc getProjectName(self: ConsoleBase): string = self.name
 
 iface *Console:
     proc getName(): string
@@ -61,7 +62,7 @@ proc getBuildDirectory*() : string =
 #
 #     return extension
 
-proc getOutputName(self : Console) : string =
+proc getOutputName*(self : Console) : string =
     ## Returns the filename (with extension)
 
     return fmt("{self.getProjectName()}.{self.getExtension()}")

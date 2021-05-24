@@ -12,7 +12,6 @@ let bin_cmd  = "elf2nro $1 $2.nro --icon=$3 --nacp=$2.nacp"
 type HAC* = ref object of ConsoleBase
 
 proc getName*(self : HAC) : string = "Nintendo Switch"
-proc getProjectName*(self : HAC) : string = self.name
 proc getBinaryName*(self : HAC) : string = "Switch.elf"
 proc getIconExtension*(self: HAC) : string = "jpg"
 proc getExtension*(self : HAC) : string = "nro"

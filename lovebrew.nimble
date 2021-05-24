@@ -10,4 +10,7 @@ bin           = @["lovebrew"]
 
 # Dependencies
 
-requires "nim >= 1.4.4"
+requires "nim >= 1.5.0"
+requires "zippy"
+requires "parsetoml"
+requires "https://github.com/yglukhov/iface"
