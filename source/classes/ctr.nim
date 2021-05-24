@@ -1,15 +1,9 @@
-import console
-export console
-
-import tables
-import strutils
-import strformat
-import os
-import system
-import times
+import strutils, strformat, os, times
 
 import ../prompts
 import ../config
+import console
+export console
 
 ## Command line stuff to run
 let tex_cmd = "tex3ds $1 --format=rgba8888 -z auto --border -o $2.t3x"
@@ -29,7 +23,7 @@ proc getName*(self : CTR) : string = "Nintendo 3DS"
 proc getBinaryName*(self : CTR) : string = "3DS.elf"
 proc getIconExtension*(self : CTR) : string = "png"
 proc getExtension*(self : CTR) : string = "3dsx"
-proc convertFiles*(self : CTR, source : string)
+proc convertFiles(self : CTR, source : string)
 
 proc publish*(self : CTR, source : string) : bool =
     self.convertFiles(source)
@@ -50,7 +44,7 @@ proc publish*(self : CTR, source : string) : bool =
     return self.packGameDirectory(getRomFSDirectory())
 
 
-proc convertFiles*(self : CTR, source : string) =
+proc convertFiles(self : CTR, source : string) =
     write(stdout, "Converting and copying files.. please wait.. ")
     flushFile(stdout)
 
@@ -89,5 +83,3 @@ proc convertFiles*(self : CTR, source : string) =
 
     let delta = (getTime() - start).inSeconds()
     echo(fmt("done in {delta}s"))
-
-
