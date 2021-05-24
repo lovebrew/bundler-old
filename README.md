@@ -30,3 +30,10 @@ main --help-syntax gives general cligen syntax help.
 Run "main {help SUBCMD|SUBCMD --help}" to see help for just SUBCMD.
 Run "main help" to get *comprehensive* help.
 ```
+
+## Development
+To build the program do `nimble build`
+
+To build and run, do `nimble run`
+
+To run all the tests, simply do `nimble test`

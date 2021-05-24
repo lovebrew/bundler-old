@@ -1,15 +1,9 @@
-import console
-export console
-
-import tables
-import strutils
-import strformat
-import os
-import system
-import times
+import strutils, strformat, os, times
 
 import ../prompts
 import ../config
+import console
+export console
 
 ## Command line stuff to run
 let tex_cmd = "tex3ds $1 --format=rgba8888 -z auto --border -o $2.t3x"
@@ -22,26 +16,49 @@ let bin_cmd  = "3dsxtool $1 '$2.3dsx' --smdh='$2.smdh'"
 let textures = @[".png", ".jpg", ".jpeg"]
 let fonts    = @[".ttf", ".otf"]
 
-type
-    CTR* = ref object of Console
+type CTR* = ref object of ConsoleBase
 
-{.push base.}
+proc getName*(self : CTR) : string = "Nintendo 3DS"
+# proc getProjectName(self: CTR) : string = self.name
+proc getBinaryName*(self : CTR) : string = "3DS.elf"
+proc getIconExtension*(self : CTR) : string = "png"
+proc getExtension*(self : CTR) : string = "3dsx"
+proc convertFiles(self : CTR, source : string)
 
-method convertFiles*(self : CTR, source : string) =
+proc publish*(self : CTR, source : string) : bool =
+    self.convertFiles(source)
+
+    # If we're building in "raw" mode, don't create a 3dsx
+    if config.getOutputValue("raw").getBool():
+        return true
+
+    let properDescription = fmt("{self.description} • {self.version}")
+    let binaryPath = fmt("{getBuildDirectory()}/SuperGame")
+
+    # Meta Command
+    runCommand(meta_cmd.format(self.name, properDescription, self.author, self.getIcon(), binaryPath))
+
+    # Binary Command
+    runCommand(bin_cmd.format(self.getBinary(), binaryPath))
+
+    return self.packGameDirectory(getRomFSDirectory())
+
+
+proc convertFiles(self : CTR, source : string) =
     write(stdout, "Converting and copying files.. please wait.. ")
     flushFile(stdout)
 
     let start = getTime()
 
     # Get our important directories
-    let romFSDirectory = self.getRomFSDirectory()
+    let romFSDirectory = getRomFSDirectory()
 
     # Ensure the required ELF binary exists. If it doesn't, we should abort and inform the user.
     # This should only be an issue if compiling non-raw builds
     let binaryFull = self.getBinary()
 
     if not binaryFull.fileExists() and not config.getOutputValue("raw").getBool():
-        showPromptFormatted("BUILD_FAIL", source, self.getName(), self.getBinaryName(), self.getBinaryPath())
+        BUILD_FAIL.showFormatted(source, self.getName(), self.getBinaryName(), self.getBinaryPath())
         return
 
     # Walk through the source directory
@@ -58,34 +75,11 @@ method convertFiles*(self : CTR, source : string) =
         # If the file we're currently looking at has its extension in one of these sets, operate on it
         # See the COMMANDS table for more information
         if extension in textures:
-            self.runCommand(tex_cmd.format(relativePath, fmt("{destination}/{name}")))
+            runCommand(tex_cmd.format(relativePath, fmt("{destination}/{name}")))
         elif extension in fonts:
-            self.runCommand(fnt_cmd.format(relativePath, fmt("{destination}/{name}")))
+            runCommand(fnt_cmd.format(relativePath, fmt("{destination}/{name}")))
         else:
             copyFile(relativePath, fmt("{destination}/{name}{extension}"))
 
     let delta = (getTime() - start).inSeconds()
     echo(fmt("done in {delta}s"))
-
-{.pop base}
-
-method publish(self : CTR, source : string) : bool =
-    self.convertFiles(source)
-
-    # If we're building in "raw" mode, don't create a 3dsx
-    if config.getOutputValue("raw").getBool():
-        return true
-
-    let properDescription = fmt("{self.description} • {self.version}")
-    let binaryPath = fmt("{self.getBuildDirectory()}/SuperGame")
-
-    # Meta Command
-    self.runCommand(meta_cmd.format(self.name, properDescription, self.author, self.getIcon(), binaryPath))
-
-    # Binary Command
-    self.runCommand(bin_cmd.format(self.getBinary(), binaryPath))
-
-    return self.packGameDirectory(self.getRomFSDirectory())
-
-method getName(self : CTR) : string =
-    return "Nintendo 3DS"

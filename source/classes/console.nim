@@ -1,59 +1,47 @@
-import osproc
-import strformat
-import strutils
-import os
-import times
+import osproc, strformat, strutils, os, times
+import iface
 
 import ../config
 import ../assets
-import ../prompts
 
 import zippy/ziparchives
 
-type
-    Console* = ref object of RootObj
+type ConsoleBase* = ref object of RootObj
+    name*        : string
+    author*      : string
+    description* : string
+    version*     : string
 
-        name*        : string
-        author*      : string
-        description* : string
-        version*     : string
+proc getProjectName(self: ConsoleBase): string = self.name
 
-{.push base.}
+iface *Console:
+    proc getName(): string
+    proc getProjectName(): string
+    proc publish(source: string): bool
+    proc getBinaryName(): string
+    proc getIconExtension(): string
+    proc getExtension(): string
 
-method runCommand*(self : Console, command : string) =
+
+proc runCommand*(command : string) =
     ## Runs a specified command
 
     var commandResult = execCmdEx(command)
-
     if commandResult.exitCode != 0:
         echo(fmt("\nError Code {commandResult.exitCode}: {commandResult.output}"))
 
-method getName*(self : Console) : string =
-    ## Returns the console name -- see child classes for implementation
 
-    return "Console"
-
-method getBinaryPath*(self : Console) : string =
+proc getBinaryPath*(self : Console) : string =
     ## Returns the full path and name to the expected ELF binary
 
     return elfPath
 
-method getBinaryName*(self : Console) : string =
-    ## Returns the name of the expected ELF binary
-    ## This would be "3DS.elf" or "Switch.elf"
-
-    var name = "3DS"
-    if "Switch" in self.getName():
-        name = "Switch"
-
-    return fmt("{name}.elf")
-
-method getBinary*(self : Console) : string =
+proc getBinary*(self : Console) : string =
     ## Returns the full path and name of the ELF binary
 
     return fmt("{self.getBinaryPath()}/{self.getBinaryName()}")
 
-method getRomFSDirectory*(self : Console) : string =
+proc getRomFSDirectory*() : string =
     ## Returns the relative directory to use as the romFS directory
     ## It gets appended to the build directory
 
@@ -62,34 +50,34 @@ method getRomFSDirectory*(self : Console) : string =
 
     return fmt("{buildDirectory}/{romfsDirectory}")
 
-method getBuildDirectory*(self : Console) : string =
+proc getBuildDirectory*() : string =
     ## Returns the build directory, relative to the project root
 
     return getOutputValue("build").getStr()
 
-method getExtension*(self : Console) : string =
-    var extension = "3dsx"
-    if "Switch" in self.getName():
-        extension = "nro"
+# method getExtension*(self : Console) : string =
+#     var extension = "3dsx"
+#     if "Switch" in self.getName():
+#         extension = "nro"
+#
+#     return extension
 
-    return extension
-
-method getOutputName(self : Console) : string =
+proc getOutputName*(self : Console) : string =
     ## Returns the filename (with extension)
 
-    return fmt("{self.name}.{self.getExtension()}")
+    return fmt("{self.getProjectName()}.{self.getExtension()}")
 
-method getBuildBinary*(self : Console) : string =
+proc getBuildBinary*(self : Console) : string =
     ## Returns build binay name (with extension)
 
-    return fmt("{self.getBuildDirectory()}/SuperGame.{self.getExtension()}")
+    return fmt("{getBuildDirectory()}/SuperGame.{self.getExtension()}")
 
-method getOutputPath*(self : Console) : string =
+proc getOutputPath*(self : Console) : string =
     ## Returns the output filename relative to the build directory
 
-    return fmt("{self.getBuildDirectory()}/{self.getOutputName()}")
+    return fmt("{getBuildDirectory()}/{self.getOutputName()}")
 
-method packGameDirectory*(self: Console, source : string) : bool =
+proc packGameDirectory*(self: Console, source : string) : bool =
     ## Pack the game directory into the binary data
 
     write(stdout, "Packing game content.. please wait.. ")
@@ -97,7 +85,7 @@ method packGameDirectory*(self: Console, source : string) : bool =
 
     let start = getTime()
 
-    let romFS = fmt("{self.getRomFSDirectory()}.love")
+    let romFS = fmt("{getRomFSDirectory()}.love")
     let sourceDirectory = fmt("{source}/")
 
     let binaryPath = self.getBuildBinary()
@@ -109,12 +97,12 @@ method packGameDirectory*(self: Console, source : string) : bool =
         var command = fmt("$1 '{binaryPath}' $2 '{romFS}' $3 '{self.getOutputPath()}'")
 
         when defined(Windows):
-            self.runCommand(command.format("copy /b", "+", ""))
+            runCommand(command.format("copy /b", "+", ""))
         when defined(MacOS) or defined(MacOSX) or defined(Linux):
-            self.runCommand(command.format("cat", "", ">"))
+            runCommand(command.format("cat", "", ">"))
 
         let cleanup = [".smdh", ".nacp"]
-        for _, path in walkDir(self.getBuildDirectory(), relative = true):
+        for _, path in walkDir(getBuildDirectory(), relative = true):
             let (_, name, extension) = splitFile(path)
 
             if extension in cleanup or "SuperGame" in name:
@@ -130,25 +118,11 @@ method packGameDirectory*(self: Console, source : string) : bool =
 
     return true
 
-method publish*(self : Console, source : string) : bool =
-    ## Compiles a 3DS or Switch project -- see child classes for implementation
-
-    if not source.dirExists():
-        showPrompt("SOURCE_NOT_FOUND")
-        return false
-
-    # Create the romFS directory
-    createDir(self.getRomFSDirectory())
-    return true
-
-method getIcon*(self : Console) : string =
+proc getIcon*(self : Console) : string =
     ## Returns the relative path to the icon for the project.
     ## If one isn't found, it uses the default icon.
 
-    var extension = "png"
-
-    if "Switch" in self.getName():
-        extension = "jpg"
+    var extension = self.getIconExtension()
 
     let path = getBuildValue("icon")
     let filename = fmt("{path}.{extension}")
@@ -157,5 +131,3 @@ method getIcon*(self : Console) : string =
         writeFile(filename, getAsset(fmt("icon.{extension}")))
 
     return filename
-
-{.pop base}

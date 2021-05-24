@@ -51,7 +51,7 @@ proc checkDevkitProTools() : bool =
 
     # Check for environment variable DEVKITPRO
     if not existsEnv("DEVKITPRO"):
-        showPrompt("DEVKITPRO")
+        DEVKITPRO.show()
         return false
 
     ## Check for 3DS and Switch requirements
@@ -81,7 +81,7 @@ proc build() =
     let metadata = config.getMetadata()
 
     template makeConsoleChild(child : type) : untyped =
-        child(name: metadata["name"].getStr(), author: metadata["author"].getStr(),
+        console = child(name: metadata["name"].getStr(), author: metadata["author"].getStr(),
               description: metadata["description"].getStr(), version: metadata["version"].getStr())
 
     # Get the source directory
@@ -95,16 +95,14 @@ proc build() =
         return
 
     for element in targets:
-        var console =
-            if element.getStr() == "switch":
-                HAC.makeConsoleChild()
-            elif element.getStr() == "3ds":
-                CTR.makeConsoleChild()
-            else:
-                continue
+        var console: Console
+        case element.getStr():
+            of "switch": HAC.makeConsoleChild()
+            of "3ds": CTR.makeConsoleChild()
+            else: continue
 
         if console.publish(source):
-            echo(fmt("Build for {console.getName()} was successful. Please check '{console.getBuildDirectory()}' for your files."))
+            echo(fmt("Build for {console.getName()} was successful. Please check '{getBuildDirectory()}' for your files."))
         else:
             echo(fmt("Build for {console.getName()} failed."))
 
@@ -117,7 +115,7 @@ when defined(gcc) and defined(windows):
 
 if not FIRST_RUN_FILE.fileExists():
     ## Show the first run dialog if necessary
-    showPrompt("FIRST_RUN")
+    FIRST_RUN.show()
 
     createDir(getConfigDir() & "/.lovebrew")
     FIRST_RUN_FILE.writeFile("")
