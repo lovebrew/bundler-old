@@ -16,7 +16,7 @@ proc findBinary*(name : string) : bool =
 const FIRST_RUN* = """
 This software is not endorsed nor maintained by devkitPro.
 If there are issues, please report them to the GitHub repository:
-https://github.com/TurtleP/lovebrew
+https://github.com/lovebrew/lovebrew
 """
 
 const DEVKITPRO* = """
@@ -25,13 +25,27 @@ Please install the devkit-env package from devkitpro-pacman.
 If you are on Windows, add it to your PATH environment variable instead.
 """
 
+const ZERO_TARGETS* = """
+Cannot compile. Targets not specified in lovebrew.toml!
+"""
+
+const NO_SOURCE* = """
+Cannot compile. Source directory '$1' does not exist or config
+variable is empty in lovebrew.toml! Please double check your
+configuration file for misspellings or errors.
+"""
+
 const CONFIG_NOT_FOUND* = """
 Config not found! Try creating one with the init argument.
 """
 
-const SOURCE_NOT_FOUND* = """
-Could not find the source directory '$1'! Please double check your
-configuration file for misspellings or errors.
+const BUILD_SUCCESS* = """
+Build for $1 was successful. Please check the directory
+'$2' for your files.
+"""
+
+const BUILD_FAILURE* = """
+Build for $1 failed.
 """
 
 const BINARY_FOUND_NO_PATH* = """

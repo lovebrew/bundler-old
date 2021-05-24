@@ -1,7 +1,8 @@
 import strutils, strformat, os, times
 
 import ../prompts
-import ../config
+import ../config/configfile
+
 import console
 export console
 
@@ -19,7 +20,6 @@ let fonts    = @[".ttf", ".otf"]
 type CTR* = ref object of ConsoleBase
 
 proc getName*(self : CTR) : string = "Nintendo 3DS"
-# proc getProjectName(self: CTR) : string = self.name
 proc getBinaryName*(self : CTR) : string = "3DS.elf"
 proc getIconExtension*(self : CTR) : string = "png"
 proc getExtension*(self : CTR) : string = "3dsx"
@@ -29,17 +29,17 @@ proc publish*(self : CTR, source : string) : bool =
     self.convertFiles(source)
 
     # If we're building in "raw" mode, don't create a 3dsx
-    if config.getOutputValue("raw").getBool():
+    if Config.shouldOutputRawData():
         return true
 
-    let properDescription = fmt("{self.description} • {self.version}")
-    let binaryPath = fmt("{getBuildDirectory()}/SuperGame")
+    let properDescription = self.description & " • " & self.version
+    let binaryPath        = getBuildDirectory() & "/SuperGame"
 
     # Meta Command
     runCommand(meta_cmd.format(self.name, properDescription, self.author, self.getIcon(), binaryPath))
 
     # Binary Command
-    runCommand(bin_cmd.format(self.getBinary(), binaryPath))
+    runCommand(bin_cmd.format(self.getBinaryPath(), binaryPath))
 
     return self.packGameDirectory(getRomFSDirectory())
 
@@ -55,9 +55,9 @@ proc convertFiles(self : CTR, source : string) =
 
     # Ensure the required ELF binary exists. If it doesn't, we should abort and inform the user.
     # This should only be an issue if compiling non-raw builds
-    let binaryFull = self.getBinary()
+    let elfBinaryPath = self.getBinaryPath()
 
-    if not binaryFull.fileExists() and not config.getOutputValue("raw").getBool():
+    if not elfBinaryPath.fileExists() and not Config.shouldOutputRawData():
         BUILD_FAIL.showFormatted(source, self.getName(), self.getBinaryName(), self.getBinaryPath())
         return
 

@@ -1,7 +1,7 @@
 import osproc, strformat, strutils, os, times
 import iface
 
-import ../config
+import ../config/configfile
 import ../assets
 
 import zippy/ziparchives
@@ -15,52 +15,75 @@ type ConsoleBase* = ref object of RootObj
 proc getProjectName(self: ConsoleBase): string = self.name
 
 iface *Console:
-    proc getName(): string
-    proc getProjectName(): string
-    proc publish(source: string): bool
-    proc getBinaryName(): string
-    proc getIconExtension(): string
-    proc getExtension(): string
+    proc getName() : string
+    proc getProjectName() : string
+    proc publish(source: string) : bool
+    proc getBinaryName() : string
+    proc getIconExtension() : string
+    proc getExtension() : string
 
+var buildOptions  : tuple[clean: bool, source: string, icon: string, binSearchPath: string]
+var outputOptions : tuple[buildPath : string, romFS : string]
+
+proc initVariables*() =
+    buildOptions  = Config.getBuildOptions()
+    outputOptions = Config.getOutputOptions()
+    echo buildOptions.binSearchPath
 
 proc runCommand*(command : string) =
     ## Runs a specified command
 
     var commandResult = execCmdEx(command)
+
     if commandResult.exitCode != 0:
         echo(fmt("\nError Code {commandResult.exitCode}: {commandResult.output}"))
 
 
+proc getBinarySearchPath() : string =
+    ## Returns the search path of the expected ELF binary
+
+    return buildOptions.binSearchPath
+
 proc getBinaryPath*(self : Console) : string =
-    ## Returns the full path and name to the expected ELF binary
-
-    return elfPath
-
-proc getBinary*(self : Console) : string =
     ## Returns the full path and name of the ELF binary
 
-    return fmt("{self.getBinaryPath()}/{self.getBinaryName()}")
+    return fmt("{getBinarySearchPath()}/{self.getBinaryName()}")
 
 proc getRomFSDirectory*() : string =
     ## Returns the relative directory to use as the romFS directory
     ## It gets appended to the build directory
 
-    let buildDirectory = getOutputValue("build").getStr()
-    let romfsDirectory = getOutputValue("romFS").getStr()
+    let buildDirectory = outputOptions.buildPath
+    let romfsDirectory = outputOptions.romFS
 
     return fmt("{buildDirectory}/{romfsDirectory}")
 
 proc getBuildDirectory*() : string =
     ## Returns the build directory, relative to the project root
 
-    return getOutputValue("build").getStr()
+    return outputOptions.buildPath
 
-# method getExtension*(self : Console) : string =
-#     var extension = "3dsx"
-#     if "Switch" in self.getName():
-#         extension = "nro"
-#
-#     return extension
+proc preBuildCleanup*() =
+    if not buildOptions.clean:
+        return
+
+    let extensions = @[".3dsx", ".nro"]
+
+    for _, path in walkDir(getBuildDirectory(), relative = true):
+        let (_, _, extension) = splitFile(path)
+
+        if (extension in extensions):
+            removeFile(path)
+
+proc postBuildCleanup() =
+    let extensions = @[".smdh", ".nacp"]
+
+    for _, path in walkDir(getBuildDirectory(), relative = true):
+        let (_, name, extension) = splitFile(path)
+
+        if (extension in extensions) or ("SuperGame" in name):
+            removeFile(path)
+
 
 proc getOutputName*(self : Console) : string =
     ## Returns the filename (with extension)
@@ -101,12 +124,7 @@ proc packGameDirectory*(self: Console, source : string) : bool =
         when defined(MacOS) or defined(MacOSX) or defined(Linux):
             runCommand(command.format("cat", "", ">"))
 
-        let cleanup = [".smdh", ".nacp"]
-        for _, path in walkDir(getBuildDirectory(), relative = true):
-            let (_, name, extension) = splitFile(path)
-
-            if extension in cleanup or "SuperGame" in name:
-                removeFile(path)
+        postBuildCleanup()
 
         removeFile(romFS)
     except Exception as e:
@@ -124,7 +142,7 @@ proc getIcon*(self : Console) : string =
 
     var extension = self.getIconExtension()
 
-    let path = getBuildValue("icon")
+    let path = buildOptions.icon
     let filename = fmt("{path}.{extension}")
 
     if not filename.fileExists():

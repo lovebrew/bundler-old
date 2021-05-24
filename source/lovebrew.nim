@@ -5,22 +5,22 @@ import os
 
 import cligen
 
-import assets, paths, prompts
-import config
+import assets, prompts
 
 import classes/hac
 import classes/ctr
 
+import config/parsecfg
+import config/configfile
+
 let APP_NAME = "LÖVEBrew"
 let VERSION = "0.4.0"
-
-let FIRST_RUN_FILE = getPath("FIRST_RUN_FILE")
 
 proc init() =
     ## Initializes a new config file
 
     # Check that lovebrew.toml doesn't already exist
-    if getPath("CONFIG_FILE").fileExists():
+    if CONFIG_FILE.fileExists():
         write(stdout, "Config file already exists. Overwrite? [y/N]: ")
         let answer = readLine(stdin).toLower()
 
@@ -32,17 +32,16 @@ proc init() =
 
     # Initialize a new lovebrew.toml file in the current directory
     let fileData = getAsset("lovebrew.toml")
-    getPath("CONFIG_FILE").writeFile(fileData)
+    CONFIG_FILE.writeFile(fileData)
 
 proc clean() =
     ## Clean the set output directory
 
-    if not loadConfigFile():
+    if not parsecfg.loadConfigFile():
         quit(-1)
 
     try:
-        let buildDirectory = getOutputValue("build").getStr()
-        buildDirectory.removeDir()
+        Config.getBuildDirectory().removeDir()
     except OSError:
         echo "Failed to clean the build directory."
 
@@ -74,37 +73,39 @@ proc build() =
     if not checkDevkitProTools():
         quit(-1)
 
-    if not loadConfigFile():
+    if not parsecfg.loadConfigFile():
         quit(-1)
 
-    let targets = config.getBuildValue("targets").getElems()
-    let metadata = config.getMetadata()
-
-    template makeConsoleChild(child : type) : untyped =
-        console = child(name: metadata["name"].getStr(), author: metadata["author"].getStr(),
-              description: metadata["description"].getStr(), version: metadata["version"].getStr())
-
-    # Get the source directory
-    let source = config.getBuildValue("source").getStr()
-    if source.isEmptyOrWhitespace():
-        echo("Cannot compile. Source directory is empty in lovebrew.toml!")
-        return
+    let targets = Config.getTargets()
 
     if len(targets) == 0:
-        echo("Cannot compile. Targets not specified in lovebrew.toml!")
+        ZERO_TARGETS.show()
+        return
+
+    let source = Config.getSourceDirectory()
+    if source.isEmptyOrWhitespace() or not source.dirExists():
+        NO_SOURCE.show()
         return
 
     for element in targets:
-        var console: Console
-        case element.getStr():
-            of "switch": HAC.makeConsoleChild()
-            of "3ds": CTR.makeConsoleChild()
-            else: continue
+        var console : Console
+
+        case element:
+            of "switch":
+                makeConsoleChild(HAC)
+            of "3ds":
+                makeConsoleChild(CTR)
+            else:
+                continue
+
+        initVariables()
+        preBuildCleanup()
+
 
         if console.publish(source):
-            echo(fmt("Build for {console.getName()} was successful. Please check '{getBuildDirectory()}' for your files."))
+            BUILD_SUCCESS.showFormatted(console.getName(), Config.getBuildDirectory())
         else:
-            echo(fmt("Build for {console.getName()} failed."))
+            BUILD_FAIL.showFormatted(console.getName())
 
 proc version() =
     ## Show version info and exit

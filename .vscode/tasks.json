@@ -23,7 +23,7 @@
 
             "label": "Compile",
             "type": "shell",
-            "command": "nim c -o:${workspaceFolder}/dist/lovebrew ${workspaceFolder}/source/main.nim",
+            "command": "nimble build",
             "problemMatcher": [],
             "group":
             {
