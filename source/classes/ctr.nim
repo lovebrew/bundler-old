@@ -68,6 +68,9 @@ proc convertFiles(self : CTR, source : string) =
         let relativePath = fmt("{source}/{path}")
         let destination = fmt("{romFSDirectory}/{dir}")
 
+        if isHidden(relativePath):
+            continue
+
         # May or may not be horribly inefficient because it attempt to create all directories
         # for pretty much every file multiple times, but it shouldn't be *that* bad
         createDir(destination)
