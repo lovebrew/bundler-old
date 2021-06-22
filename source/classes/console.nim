@@ -28,16 +28,11 @@ var outputOptions : tuple[buildPath : string, romFS : string]
 proc initVariables*() =
     buildOptions  = Config.getBuildOptions()
     outputOptions = Config.getOutputOptions()
-    echo buildOptions.binSearchPath
 
 proc runCommand*(command : string) =
     ## Runs a specified command
 
-    var commandResult = execCmdEx(command)
-
-    if commandResult.exitCode != 0:
-        echo(fmt("\nError Code {commandResult.exitCode}: {commandResult.output}"))
-
+    discard execCmdEx(command)
 
 proc getBinarySearchPath() : string =
     ## Returns the search path of the expected ELF binary
@@ -81,7 +76,7 @@ proc postBuildCleanup() =
     for _, path in walkDir(getBuildDirectory(), relative = true):
         let (_, name, extension) = splitFile(path)
 
-        if (extension in extensions) or ("SuperGame" in name):
+        if (extension in extensions) or ("LOVEPotion" in name):
             removeFile(path)
 
 
@@ -91,9 +86,9 @@ proc getOutputName*(self : Console) : string =
     return fmt("{self.getProjectName()}.{self.getExtension()}")
 
 proc getBuildBinary*(self : Console) : string =
-    ## Returns build binay name (with extension)
+    ## Returns build binary name (with extension)
 
-    return fmt("{getBuildDirectory()}/SuperGame.{self.getExtension()}")
+    return fmt("{getBuildDirectory()}/LOVEPotion.{self.getExtension()}")
 
 proc getOutputPath*(self : Console) : string =
     ## Returns the output filename relative to the build directory

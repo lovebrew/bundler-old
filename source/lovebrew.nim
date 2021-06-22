@@ -101,11 +101,8 @@ proc build() =
         initVariables()
         preBuildCleanup()
 
-
         if console.publish(source):
             BUILD_SUCCESS.showFormatted(console.getName(), Config.getBuildDirectory())
-        else:
-            BUILD_FAIL.showFormatted(console.getName())
 
 proc version() =
     ## Show version info and exit

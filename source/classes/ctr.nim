@@ -33,7 +33,7 @@ proc publish*(self : CTR, source : string) : bool =
         return true
 
     let properDescription = self.description & " • " & self.version
-    let binaryPath        = getBuildDirectory() & "/SuperGame"
+    let binaryPath        = getBuildDirectory() & "/LOVEPotion"
 
     # Meta Command
     runCommand(meta_cmd.format(self.name, properDescription, self.author, self.getIcon(), binaryPath))
