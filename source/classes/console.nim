@@ -1,4 +1,4 @@
-import osproc, strformat, strutils, os, times
+import osproc, strformat, strutils, os
 import iface
 
 import ../config/configfile
@@ -112,10 +112,7 @@ proc getOutputPath*(self : Console) : string =
 proc packGameDirectory*(self: Console, source : string) : bool =
     ## Pack the game directory into the binary data
 
-    write(stdout, "Packing game content.. please wait.. ")
-    flushFile(stdout)
-
-    let start = getTime()
+    echo("Packing game content..")
 
     let romFS = fmt("{getRomFSDirectory()}.love")
     let sourceDirectory = fmt("{source}/")
@@ -139,9 +136,6 @@ proc packGameDirectory*(self: Console, source : string) : bool =
     except Exception as e:
         echo(e.msg)
         return false
-
-    let delta = (getTime() - start).inSeconds()
-    echo(fmt("done in {delta}s"))
 
     return true
 

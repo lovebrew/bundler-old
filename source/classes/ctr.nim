@@ -1,4 +1,4 @@
-import strutils, strformat, os, times
+import strutils, strformat, os
 
 import ../prompts
 import ../config/configfile
@@ -50,10 +50,7 @@ proc publish*(self : CTR, source : string) : bool =
 
 
 proc convertFiles(self : CTR, source : string) : bool =
-    write(stdout, "Converting and copying files.. please wait.. ")
-    flushFile(stdout)
-
-    let start = getTime()
+    echo("Converting and copying files..")
 
     # Get our important directories
     let romFSDirectory = getRomFSDirectory()
@@ -97,8 +94,5 @@ proc convertFiles(self : CTR, source : string) : bool =
 
     if hasError:
         return false
-
-    let delta = (getTime() - start).inSeconds()
-    echo(fmt("done in {delta}s"))
 
     return true
