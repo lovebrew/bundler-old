@@ -84,7 +84,7 @@ proc build() =
 
     let source = Config.getSourceDirectory()
     if source.isEmptyOrWhitespace() or not source.dirExists():
-        NO_SOURCE.show()
+        NO_SOURCE.showFormatted(source)
         return
 
     for element in targets:

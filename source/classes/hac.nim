@@ -26,11 +26,15 @@ proc publish(self : HAC, source : string) : bool =
         BUILD_FAIL.showFormatted(source, self.getName(), self.getBinaryName(), self.getBinaryPath())
         return false
 
-    # Create metadata
-    runCommand(meta_cmd.format(self.name, self.author, self.version, elfBinaryPath))
+    try:
+        # Create metadata
+        runCommand(meta_cmd.format(self.name, self.author, self.version, elfBinaryPath))
 
-    # Create binary
-    runCommand(bin_cmd.format(self.getBinaryPath(), self.name, self.getIcon()))
+        # Create binary
+        runCommand(bin_cmd.format(self.getBinaryPath(), self.name, self.getIcon()))
+    except CatchableError as error:
+        echo(error.msg)
+        return false
 
     return self.packGameDirectory(source)
 

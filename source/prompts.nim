@@ -56,8 +56,8 @@ to add the path 'C:\devkitPro\tools\bin' to their PATH.
 
 const BUILD_FAIL* = """
 Could not build the project '$1' for $2!
-The ELF binary ($3) at path $4 does not exist!
-Aborting!
+Ensure the ELF binary ($3) is at the following path:
+$4
 """
 
 const BAD_CONFIG* = """

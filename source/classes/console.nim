@@ -3,6 +3,7 @@ import iface
 
 import ../config/configfile
 import ../assets
+import ../exception
 
 import zippy/ziparchives
 
@@ -32,7 +33,20 @@ proc initVariables*() =
 proc runCommand*(command : string) =
     ## Runs a specified command
 
-    discard execCmdEx(command)
+    let result = execCmdEx(command)
+
+    if result.exitCode != 0:
+        let message = result.output
+        let executable = message.split(" ")[0]
+
+        case executable:
+            of "tex3ds":
+                raise TextureConversionException(message)
+            of "mkbcfnt":
+                raise FontConversionException(message)
+            else:
+                raise BinaryExecutionException(executable, message)
+
 
 proc getBinarySearchPath() : string =
     ## Returns the search path of the expected ELF binary
@@ -68,7 +82,7 @@ proc preBuildCleanup*() =
         let (_, _, extension) = splitFile(path)
 
         if (extension in extensions):
-            removeFile(path)
+            removeFile(fmt("{getBuildDirectory()}/{path}"))
 
 proc postBuildCleanup() =
     let extensions = @[".smdh", ".nacp"]
@@ -77,7 +91,7 @@ proc postBuildCleanup() =
         let (_, name, extension) = splitFile(path)
 
         if (extension in extensions) or ("LOVEPotion" in name):
-            removeFile(path)
+            removeFile(fmt("{getBuildDirectory()}/{path}"))
 
 
 proc getOutputName*(self : Console) : string =
