@@ -1,10 +1,8 @@
 import os
 import rdstdin
+import strutils
 
-import cligen; include cligen/mergeCfgEnv
-
-const version = staticRead("../lovebrew.nimble").fromNimble("version")
-clCfg.version = version
+import cligen
 
 import assetsfile
 import configure
@@ -16,6 +14,8 @@ import types/target
 import strings
 
 import tables
+
+const VERSION = staticRead("../lovebrew.nimble").fromNimble("version")
 
 proc init() =
     ## Initializes a new config file
@@ -60,11 +60,16 @@ proc clean() =
 
     removeDir(config.build)
 
+proc version() =
+    ## Show program version and exit
+
+    echo(VERSION)
+
 when defined(gcc) and defined(windows):
     {.link: "res/icon.o"}
 
 when isMainModule:
     try:
-        dispatchMulti([init], [build], [clean])
+        dispatchMulti([init], [build], [clean], [version])
     except Exception as e:
         echo(e.msg)

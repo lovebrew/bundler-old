@@ -1,12 +1,12 @@
 # Package
 
-version     = "0.5.0"
-author      = "TurtleP"
+version = "0.5.0"
+author = "TurtleP"
 description = "LÖVE Potion Game Distribution Helper"
-license     = "MIT"
-srcDir      = "src"
-bin         = @["lovebrew"]
-binDir      = "dist"
+license = "MIT"
+srcDir = "src"
+bin = @["lovebrew"]
+binDir = "dist"
 
 
 # Dependencies

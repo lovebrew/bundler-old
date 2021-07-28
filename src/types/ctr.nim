@@ -25,7 +25,7 @@ proc getConsoleName*(self: Ctr): string = "Nintendo 3DS"
 proc getElfBinaryName*(self: Ctr): string = "3DS.elf"
 proc getIconExtension*(self: Ctr): string = "png"
 
-proc convertFiles(self: Ctr, source: string) =
+proc convertFiles(self: Ctr, source: string): bool =
     let romFS = console.getRomFSDirectory()
 
     for path in os.walkDirRec(source, relative = true):
@@ -51,9 +51,14 @@ proc convertFiles(self: Ctr, source: string) =
             else:
                 os.copyFile(relativePath, destination)
         except Exception:
-            echo("yeet")
+            return false
+
+    return true
 
 proc publish*(self: Ctr, source: string) =
+    if not self.convertFiles(source):
+        return
+
     let elfBinaryPath = self.getElfBinaryPath()
 
     if not os.fileExists(elfBinaryPath) and not config.rawData:
@@ -61,4 +66,18 @@ proc publish*(self: Ctr, source: string) =
                 config.name, self.getConsoleName(), self.getElfBinaryName(),
                 config.binSearchPath))
 
-    self.convertFiles(source)
+    let properDescription = fmt("{config.description} • {config.version}")
+    let tempBinaryPath = self.getTempElfBinaryPath()
+
+    try:
+        # Output LOVEPotion_3dsx.smdh to `build` directory
+        console.runCommand(SmdhCommand.format(config.name, properDescription,
+                config.author, self.getIcon(), tempBinaryPath))
+
+        # Output LOVEPotion.3dsx to `build` directory
+        console.runCommand(BinaryCommand.format(self.getElfBinaryPath(),
+                tempBinaryPath))
+    except Exception:
+        return
+
+    self.packGameDirectory(config.romFS)

@@ -6,6 +6,7 @@ import ../configure
 import ../assetsfile
 
 import iface
+import zippy/ziparchives
 
 type
     ConsoleBase* = ref object of RootObj
@@ -32,6 +33,16 @@ proc getOutputBinaryPath*(self: Console): string =
 
     return fmt("{config.build}/{self.getOutputBinaryName()}")
 
+proc getTempBinaryPath*(self: Console): string =
+    ## Return the temp build binary relative to the build directory
+
+    return fmt("{config.build}/LOVEPotion.{self.getBinaryExtension()}")
+
+proc getTempElfBinaryPath*(self: Console): string =
+    ## Return the temp build ELF binary relative to the build directory
+
+    return fmt("{config.build}/LOVEPotion_{self.getBinaryExtension()}")
+
 proc getIcon*(self: Console): string =
     ## Return the full path to the icon
     ## If one isn't found, use the default icon
@@ -51,7 +62,18 @@ proc getIcon*(self: Console): string =
     return filename
 
 proc packGameDirectory*(self: Console, romFS: string) =
-    return
+    let content = fmt("{config.romFS}.love")
+    let tempBinaryPath = self.getTempBinaryPath()
+
+    try:
+        ziparchives.createZipArchive(romFS, content)
+
+        let binaryData = readFile(tempBinaryPath)
+        writeFile(self.getOutputBinaryPath(), binaryData & readFile(content))
+
+        os.removeFile(content)
+    except Exception:
+        return
 
 proc getRomFSDirectory*(): string =
     ## Return the relative "RomFS" directory
@@ -61,4 +83,4 @@ proc getRomFSDirectory*(): string =
 proc runCommand*(command: string) =
     ## Runs a specified command
 
-    discard execCmdEx(command)
+    discard osproc.execCmdEx(command)
