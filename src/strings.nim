@@ -34,6 +34,12 @@ On macOS and Linux, install the devkit-env package. Windows users need
 to add the path 'C:\devkitPro\tools\bin' to their PATH.
 """
 
+const ElfBinaryNotFound* = """
+Could not build the project '$1' for $2!
+Ensure the ELF binary ($3) is at the following path:
+$4
+"""
+
 ### Build Status
 
 const BuildSuccess* = """

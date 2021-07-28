@@ -33,7 +33,7 @@ proc checkToolchainInstall*(): bool =
 
 if not fileExists(FirstRunFile):
     os.createDir(ConfigDirectory)
-    io.writeFile(FirstRunFile, "")
+    writeFile(FirstRunFile, "")
 
     echo(FirstRun)
     quit(0)

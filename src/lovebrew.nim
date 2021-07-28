@@ -10,9 +10,7 @@ import assetsfile
 import configure
 import environment
 
-import types/console
 import types/ctr
-
 import types/target
 
 import strings
@@ -23,7 +21,7 @@ proc init() =
     ## Initializes a new config file
 
     if not os.fileExists(configure.ConfigFilePath):
-        io.writeFile(configure.ConfigFilePath, assetsfile.DefaultConfigFile)
+        writeFile(configure.ConfigFilePath, assetsfile.DefaultConfigFile)
         return
 
     var answer: string
@@ -31,7 +29,7 @@ proc init() =
 
     if answer.toLower() == "y":
         try:
-            io.writeFile(configure.ConfigFilePath, assetsfile.DefaultConfigFile)
+            writeFile(configure.ConfigFilePath, assetsfile.DefaultConfigFile)
         except Exception as e:
             echo(strings.ConfigOverwriteFailed & " " & e.msg)
 
@@ -49,10 +47,10 @@ proc build() =
     TargetClasses[Target_Ctr] = Ctr()
     # TargetClasses[Target.Hac] = hac.Hac()
 
-    var console: Console
+    os.createDir(config.build)
+
     for target in config.targets:
-        console = TargetClasses[target]
-        console.publish(config.source)
+        TargetClasses[target].publish(config.source)
 
 proc clean() =
     ## Clean the set output directory

@@ -13,14 +13,14 @@ type
 iface *Console:
     proc getBinaryExtension(): string
     proc getConsoleName(): string
-    proc getELFBinaryName(): string
+    proc getElfBinaryName(): string
     proc getIconExtension(): string
     proc publish(source: string)
 
-proc getELFBinaryPath*(self: Console): string =
+proc getElfBinaryPath*(self: Console): string =
     ## Return the full path to the ELF binary
 
-    return fmt("{config.binSearchPath}/{self.getELFBinaryName()}")
+    return fmt("{config.binSearchPath}/{self.getElfBinaryName()}")
 
 proc getOutputBinaryName*(self: Console): string =
     ## Return the filename with extension (.nro/3dsx)
@@ -46,11 +46,19 @@ proc getIcon*(self: Console): string =
         else:
             iconData = assetsfile.DefaultCtrIcon
 
-        io.writeFile(filename, iconData)
+        writeFile(filename, iconData)
 
     return filename
+
+proc packGameDirectory*(self: Console, romFS: string) =
+    return
+
+proc getRomFSDirectory*(): string =
+    ## Return the relative "RomFS" directory
+
+    return fmt("{config.build}/{config.romFS}")
 
 proc runCommand*(command: string) =
     ## Runs a specified command
 
-    let result = execCmdEx(command)
+    discard execCmdEx(command)
