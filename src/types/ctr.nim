@@ -8,11 +8,11 @@ export console
 import ../configure
 import ../strings
 
-const TextureCommand = "tex3ds '$1' --format=rgba8888 -z=auto --border -o '$2.t3x'"
-const FontCommand = "mkbcfnt '$1' -o '$2.bcfnt"
+const TextureCommand = """tex3ds "$1" --format=rgba8888 -z=auto --border -o "$2.t3x""""
+const FontCommand = """mkbcfnt "$1" -o "$2.bcfnt""""
 
-const SmdhCommand = "smdhtool --create '$1' '$2' '$3' '$4' '$5.smdh'"
-const BinaryCommand = "3dsxtool '$1' '$2.3dsx' --smdh='$2.smdh'"
+const SmdhCommand = """smdhtool --create "$1" "$2" "$3" "$4" "$5.smdh""""
+const BinaryCommand = """3dsxtool "$1" "$2.3dsx" --smdh="$2.smdh""""
 
 const Textures = @[".png", ".jpg", ".jpeg"]
 const Fonts = @[".ttf", ".otf"]
@@ -67,17 +67,18 @@ proc publish*(self: Ctr, source: string) =
                 config.binSearchPath))
 
     let properDescription = fmt("{config.description} • {config.version}")
-    let tempBinaryPath = self.getTempElfBinaryPath()
+    let tempBinaryPath = self.getTempMetadataBinaryPath()
 
     try:
-        # Output LOVEPotion_3dsx.smdh to `build` directory
+        # Output LOVEPotion.smdh to `build` directory
         console.runCommand(SmdhCommand.format(config.name, properDescription,
                 config.author, self.getIcon(), tempBinaryPath))
 
         # Output LOVEPotion.3dsx to `build` directory
         console.runCommand(BinaryCommand.format(self.getElfBinaryPath(),
                 tempBinaryPath))
-    except Exception:
+    except Exception as e:
+        echo(e.msg)
         return
 
-    self.packGameDirectory(config.romFS)
+    self.packGameDirectory(fmt("{config.romFS}/"))

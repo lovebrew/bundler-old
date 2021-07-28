@@ -1,6 +1,7 @@
 import os
 import rdstdin
 import strutils
+import strformat
 
 import cligen
 
@@ -9,6 +10,7 @@ import configure
 import environment
 
 import types/ctr
+import types/hac
 import types/target
 
 import strings
@@ -39,13 +41,16 @@ proc build() =
     if not configure.load():
         raise newException(Exception, strings.NoConfig)
 
+    if not dirExists(config.source):
+        raise newException(Exception, strings.NoSource)
+
     if not environment.checkToolchainInstall():
         return
 
     var TargetClasses: Table[Target, Console]
 
     TargetClasses[Target_Ctr] = Ctr()
-    # TargetClasses[Target.Hac] = hac.Hac()
+    TargetClasses[Target_Hac] = Hac()
 
     os.createDir(config.build)
 
@@ -58,7 +63,8 @@ proc clean() =
     if not configure.load():
         raise newException(Exception, strings.NoConfig)
 
-    removeDir(config.build)
+    let root = split(config.build, "/", 1)[0]
+    removeDir(fmt("./{root}/"))
 
 proc version() =
     ## Show program version and exit
@@ -66,7 +72,7 @@ proc version() =
     echo(VERSION)
 
 when defined(gcc) and defined(windows):
-    {.link: "res/icon.o"}
+    {.link: "res/icon.o".}
 
 when isMainModule:
     try:

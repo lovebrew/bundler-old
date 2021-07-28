@@ -1,3 +1,4 @@
 dist/
 *.exe
 *.o
+test/

@@ -4,6 +4,8 @@ const DefaultHacIcon* = staticRead("assets/icon.jpg")
 
 const DefaultCtrIcon* = staticRead("assets/icon.png")
 
-const HacShaderColor* = staticRead("assets/shaders/color_fsh.dksh")
-const HacShaderTexture* = staticRead("assets/shaders/texture_fsh.dksh")
-const HacShaderTransform* = staticRead("assets/shaders/transform_vsh.dksh")
+const HacShaders* = {
+    "color_fsh": staticRead("assets/shaders/color_fsh.dksh"),
+    "texture_fsh": staticRead("assets/shaders/texture_fsh.dksh"),
+    "transform_vsh": staticRead("assets/shaders/transform_vsh.dksh")
+}

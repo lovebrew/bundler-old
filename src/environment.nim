@@ -6,6 +6,7 @@ import configure
 import strings
 
 let FirstRunFile = ConfigDirectory & "/.first_run"
+let CurrentDirectory* = getCurrentDir()
 
 proc findBinary(name: string): bool =
     if isEmptyOrWhitespace(findExe(name)):

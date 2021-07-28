@@ -38,10 +38,10 @@ proc getTempBinaryPath*(self: Console): string =
 
     return fmt("{config.build}/LOVEPotion.{self.getBinaryExtension()}")
 
-proc getTempElfBinaryPath*(self: Console): string =
+proc getTempMetadataBinaryPath*(self: Console): string =
     ## Return the temp build ELF binary relative to the build directory
 
-    return fmt("{config.build}/LOVEPotion_{self.getBinaryExtension()}")
+    return fmt("{config.build}/LOVEPotion")
 
 proc getIcon*(self: Console): string =
     ## Return the full path to the icon
@@ -82,5 +82,7 @@ proc getRomFSDirectory*(): string =
 
 proc runCommand*(command: string) =
     ## Runs a specified command
+    let result = osproc.execCmdEx(command)
 
-    discard osproc.execCmdEx(command)
+    if result.exitCode != 0:
+        echo(result.output)
