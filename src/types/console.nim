@@ -16,7 +16,7 @@ iface *Console:
     proc getConsoleName(): string
     proc getElfBinaryName(): string
     proc getIconExtension(): string
-    proc publish(source: string)
+    proc publish()
 
 proc getElfBinaryPath*(self: Console): string =
     ## Return the full path to the ELF binary
@@ -26,7 +26,7 @@ proc getElfBinaryPath*(self: Console): string =
 proc getOutputBinaryName*(self: Console): string =
     ## Return the filename with extension (.nro/3dsx)
 
-    return fmt("{config.name}.{self.getBinaryExtension()}")
+    return fmt("{config.romfs}.{self.getBinaryExtension()}")
 
 proc getOutputBinaryPath*(self: Console): string =
     ## Return the full path where the binary is output to

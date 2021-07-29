@@ -55,7 +55,7 @@ proc build() =
     os.createDir(config.build)
 
     for target in config.targets:
-        TargetClasses[target].publish(config.source)
+        TargetClasses[target].publish()
 
 proc clean() =
     ## Clean the set output directory

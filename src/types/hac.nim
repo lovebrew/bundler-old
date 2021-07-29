@@ -9,8 +9,9 @@ import ../assetsfile
 import ../configure
 import ../strings
 
-const NacpCommand = """nacptool --create "$1" "$2" "$3" "$4.nacp""""
-const BinaryCommand = """elf2nro "$1" "$2.nro" --icon="$3" --nacp="$4.nacp" --romfsdir="./shaders""""
+const ZipCommand = """cd "$1"; zip -r -9 $2 ."""
+const NacpCommand = """cd "$1"; nacptool --create "$2" "$3" "$4" "$5.nacp""""
+const BinaryCommand = """cd "$1"; elf2nro "$2" "$3.nro" --icon="$4" --nacp="$3.nacp" --romfsdir="romfs""""
 
 type
     Hac* = ref object of ConsoleBase
@@ -20,27 +21,37 @@ proc getConsoleName*(self: Hac): string = "Nintendo Switch"
 proc getElfBinaryName*(self: Hac): string = "Switch.elf"
 proc getIconExtension*(self: Hac): string = "jpg"
 
-proc publish*(self: Hac, source: string) =
+proc publish*(self: Hac) =
     ### Write the needed shaders to their proper directory
 
-    os.createDir("shaders")
+    os.createDir(fmt("{config.build}/romfs/shaders"))
     for key, value in HacShaders.items():
-        writeFile(fmt("shaders/{key}.dksh"), value)
+        writeFile(fmt("{config.build}/romfs/shaders/{key}.dksh"), value)
 
     let elfBinaryPath = self.getElfBinaryPath()
+    let name = config.name
 
     if not os.fileExists(elfBinaryPath):
-        echo(strings.ElfBinaryNotFound.format(
-                config.name, self.getConsoleName(), self.getElfBinaryName(),
+        raise newException(Exception, strings.ElfBinaryNotFound.format(
+                name, self.getConsoleName(), self.getElfBinaryName(),
                 config.binSearchPath))
-        return
 
-    let tempBinaryPath = self.getTempMetadataBinaryPath()
+    let build = config.build
+    let currentDir = getCurrentDir()
+    let lovePath = fmt("{build}/{config.romFS}.love")
 
-    ### Create `LOVEPotion.nacp` in `build`
-    console.runCommand(NacpCommand.format(config.name, config.author, config.version, tempBinaryPath))
+    ### Create `SuperGame`.love in the build directory
+    console.runCommand(ZipCommand.format(config.source, fmt("{currentDir}/{lovePath}")))
 
-    ### Create `LOVEPotion.nro` in `build`
-    console.runCommand(BinaryCommand.format(elfBinaryPath, tempBinaryPath, self.getIcon(), tempBinaryPath))
+    let romFS = config.romFS
 
-    self.packGameDirectory(fmt("{source}/"))
+    ### Create `SuperGame`.nacp in the build directory
+    console.runCommand(NacpCommand.format(build, name, config.author, config.version, romFS))
+
+    ### Create `SuperGame`.nro in the build directory
+    console.runCommand(BinaryCommand.format(build, elfBinaryPath, romFS, fmt("{currentDir}/{self.getIcon()}")))
+
+    let outputBinaryPath = self.getOutputBinaryPath()
+
+    ### Finalize `SuperGame`.nro in the build directory
+    writeFile(outputBinaryPath, readFile(outputBinaryPath) & readFile(lovePath))

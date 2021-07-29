@@ -55,17 +55,16 @@ proc convertFiles(self: Ctr, source: string): bool =
 
     return true
 
-proc publish*(self: Ctr, source: string) =
-    if not self.convertFiles(source):
+proc publish*(self: Ctr) =
+    if not self.convertFiles(config.source):
         return
 
     let elfBinaryPath = self.getElfBinaryPath()
 
     if not os.fileExists(elfBinaryPath) and not config.rawData:
-        echo(strings.ElfBinaryNotFound.format(
+        raise newException(Exception, strings.ElfBinaryNotFound.format(
                 config.name, self.getConsoleName(), self.getElfBinaryName(),
                 config.binSearchPath))
-        return
 
     let properDescription = fmt("{config.description} • {config.version}")
     let tempBinaryPath = self.getTempMetadataBinaryPath()
