@@ -26,7 +26,7 @@ proc getElfBinaryPath*(self: Console): string =
 proc getOutputBinaryName*(self: Console): string =
     ## Return the filename with extension (.nro/3dsx)
 
-    return fmt("{config.romfs}.{self.getBinaryExtension()}")
+    return fmt("{config.outputName}.{self.getBinaryExtension()}")
 
 proc getOutputBinaryPath*(self: Console): string =
     ## Return the full path where the binary is output to
@@ -61,12 +61,12 @@ proc getIcon*(self: Console): string =
 
     return filename
 
-proc packGameDirectory*(self: Console, romFS: string) =
-    let content = fmt("{config.romFS}.love")
+proc packGameDirectory*(self: Console, outputName: string) =
+    let content = fmt("{config.outputName}.love")
     let tempBinaryPath = self.getTempBinaryPath()
 
     try:
-        ziparchives.createZipArchive(romFS, content)
+        ziparchives.createZipArchive(outputName, content)
 
         let binaryData = readFile(tempBinaryPath)
         writeFile(self.getOutputBinaryPath(), binaryData & readFile(content))
@@ -78,7 +78,7 @@ proc packGameDirectory*(self: Console, romFS: string) =
 proc getRomFSDirectory*(): string =
     ## Return the relative "RomFS" directory
 
-    return fmt("{config.build}/{config.romFS}")
+    return fmt("{config.build}/{config.outputName}")
 
 proc runCommand*(command: string) =
     ## Runs a specified command

@@ -24,7 +24,7 @@ type
         # Output
         build*: string
         rawData*: bool
-        romFS*: string
+        outputName*: string
 
 var config*: Config
 
@@ -67,7 +67,7 @@ proc loadBuild(conf: var Config, toml: TomlValueRef) =
 proc loadOutput(conf: var Config, toml: TomlValueRef) =
     conf.build = toml["build"].getStr()
     conf.rawData = toml["rawData"].getBool()
-    conf.romFS = toml["romFS"].getStr()
+    conf.outputName = toml["outputName"].getStr()
 
 proc load*(): bool =
     try:

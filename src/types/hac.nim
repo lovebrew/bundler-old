@@ -23,7 +23,6 @@ proc getIconExtension*(self: Hac): string = "jpg"
 
 proc publish*(self: Hac) =
     ### Write the needed shaders to their proper directory
-
     os.createDir(fmt("{config.build}/romfs/shaders"))
     for key, value in HacShaders.items():
         writeFile(fmt("{config.build}/romfs/shaders/{key}.dksh"), value)
@@ -38,18 +37,18 @@ proc publish*(self: Hac) =
 
     let build = config.build
     let currentDir = getCurrentDir()
-    let lovePath = fmt("{build}/{config.romFS}.love")
+    let lovePath = fmt("{build}/{config.outputName}.love")
 
     ### Create `SuperGame`.love in the build directory
     console.runCommand(ZipCommand.format(config.source, fmt("{currentDir}/{lovePath}")))
 
-    let romFS = config.romFS
+    let outputName = config.outputName
 
     ### Create `SuperGame`.nacp in the build directory
-    console.runCommand(NacpCommand.format(build, name, config.author, config.version, romFS))
+    console.runCommand(NacpCommand.format(build, name, config.author, config.version, outputName))
 
     ### Create `SuperGame`.nro in the build directory
-    console.runCommand(BinaryCommand.format(build, elfBinaryPath, romFS, fmt("{currentDir}/{self.getIcon()}")))
+    console.runCommand(BinaryCommand.format(build, elfBinaryPath, outputName, fmt("{currentDir}/{self.getIcon()}")))
 
     let outputBinaryPath = self.getOutputBinaryPath()
 

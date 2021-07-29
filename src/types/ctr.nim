@@ -26,7 +26,7 @@ proc getElfBinaryName*(self: Ctr): string = "3DS.elf"
 proc getIconExtension*(self: Ctr): string = "png"
 
 proc convertFiles(self: Ctr, source: string): bool =
-    let romFS = console.getRomFSDirectory()
+    let outputName = console.getRomFSDirectory()
 
     for path in os.walkDirRec(source, relative = true):
         if os.isHidden(path):
@@ -35,7 +35,7 @@ proc convertFiles(self: Ctr, source: string): bool =
         let (dir, name, extension) = os.splitFile(path)
 
         let relativePath = fmt("{source}/{path}")
-        let destination = fmt("{romFS}/{dir}")
+        let destination = fmt("{outputName}/{dir}")
 
         try:
             os.createDir(destination)
@@ -81,4 +81,4 @@ proc publish*(self: Ctr) =
         echo(e.msg)
         return
 
-    self.packGameDirectory(fmt("{config.romFS}/"))
+    self.packGameDirectory(fmt("{config.outputName}/"))

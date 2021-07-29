@@ -1,9 +1,9 @@
 ## --- Metadata Options --- ##
 
-# [string] @name        : Name of the game, default: name of the directory.
+# [string] @name        : Name of the game. If set to false, name of the directory.
 # [string] @author      : Author of the game.
 # [string] @description : Description of the game.
-# [string] @version     : Version of the game in {major}.{minor}.{revision} format.
+# [string] @version     : Version of the game, preferrably in {major}.{minor}.{revision} format.
 [metadata]
 name = "SuperGame"
 author = "SuperAuthor"
@@ -14,17 +14,20 @@ version = "0.1.0"
 
 # [bool]   @clean         : Clean the build artifacts and directory before a new build.
 #                           This helps reduce chances of cluttering the built data.
-#                           Default: false.
+#                           Default: false
 #
-# [array]  @targts        : Target console(s) to build for. Default: ["3ds", "switch"].
+# [array]  @targts        : Target console(s) to build for.
+#                           Default: ["3ds", "switch"]
 #
 # [string] @source        : Game source directory; relative to the config
-#                           file. Default: "game".
+#                           file.
+#                           Default: "game"
 #
 # [string] @icon          : Icon name. Do not provide the extension.
 #                           lovebrew will automatically provide this.
 #                           It can include a prepended path. This is relative
-#                           to the config file. Default: "icon".
+#                           to the config file.
+$                           Default: "icon"
 #
 # [string] @binSearchPath : Location to search for the elf binaries.
 #                           Default: ""
@@ -37,24 +40,24 @@ binSearchPath = ""
 
 ## --- Output Options --- ##
 
-# [string] @build   : Output directory for compilation; relative to the config
-#                     file. When false, it will use current directory.
-#                     Default: "build".
+# [string] @build      : Output directory for compilation; relative to the config
+#                        file. When false, it will use current directory.
+#                        Default: "build"
 #
-# [bool]   @rawData : Whether or not to properly build a 3DS project binary.
-#                     This will not build a 3DS application. See @build.targets.
-#                     When false, outputs as a 3dsx; when true, output only
-#                     as the "raw" game folder used for testing purposes.
-#                     Default: false.
+# [bool]   @rawData    : Whether or not to properly build a 3DS project binary.
+#                        This will not build a 3DS application. See @build.targets.
+#                        When false, outputs as a 3dsx; when true, output only
+#                        as the "raw" game folder used for testing purposes.
+#                        Default: false
 #
-# [string] @romFS   : The directory within the build directory which gets
-#                     zipped and appended to the resulting binary. Default: "game".
-#                     NOTE: if "rawData" is true, this does not get zipped and can
-#                     be used for quick testing. However, the directory must be named
-#                     as the default, "game".
+# [string] @outputName : The name used for the binaries lovebrew outputs.
+#                        Default: "game"
+#                        NOTE: If "rawData" is true, the source directory will not get
+#                        zipped and can be used for quick testing. However, outputName
+#                        must be set to "game".
 [output]
 build = "build"
 rawData = false
-romFS = "game"
+outputName = "game"
 
 # VERSION 0.5.0 #
