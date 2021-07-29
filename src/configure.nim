@@ -28,8 +28,8 @@ type
 
 var config*: Config
 
-let ConfigFilePath* = os.normalizedPath(getCurrentDir() & "/lovebrew.toml")
-let ConfigDirectory* = os.normalizedPath(getConfigDir() & "/lovebrew")
+let ConfigFilePath* = os.normalizedPath(os.getCurrentDir() & "/lovebrew.toml")
+let ConfigDirectory* = os.normalizedPath(os.getConfigDir() & "/lovebrew")
 
 var TargetsTable: Table[string, Target]
 

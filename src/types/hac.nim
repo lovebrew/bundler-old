@@ -10,8 +10,8 @@ import ../configure
 import ../strings
 
 const ZipCommand = """cd "$1"; zip -r -9 $2 ."""
-const NacpCommand = """cd "$1"; nacptool --create "$2" "$3" "$4" "$5.nacp""""
-const BinaryCommand = """cd "$1"; elf2nro "$2" "$3.nro" --icon="$4" --nacp="$3.nacp" --romfsdir="romfs""""
+const NacpCommand = """cd "$1"; nacptool --create "$2" "$3" "$4" "game.nacp""""
+const BinaryCommand = """cd "$1"; elf2nro "$2" "$3.nro" --icon="$4" --nacp="game.nacp" --romfsdir="romfs""""
 
 type
     Hac* = ref object of ConsoleBase
@@ -36,8 +36,8 @@ proc publish*(self: Hac) =
                 config.binSearchPath))
 
     let build = config.build
-    let currentDir = getCurrentDir()
-    let lovePath = fmt("{build}/{config.outputName}.love")
+    let currentDir = os.getCurrentDir()
+    let lovePath = fmt("{build}/game.love")
 
     ### Create `SuperGame`.love in the build directory
     console.runCommand(ZipCommand.format(config.source, fmt("{currentDir}/{lovePath}")))
@@ -45,7 +45,7 @@ proc publish*(self: Hac) =
     let outputName = config.outputName
 
     ### Create `SuperGame`.nacp in the build directory
-    console.runCommand(NacpCommand.format(build, name, config.author, config.version, outputName))
+    console.runCommand(NacpCommand.format(build, name, config.author, config.version))
 
     ### Create `SuperGame`.nro in the build directory
     console.runCommand(BinaryCommand.format(build, elfBinaryPath, outputName, fmt("{currentDir}/{self.getIcon()}")))
@@ -54,3 +54,8 @@ proc publish*(self: Hac) =
 
     ### Finalize `SuperGame`.nro in the build directory
     writeFile(outputBinaryPath, readFile(outputBinaryPath) & readFile(lovePath))
+
+    ### Post-build cleanup
+    os.removeDir(fmt("{build}/romfs"))
+    os.removeFile(lovePath)
+    os.removeFile(fmt("{build}/game.nacp"))
