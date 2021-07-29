@@ -49,7 +49,7 @@ proc convertFiles(self: Ctr, source: string): bool =
                 console.runCommand(FontCommand.format(relativePath,
                         destinationPath))
             else:
-                os.copyFile(relativePath, destination)
+                os.copyFileToDir(relativePath, destination)
         except Exception:
             return false
 
@@ -62,9 +62,10 @@ proc publish*(self: Ctr, source: string) =
     let elfBinaryPath = self.getElfBinaryPath()
 
     if not os.fileExists(elfBinaryPath) and not config.rawData:
-        raise newException(Exception, strings.ElfBinaryNotFound.format(
+        echo(strings.ElfBinaryNotFound.format(
                 config.name, self.getConsoleName(), self.getElfBinaryName(),
                 config.binSearchPath))
+        return
 
     let properDescription = fmt("{config.description} • {config.version}")
     let tempBinaryPath = self.getTempMetadataBinaryPath()

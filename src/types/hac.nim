@@ -10,7 +10,7 @@ import ../configure
 import ../strings
 
 const NacpCommand = """nacptool --create "$1" "$2" "$3" "$4.nacp""""
-const BinaryCommand = """elf2nro "$1" "$2.nro" --icon="$3" --nacp="$2.nacp" --romfsdir="./shaders""""
+const BinaryCommand = """elf2nro "$1" "$2.nro" --icon="$3" --nacp="$4.nacp" --romfsdir="./shaders""""
 
 type
     Hac* = ref object of ConsoleBase
@@ -30,14 +30,17 @@ proc publish*(self: Hac, source: string) =
     let elfBinaryPath = self.getElfBinaryPath()
 
     if not os.fileExists(elfBinaryPath):
-        raise newException(Exception, strings.ElfBinaryNotFound.format(
+        echo(strings.ElfBinaryNotFound.format(
                 config.name, self.getConsoleName(), self.getElfBinaryName(),
                 config.binSearchPath))
+        return
+
+    let tempBinaryPath = self.getTempMetadataBinaryPath()
 
     ### Create `LOVEPotion.nacp` in `build`
-    console.runCommand(NacpCommand.format(config.name, config.author, config.version, elfBinaryPath))
+    console.runCommand(NacpCommand.format(config.name, config.author, config.version, tempBinaryPath))
 
     ### Create `LOVEPotion.nro` in `build`
-    console.runCommand(BinaryCommand.format(elfBinaryPath, config.name, self.getIcon()))
+    console.runCommand(BinaryCommand.format(elfBinaryPath, tempBinaryPath, self.getIcon(), tempBinaryPath))
 
     self.packGameDirectory(fmt("{source}/"))
