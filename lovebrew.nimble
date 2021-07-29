@@ -11,7 +11,7 @@ binDir = "dist"
 
 # Dependencies
 
-requires "nim >= 1.4.6"
+requires "nim >= 1.4.0"
 requires "zippy"
 requires "parsetoml"
 requires "cligen"
