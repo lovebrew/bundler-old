@@ -42,7 +42,7 @@ proc build() =
         raise newException(Exception, strings.NoConfig)
 
     if not dirExists(config.source):
-        raise newException(Exception, strings.NoSource)
+        raise newException(Exception, strings.NoSource.format(config.source))
 
     if not environment.checkToolchainInstall():
         return

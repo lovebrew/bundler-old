@@ -54,6 +54,8 @@ proc loadBuild(conf: var Config, toml: TomlValueRef) =
     for target in targets:
         conf.targets.add(TargetsTable[target.getStr()])
 
+    conf.source = toml["source"].getStr()
+
     conf.icon = toml["icon"].getStr()
 
     var searchPath = toml["binSearchPath"].getStr()
