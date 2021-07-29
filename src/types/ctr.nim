@@ -22,7 +22,7 @@ type
 
 proc getBinaryExtension*(self: Ctr): string = "3dsx"
 proc getConsoleName*(self: Ctr): string = "Nintendo 3DS"
-proc getElfBinaryName*(self: Ctr): string = "3DS.elf"
+proc getElfBinaryName*(self: Ctr): string = "3ds.elf"
 proc getIconExtension*(self: Ctr): string = "png"
 
 proc convertFiles(self: Ctr, source: string): bool =

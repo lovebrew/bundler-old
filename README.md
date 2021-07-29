@@ -1,17 +1,17 @@
 ## Installation
 The easiest way to "install" LÖVEBrew is from the [releases page](https://github.com/TurtleP/lovebrew/releases). Download the respective platform's release and put it in the following directory for your operating system:
 
-- Windows: `%appdata%/.lovebrew/bin`
-  - Create this directory and add it to your PATH!
-- Linux: `/usr/bin`
-- macOS: TBD
+- Windows: `%APPDATA%/lovebrew/bin`
+  - Create this directory and add it to your PATH
+- macOS/Linux: `~/bin` or `/usr/local/bin`
+  - Should be automatically added to PATH after a reboot
 
 ## Building a Project
-LÖVEBrew will look for the LÖVE Potion ELF binaries by default in the OS configuration directory. They must be named accordingly as `3DS.elf` or `Switch.elf`, depending on the build targets.
+LÖVEBrew will look for the LÖVE Potion ELF binaries by default in the OS configuration directory. They must be named accordingly as `3ds.elf` or `switch.elf`, depending on the build targets.
 However, you *can* override this setting inside the config file and it will search relative to the project's root. The config directory is at the following locations:
 
-- Windows: `%appdata%/.lovebrew`
-- Linux and macOS: `~/.config/.lovebrew`
+- Windows: `%APPDATA%/lovebrew`
+- macOS/Linux: `~/.config/lovebrew`
 
 ## Options
 ```

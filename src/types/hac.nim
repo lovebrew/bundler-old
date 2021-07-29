@@ -18,7 +18,7 @@ type
 
 proc getBinaryExtension*(self: Hac): string = "nro"
 proc getConsoleName*(self: Hac): string = "Nintendo Switch"
-proc getElfBinaryName*(self: Hac): string = "Switch.elf"
+proc getElfBinaryName*(self: Hac): string = "switch.elf"
 proc getIconExtension*(self: Hac): string = "jpg"
 
 proc publish*(self: Hac) =
