@@ -27,7 +27,7 @@ version = "0.1.0"
 #                           lovebrew will automatically provide this.
 #                           It can include a prepended path. This is relative
 #                           to the config file.
-$                           Default: "icon"
+#                           Default: "icon"
 #
 # [string] @binSearchPath : Location to search for the elf binaries.
 #                           Default: ""
