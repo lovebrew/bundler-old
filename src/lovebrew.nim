@@ -9,6 +9,7 @@ import assetsfile
 import configure
 import environment
 
+import types/console
 import types/ctr
 import types/hac
 import types/target
