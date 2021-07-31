@@ -4,6 +4,7 @@ import strformat
 
 import ../configure
 import ../assetsfile
+import ../strings
 
 import iface
 import zippy/ziparchives
@@ -80,6 +81,7 @@ proc getIcon*(self: Console): string =
 
 proc packGameDirectory*(self: Console, romFS: string) =
     ## Pack the game directory to the binary
+    echo(strings.PackGameFiles)
 
     let content = fmt("{config.romFS}.love")
     let binaryPath = self.getOutputBinaryPath()

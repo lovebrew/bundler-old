@@ -18,7 +18,7 @@ import strings
 
 import tables
 
-const VERSION = staticRead("../lovebrew.nimble").fromNimble("version")
+const AppVersion = staticRead("../lovebrew.nimble").fromNimble("version")
 
 proc init() =
     ## Initializes a new config file
@@ -71,7 +71,7 @@ proc clean() =
 proc version() =
     ## Show program version and exit
 
-    echo(VERSION)
+    echo(AppVersion)
 
 when defined(gcc) and defined(windows):
     {.link: "res/icon.o".}

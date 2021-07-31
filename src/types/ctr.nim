@@ -26,6 +26,8 @@ proc getElfBinaryName*(self: Ctr): string = "3DS.elf"
 proc getIconExtension*(self: Ctr): string = "png"
 
 proc convertFiles(self: Ctr, source: string): bool =
+    echo(strings.ConvertCopyingFiles)
+
     let romFS = console.getRomFSDirectory()
 
     for path in os.walkDirRec(source, relative = true):

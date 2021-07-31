@@ -42,6 +42,16 @@ Build for $1 was successful. Please check the directory
 const BuildFailure* = """
 Build for $1 failed. Please check logs."""
 
+### Building Information
+
+const ConvertCopyingFiles* = """
+Converting and copying files, please wait...
+"""
+
+const PackGameFiles* = """
+Packing game content, please wait...
+"""
+
 ### Others
 
 const ConfigExists* = """
