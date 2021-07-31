@@ -53,6 +53,7 @@ proc build() =
     TargetClasses[Target_Hac] = Hac()
 
     os.createDir(config.build)
+    console.preBuildCleanup()
 
     for target in config.targets:
         TargetClasses[target].publish(config.source)

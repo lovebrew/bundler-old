@@ -68,16 +68,16 @@ proc publish*(self: Ctr, source: string) =
         return
 
     let properDescription = fmt("{config.description} • {config.version}")
-    let tempBinaryPath = self.getTempMetadataBinaryPath()
+    let outputPath = self.getGenericOutputBinaryPath()
 
     try:
-        # Output LOVEPotion.smdh to `build` directory
+        # Output {SuperGame}.smdh to `build` directory
         console.runCommand(SmdhCommand.format(config.name, properDescription,
-                config.author, self.getIcon(), tempBinaryPath))
+                config.author, self.getIcon(), outputPath))
 
-        # Output LOVEPotion.3dsx to `build` directory
+        # Output {SuperGame}.3dsx to `build` directory
         console.runCommand(BinaryCommand.format(self.getElfBinaryPath(),
-                tempBinaryPath))
+                outputPath))
     except Exception as e:
         echo(e.msg)
         return

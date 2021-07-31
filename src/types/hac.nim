@@ -35,12 +35,12 @@ proc publish*(self: Hac, source: string) =
                 config.binSearchPath))
         return
 
-    let tempBinaryPath = self.getTempMetadataBinaryPath()
+    let outputPath = self.getGenericOutputBinaryPath()
 
-    ### Create `LOVEPotion.nacp` in `build`
-    console.runCommand(NacpCommand.format(config.name, config.author, config.version, tempBinaryPath))
+    ### Create `{SuperGame}.nacp` in `build`
+    console.runCommand(NacpCommand.format(config.name, config.author, config.version, outputPath))
 
-    ### Create `LOVEPotion.nro` in `build`
-    console.runCommand(BinaryCommand.format(elfBinaryPath, tempBinaryPath, self.getIcon(), tempBinaryPath))
+    ### Create `{SuperGame}.nro` in `build`
+    console.runCommand(BinaryCommand.format(elfBinaryPath, outputPath, self.getIcon(), outputPath))
 
     self.packGameDirectory(fmt("{source}/"))

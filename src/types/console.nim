@@ -8,6 +8,9 @@ import ../assetsfile
 import iface
 import zippy/ziparchives
 
+const BinaryExtensions = @[".3dsx", ".nro"]
+const MetadataExtensions = @[".smdh", ".nacp"]
+
 type
     ConsoleBase* = ref object of RootObj
 
@@ -21,27 +24,41 @@ iface *Console:
 proc getElfBinaryPath*(self: Console): string =
     ## Return the full path to the ELF binary
 
-    return fmt("{config.binSearchPath}/{self.getElfBinaryName()}")
+    return (config.binSearchPath / self.getElfBinaryName())
 
 proc getOutputBinaryName*(self: Console): string =
     ## Return the filename with extension (.nro/3dsx)
 
     return fmt("{config.name}.{self.getBinaryExtension()}")
 
-proc getOutputBinaryPath*(self: Console): string =
+proc getGenericOutputBinaryPath*(self: Console): string =
     ## Return the full path where the binary is output to
+    ## This does not include the file extension
 
-    return fmt("{config.build}/{self.getOutputBinaryName()}")
+    return (config.build / config.name)
 
-proc getTempBinaryPath*(self: Console): string =
-    ## Return the temp build binary relative to the build directory
+proc getOutputBinaryPath(self: Console): string =
+    ## Return the full path to the output binary
+    ## This does include the file extension
 
-    return fmt("{config.build}/LOVEPotion.{self.getBinaryExtension()}")
+    return (config.build / self.getOutputBinaryName())
 
-proc getTempMetadataBinaryPath*(self: Console): string =
-    ## Return the temp build ELF binary relative to the build directory
+proc preBuildCleanup*() =
+    if not config.clean:
+        return
 
-    return fmt("{config.build}/LOVEPotion")
+    for _, path in os.walkDir(config.build, relative = true):
+        let (_, _, extension) = splitFile(path)
+
+        if (extension in BinaryExtensions):
+            os.removeFile(config.build / path)
+
+proc postBuildCleanup*() =
+    for _, path in os.walkDir(config.build, relative = true):
+        let (_, _, extension) = splitFile(path)
+
+        if (extension in MetadataExtensions):
+            os.removeFile(config.build / path)
 
 proc getIcon*(self: Console): string =
     ## Return the full path to the icon
@@ -62,23 +79,27 @@ proc getIcon*(self: Console): string =
     return filename
 
 proc packGameDirectory*(self: Console, romFS: string) =
+    ## Pack the game directory to the binary
+
     let content = fmt("{config.romFS}.love")
-    let tempBinaryPath = self.getTempBinaryPath()
+    let binaryPath = self.getOutputBinaryPath()
 
     try:
         ziparchives.createZipArchive(romFS, content)
 
-        let binaryData = readFile(tempBinaryPath)
+        let binaryData = readFile(binaryPath)
         writeFile(self.getOutputBinaryPath(), binaryData & readFile(content))
 
         os.removeFile(content)
+
+        console.postBuildCleanup()
     except Exception:
         return
 
 proc getRomFSDirectory*(): string =
     ## Return the relative "RomFS" directory
 
-    return fmt("{config.build}/{config.romFS}")
+    return config.build / config.romFS
 
 proc runCommand*(command: string) =
     ## Runs a specified command
