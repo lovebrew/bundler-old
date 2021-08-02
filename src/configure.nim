@@ -37,14 +37,14 @@ TargetsTable["3ds"] = Target_Ctr
 TargetsTable["switch"] = Target_Hac
 
 proc loadMetadata(conf: var Config, toml: TomlValueRef) =
-    conf.name = toml["name"].getStr()
-    conf.author = toml["author"].getStr()
+    conf.name = toml["name"].getStr("SuperGame")
+    conf.author = toml["author"].getStr("SuperAuthor")
 
-    conf.description = toml["description"].getStr()
-    conf.version = toml["version"].getStr()
+    conf.description = toml["description"].getStr("SuperDescription")
+    conf.version = toml["version"].getStr("0.1.0")
 
 proc loadBuild(conf: var Config, toml: TomlValueRef) =
-    conf.clean = toml["clean"].getBool()
+    conf.clean = toml["clean"].getBool(false)
 
     let targets = toml["targets"].getElems()
 
@@ -54,7 +54,7 @@ proc loadBuild(conf: var Config, toml: TomlValueRef) =
     for target in targets:
         conf.targets.add(TargetsTable[target.getStr()])
 
-    conf.source = toml["source"].getStr()
+    conf.source = toml["source"].getStr("game")
 
     conf.icon = toml["icon"].getStr()
 
@@ -65,9 +65,9 @@ proc loadBuild(conf: var Config, toml: TomlValueRef) =
     conf.binSearchPath = searchPath
 
 proc loadOutput(conf: var Config, toml: TomlValueRef) =
-    conf.build = toml["build"].getStr()
-    conf.rawData = toml["rawData"].getBool()
-    conf.romFS = toml["romFS"].getStr()
+    conf.build = toml["build"].getStr("build")
+    conf.rawData = toml["rawData"].getBool(false)
+    conf.romFS = toml["romFS"].getStr("game")
 
 proc load*(): bool =
     try:
