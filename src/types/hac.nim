@@ -10,7 +10,9 @@ import ../configure
 import ../strings
 
 const NacpCommand = """nacptool --create "$1" "$2" "$3" "$4.nacp""""
-const BinaryCommand = """elf2nro "$1" "$2.nro" --icon="$3" --nacp="$4.nacp" --romfsdir="./shaders""""
+const BinaryCommand = """elf2nro "$1" "$2.nro" --icon="$3" --nacp="$4.nacp" --romfsdir="romfs""""
+
+const ShadersDirectory = "romfs/shaders"
 
 type
     Hac* = ref object of ConsoleBase
@@ -23,9 +25,9 @@ proc getIconExtension*(self: Hac): string = "jpg"
 proc publish*(self: Hac, source: string) =
     ### Write the needed shaders to their proper directory
 
-    os.createDir("shaders")
+    os.createDir(ShadersDirectory)
     for key, value in HacShaders.items():
-        writeFile(fmt("shaders/{key}.dksh"), value)
+        writeFile(fmt("{ShadersDirectory}/{key}.dksh"), value)
 
     let elfBinaryPath = self.getElfBinaryPath()
 

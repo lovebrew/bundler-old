@@ -70,7 +70,7 @@ proc getIcon*(self: Console): string =
 
     var iconData: string
     if not os.fileExists(filename):
-        if extension == "nro":
+        if extension == "jpg":
             iconData = assetsfile.DefaultHacIcon
         else:
             iconData = assetsfile.DefaultCtrIcon
