@@ -13,8 +13,9 @@ However, you *can* override this setting inside the config file and it will sear
 - Windows: `%appdata%/.lovebrew`
 - Linux and macOS: `~/.config/.lovebrew`
 
-### Game Compilation Dependencies
-In order for LÖVEBrew to compile games, you will need to install `devkitpro-pacman`. Please follow the [official devkitPro Wiki](https://devkitpro.org/wiki/Getting_Started) for installing this. Once installed, you will need to install the tex3ds, switch-tools, and 3dstools packages.
+In order for LÖVEBrew to compile games, you will need to install `devkitpro-pacman`. 
+Please follow the [official devkitPro Wiki](https://devkitpro.org/wiki/Getting_Started) for installing this. 
+Once installed, you will need to install the tex3ds, switch-tools, and 3dstools packages.
 
 ## Options
 ```

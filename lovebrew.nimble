@@ -1,17 +1,16 @@
 # Package
 
-version     = "0.4.0"
-author      = "TurtleP & ajusa"
+version = "0.5.0"
+author = "TurtleP"
 description = "LÖVE Potion Game Distribution Helper"
-license     = "MIT"
-srcDir      = "source"
-bin         = @["lovebrew"]
-binDir      = "dist"
-
+license = "MIT"
+srcDir = "src"
+bin = @["lovebrew"]
+binDir = "dist"
 
 # Dependencies
 
-requires "nim >= 1.5.0"
+requires "nim >= 1.4.6"
 requires "zippy"
 requires "parsetoml"
 requires "cligen"

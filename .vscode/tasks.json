@@ -19,6 +19,12 @@
         },
 
         {
+            "label": "Prettify",
+            "type": "shell",
+            "command": "nimpretty ${relativeFile}"
+        },
+
+        {
             "dependsOn": ["Build Icon"],
 
             "label": "Compile",
