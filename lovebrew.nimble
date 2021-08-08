@@ -8,7 +8,6 @@ srcDir = "src"
 bin = @["lovebrew"]
 binDir = "dist"
 
-
 # Dependencies
 
 requires "nim >= 1.4.6"
