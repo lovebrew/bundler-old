@@ -35,8 +35,5 @@ Run "main help" to get *comprehensive* help.
 
 ## Development
 
-To build the program do `nimble build`
-
-To build and run, do `nimble run`
-
-To run all the tests, simply do `nimble test`
+- To build the program do `nimble build`
+- To build and run, do `nimble run`
