@@ -2,7 +2,7 @@
 
 The easiest way to "install" LÖVEBrew is from the [releases page](https://github.com/TurtleP/lovebrew/releases). Download the respective platform's release and put it in the following directory for your operating system:
 
-* Windows: `%appdata%/.lovebrew/bin`
+* Windows: `%appdata%/lovebrew/bin`
   + Create this directory and add it to your PATH!
 * Linux: `/usr/bin`
 * macOS: TBD
