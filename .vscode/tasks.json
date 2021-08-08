@@ -1,0 +1,41 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Clean",
+            "type": "shell",
+            "command": "rm -Recurse res/*.o , dist"
+        },
+
+        {
+            "label": "Build Icon",
+            "type": "shell",
+            "windows":
+            {
+                "command": "cmd.exe /c 'windres res/icon.rc -o res/icon.o'"
+            },
+        },
+
+        {
+            "label": "Prettify",
+            "type": "shell",
+            "command": "nimpretty ${relativeFile}"
+        },
+
+        {
+            "dependsOn": ["Build Icon"],
+
+            "label": "Compile",
+            "type": "shell",
+            "command": "nimble build",
+            "problemMatcher": [],
+            "group":
+            {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
