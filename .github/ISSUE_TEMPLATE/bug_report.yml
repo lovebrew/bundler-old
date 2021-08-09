@@ -1,0 +1,61 @@
+name: Bug Report
+description: Tell us about unexpected behavior from LÖVE Potion.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: dropdown
+    id: version
+    attributes:
+      label: Software Version
+      description: LÖVEBrew Version
+      options:
+        - 0.5.1 (Latest)
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What Happened?
+      description:
+        Describe the Bug. Optionally, add screenshots (or exception logs, if
+        applicable) to help with our understanding of the issue.
+      placeholder: A bug happened!
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What was Expected?
+      description:
+        Describe what should happen. Optionally, add screenshots to help with
+        our understanding of what is expected.
+      placeholder: The bug shouldn't happen!
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      description: What Operating System is LÖVEBrew running on?
+      options:
+        - Windows
+        - macOS
+        - Linux
+    validations:
+      required: true
+  - type: input
+    id: os-version
+    attributes:
+      label: Operating System Version
+      description: What is the version of the Operating System that is running?
+      placeholder: e.g. Windows 10, Ubuntu 21.04, macOS 11
+    validations:
+      required: true
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree that the above information is correct and accurate.
+      options:
+        - label: I have read the Code of Conduct and agree to these terms
+          required: true
