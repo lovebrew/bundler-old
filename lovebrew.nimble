@@ -1,6 +1,6 @@
 # Package
 
-version = "0.5.0"
+version = "0.5.2"
 author = "TurtleP"
 description = "LÖVE Potion Game Distribution Helper"
 license = "MIT"

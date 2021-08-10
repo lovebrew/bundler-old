@@ -84,4 +84,5 @@ proc publish*(self: Ctr, source: string) =
         echo(e.msg)
         return
 
-    self.packGameDirectory(fmt("{config.romFS}/"))
+    let directory = config.build / config.romFS
+    self.packGameDirectory(fmt("{directory}/"))
