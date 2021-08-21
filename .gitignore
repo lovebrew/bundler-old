@@ -1,1 +1,4 @@
 dist/
+test/build
+test/romfs
+test/icon.*

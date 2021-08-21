@@ -9,7 +9,7 @@ body:
       label: Software Version
       description: LÖVEBrew Version
       options:
-        - 0.5.1 (Latest)
+        - 0.5.3 (Latest)
     validations:
       required: true
   - type: textarea

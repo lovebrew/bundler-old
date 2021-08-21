@@ -5,12 +5,22 @@ import strutils
 import configure
 import strings
 
+import types/target
+
 let FirstRunFile = ConfigDirectory & "/.first_run"
 let CurrentDirectory* = getCurrentDir()
 
 proc findBinary(name: string): bool =
+    var package = case name:
+        of "tex3ds":
+            name
+        of "nacptool":
+            "switch-tools"
+        else:
+            "3dstools"
+
     if isEmptyOrWhitespace(findExe(name)):
-        raise newException(Exception, strings.BinaryNotFound.format(name))
+        raise newException(Exception, strings.BinaryNotFound.format(name, package))
 
     return true
 
@@ -30,7 +40,16 @@ proc checkToolchainInstall*(): bool =
     let ctrBinaries = @["3dsxtool", "tex3ds"]
     let hacBinaries = @["nacptool"]
 
-    return ctrBinaries.anyIt(it.findBinary) or hacBinaries.anyIt(it.findBinary)
+    let targets = config.targets
+    var pass = false
+
+    if Target_Ctr in targets:
+        pass = ctrBinaries.allIt(it.findBinary)
+
+    if Target_Hac in targets:
+        pass = hacBinaries.anyIt(it.findBinary)
+
+    return pass
 
 if not fileExists(FirstRunFile):
     os.createDir(ConfigDirectory)

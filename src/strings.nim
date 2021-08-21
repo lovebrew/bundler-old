@@ -24,7 +24,9 @@ const NoConfig* = """
 Config not found! Try creating one with the init argument."""
 
 const BinaryNotFound* = """
-Binary '$1' is not in your PATH environment.
+Binary '$1' is not in your PATH environment. Please ensure that the
+package '$2' is installed from devkitpro-pacman.
+
 On macOS and Linux, install the devkit-env package. Windows users need
 to add the path 'C:\devkitPro\tools\bin' to their PATH."""
 
