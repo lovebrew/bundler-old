@@ -1,8 +1,11 @@
 # Merge globals with the same name, build static, strip symbols and change to release mode
 # TODO: don't use -fcommon
+
 import os
 
 when defined(Windows) or defined(Linux):
-    --passC:"-fcommon" --passL:"-static" --passL:"-s" -d:"release"
-when defined(MacOS) or defined(MacOSX):
-    --passC:"-fcommon" --passL:"-s" -d:"release"
+    switch("passL", "-static")
+
+switch("passC", "-fcommon")
+switch("passL", "-s")
+switch("d", "release")
