@@ -108,4 +108,4 @@ proc runCommand*(command: string) =
     let result = osproc.execCmdEx(command)
 
     if result.exitCode != 0:
-        echo(result.output)
+        echo("Command Error: \"" .. command .. " \"" .. result.output)

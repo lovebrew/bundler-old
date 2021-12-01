@@ -1,6 +1,7 @@
 import os
 import strutils
 import strformat
+import sequtils
 
 import console
 export console
@@ -19,7 +20,7 @@ const BinaryCommand = """3dsxtool "$1" "$2.3dsx" --romfs=$3 --smdh="$2.smdh""""
 const Textures = @[".png", ".jpg", ".jpeg"]
 const Fonts = @[".ttf", ".otf"]
 
-const RomFSDirectory = "romfs/graphics"
+const RomFSDirectory = "romfs/ctr/graphics"
 
 type
     Ctr* = ref object of ConsoleBase
@@ -83,13 +84,15 @@ proc publish*(self: Ctr, source: string) =
         for name, content in CtrGraphics.items():
             writeFile(fmt"{RomFSDirectory}/{name}", content)
 
+        let (head, _) = splitPath(RomFSDirectory)
+
         # Output {SuperGame}.smdh to `build` directory
         console.runCommand(SmdhCommand.format(config.name, properDescription,
                 config.author, self.getIcon(), outputPath))
 
         # Output {SuperGame}.3dsx to `build` directory
         console.runCommand(BinaryCommand.format(self.getElfBinaryPath(),
-                outputPath, RomFSDirectory))
+                outputPath, head))
     except Exception as e:
         echo(e.msg)
         return
