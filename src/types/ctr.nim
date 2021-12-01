@@ -8,14 +8,18 @@ export console
 import ../configure
 import ../strings
 
+import ../assetsfile
+
 const TextureCommand = """tex3ds "$1" --format=rgba8888 -z=auto --border -o "$2.t3x""""
 const FontCommand = """mkbcfnt "$1" -o "$2.bcfnt""""
 
 const SmdhCommand = """smdhtool --create "$1" "$2" "$3" "$4" "$5.smdh""""
-const BinaryCommand = """3dsxtool "$1" "$2.3dsx" --smdh="$2.smdh""""
+const BinaryCommand = """3dsxtool "$1" "$2.3dsx" --romfs=$3 --smdh="$2.smdh""""
 
 const Textures = @[".png", ".jpg", ".jpeg"]
 const Fonts = @[".ttf", ".otf"]
+
+const RomFSDirectory = "romfs/graphics"
 
 type
     Ctr* = ref object of ConsoleBase
@@ -73,13 +77,19 @@ proc publish*(self: Ctr, source: string) =
     let outputPath = self.getGenericOutputBinaryPath()
 
     try:
+        os.createDir(RomFSDirectory)
+
+        # Copy RomFS graphics content to directory
+        for name, content in CtrGraphics.items():
+            writeFile(fmt"{RomFSDirectory}/{name}", content)
+
         # Output {SuperGame}.smdh to `build` directory
         console.runCommand(SmdhCommand.format(config.name, properDescription,
                 config.author, self.getIcon(), outputPath))
 
         # Output {SuperGame}.3dsx to `build` directory
         console.runCommand(BinaryCommand.format(self.getElfBinaryPath(),
-                outputPath))
+                outputPath, RomFSDirectory))
     except Exception as e:
         echo(e.msg)
         return

@@ -13,6 +13,7 @@ const NacpCommand = """nacptool --create "$1" "$2" "$3" "$4.nacp""""
 const BinaryCommand = """elf2nro "$1" "$2.nro" --icon="$3" --nacp="$4.nacp" --romfsdir="romfs""""
 
 const ShadersDirectory = "romfs/shaders"
+const RomFSDirectory = "romfs/graphics"
 
 type
     Hac* = ref object of ConsoleBase
@@ -39,10 +40,20 @@ proc publish*(self: Hac, source: string) =
 
     let outputPath = self.getGenericOutputBinaryPath()
 
-    ### Create `{SuperGame}.nacp` in `build`
-    console.runCommand(NacpCommand.format(config.name, config.author, config.version, outputPath))
+    try:
+        os.createDir(RomFSDirectory)
 
-    ### Create `{SuperGame}.nro` in `build`
-    console.runCommand(BinaryCommand.format(elfBinaryPath, outputPath, self.getIcon(), outputPath))
+        # Copy RomFS graphics content to directory
+        for name, content in HacGraphics.items():
+            writeFile(fmt"{RomFSDirectory}/{name}", content)
+
+        ### Create `{SuperGame}.nacp` in `build`
+        console.runCommand(NacpCommand.format(config.name, config.author, config.version, outputPath))
+
+        ### Create `{SuperGame}.nro` in `build`
+        console.runCommand(BinaryCommand.format(elfBinaryPath, outputPath, self.getIcon(), outputPath))
+    except Exception as e:
+        echo(e.msg)
+        return
 
     self.packGameDirectory(fmt("{source}/"))
