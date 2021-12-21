@@ -61,3 +61,7 @@ Config file already exists in this directory. Overwrite? [y/N]:"""
 
 const ConfigOverwriteFailed* = """
 Config file was not overwritten due to an error:"""
+
+const GamePackFailure* = """
+Error packing game content for $1! ($2)
+"""

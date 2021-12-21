@@ -1,7 +1,6 @@
-import os
+import os, times
 import strutils
 import strformat
-import sequtils
 
 import console
 export console
@@ -30,6 +29,15 @@ proc getConsoleName*(self: Ctr): string = "Nintendo 3DS"
 proc getElfBinaryName*(self: Ctr): string = "3DS.elf"
 proc getIconExtension*(self: Ctr): string = "png"
 
+proc shouldConvertFile(self: Ctr, source: string, destination: string): bool =
+    if not fileExists(destination):
+        return true
+
+    let source_file_mt = getLastModificationTime(source)
+    let destin_file_mt = getLastModificationTime(destination)
+
+    return source_file_mt > destin_file_mt
+
 proc convertFiles(self: Ctr, source: string): bool =
     echo(strings.ConvertCopyingFiles)
 
@@ -49,14 +57,21 @@ proc convertFiles(self: Ctr, source: string): bool =
 
             let destinationPath = fmt("{destination}/{name}")
 
-            if extension in Textures:
-                console.runCommand(TextureCommand.format(relativePath,
-                        destinationPath))
-            elif extension in Fonts:
-                console.runCommand(FontCommand.format(relativePath,
-                        destinationPath))
-            else:
-                os.copyFileToDir(relativePath, destination)
+            if extension in Textures or extension in Fonts:
+                if not self.shouldConvertFile(relativePath, destinationPath):
+                    continue
+
+                var conversion_command: string = ""
+
+                if extension in Textures:
+                    conversion_command = TextureCommand.format(relativePath, destinationPath)
+                elif extension in Fonts:
+                    conversion_command = FontCommand.format(relativePath, destinationPath)
+                else:
+                    os.copyFileToDir(relativePath, destination)
+
+                if not conversion_command.isEmptyOrWhitespace():
+                    runCommand(conversion_command)
         except Exception:
             return false
 

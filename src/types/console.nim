@@ -1,6 +1,7 @@
 import os
 import osproc
 import strformat
+import strutils
 
 import ../configure
 import ../assetsfile
@@ -81,7 +82,6 @@ proc getIcon*(self: Console): string =
 
 proc packGameDirectory*(self: Console, romFS: string) =
     ## Pack the game directory to the binary
-    echo(strings.PackGameFiles)
 
     let content = fmt("{config.romFS}.love")
     let binaryPath = self.getOutputBinaryPath()
@@ -95,8 +95,8 @@ proc packGameDirectory*(self: Console, romFS: string) =
         os.removeFile(content)
 
         console.postBuildCleanup()
-    except Exception:
-        return
+    except Exception as e:
+        echo(strings.GamePackFailure.format(config.name, e.msg))
 
 proc getRomFSDirectory*(): string =
     ## Return the relative "RomFS" directory
