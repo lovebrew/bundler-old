@@ -1,4 +1,4 @@
-import os, times
+import os
 import strutils
 import strformat
 
@@ -33,10 +33,7 @@ proc shouldConvertFile(self: Ctr, source: string, destination: string): bool =
     if not fileExists(destination):
         return true
 
-    let source_file_mt = getLastModificationTime(source)
-    let destin_file_mt = getLastModificationTime(destination)
-
-    return source_file_mt > destin_file_mt
+    return fileNewer(source, destination)
 
 proc convertFiles(self: Ctr, source: string): bool =
     echo(strings.ConvertCopyingFiles)
