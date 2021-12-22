@@ -1,11 +1,11 @@
-# Merge globals with the same name, build static, strip symbols and change to release mode
-# TODO: don't use -fcommon
-
 import os
 
+# Merge same-name globals
+switch("passC", "-fcommon")
+# Build statically - may throw a warning
 when defined(Windows) or defined(Linux):
     switch("passL", "-static")
-
-switch("passC", "-fcommon")
+# Strip symbols
 switch("passL", "-s")
+# Change to release mode
 switch("d", "release")
