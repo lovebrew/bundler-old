@@ -129,7 +129,6 @@ proc load*(): bool =
         echo(strings.NoConfig)
         return false
 
-    if config.logging:
-        logger.load(fmt"{ConfigDirectory}/lovebrew.log", true)
+    logger.load(fmt"{ConfigDirectory}/lovebrew.log", config.logging)
 
     return true
