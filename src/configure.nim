@@ -1,7 +1,7 @@
 import os
 import strutils
 import strformat
-import nre
+import regex
 
 import assetsfile
 import logger
@@ -82,11 +82,12 @@ proc loadDebug(conf: var Config, toml: TomlValueRef) =
 let compatible = @["0.5.4", "0.5.3", "0.5.2", "0.5.1", "0.5.0"]
 proc checkVersion(configVersion: string, outVersion: var string): bool =
     let version_regex = re"# VERSION (.+) #"
-    let find_version = nre.find(assetsfile.DefaultConfigFile, version_regex)
+    var m: RegexMatch
+    let find_version = regex.find(assetsfile.DefaultConfigFile, version_regex, m)
 
     var version: string
-    if find_version.isSome:
-        version = find_version.get.captures[0]
+    if find_version:
+        version = m.groupFirstCapture(0, assetsfile.DefaultConfigFile)
 
     for item in compatible:
         if configVersion != item:
@@ -99,13 +100,14 @@ proc checkVersion(configVersion: string, outVersion: var string): bool =
 
 proc load*(): bool =
     let tomlBuffer = readFile(ConfigFilePath)
-    let find_version = nre.find(tomlBuffer, re"# VERSION (.+) #")
+    var m: RegexMatch
+    let find_version = regex.find(tomlBuffer, re"# VERSION (.+) #", m)
 
     var compatible: bool
     var configVersion: string
 
-    if find_version.isSome:
-        configVersion = find_version.get.captures[0]
+    if find_version:
+        configVersion = m.groupFirstCapture(0, tomlBuffer)
 
     var outVersion: string
 
