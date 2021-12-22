@@ -40,7 +40,7 @@ proc build() =
     ## Build the project for the current targets in the config file
 
     if not configure.load():
-        raise newException(Exception, strings.NoConfig)
+        return
 
     if not dirExists(config.source):
         raise newException(Exception, strings.NoSource.format(config.source))
@@ -56,8 +56,14 @@ proc build() =
     os.createDir(config.build)
     console.preBuildCleanup()
 
+    var success: bool
     for target in config.targets:
-        TargetClasses[target].publish(config.source)
+        success = TargetClasses[target].publish(config.source)
+
+        if success:
+            echo(strings.BuildSuccess.format(TargetClasses[target].getConsoleName(), config.build))
+        else:
+            echo(strings.BuildFailure.format(TargetClasses[target].getConsoleName()))
 
 proc clean() =
     ## Clean the set output directory

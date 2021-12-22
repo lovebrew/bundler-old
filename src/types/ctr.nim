@@ -7,6 +7,7 @@ export console
 
 import ../configure
 import ../strings
+import ../logger
 
 import ../assetsfile
 
@@ -30,10 +31,11 @@ proc getElfBinaryName*(self: Ctr): string = "3DS.elf"
 proc getIconExtension*(self: Ctr): string = "png"
 
 proc shouldConvertFile(self: Ctr, source: string, destination: string): bool =
-    if not fileExists(destination):
+    if not fileExists(destination) or fileNewer(source, destination):
+        logger.info(fmt"Converting file {source} to {destination}!")
         return true
 
-    return fileNewer(source, destination)
+    return false
 
 proc convertFiles(self: Ctr, source: string): bool =
     echo(strings.ConvertCopyingFiles)
@@ -69,12 +71,12 @@ proc convertFiles(self: Ctr, source: string): bool =
 
                 if not conversion_command.isEmptyOrWhitespace():
                     runCommand(conversion_command)
-        except Exception:
+        except Exception as e:
             return false
 
     return true
 
-proc publish*(self: Ctr, source: string) =
+proc publish*(self: Ctr, source: string): bool =
     if not self.convertFiles(source):
         return
 
@@ -106,8 +108,8 @@ proc publish*(self: Ctr, source: string) =
         console.runCommand(BinaryCommand.format(self.getElfBinaryPath(),
                 outputPath, head))
     except Exception as e:
-        echo(e.msg)
-        return
+        logger.error(fmt"{self.getConsoleName()} publishing failure: {e.msg}")
+        return false
 
     let directory = config.build / config.romFS
-    self.packGameDirectory(fmt("{directory}/"))
+    return self.packGameDirectory(fmt("{directory}/"))

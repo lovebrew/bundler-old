@@ -57,4 +57,11 @@ build = "build"
 rawData = false
 romFS = "game"
 
-# VERSION 0.5.0 #
+## --- Debug Options --- ##
+
+# [bool]   @logging       : Whether or not to enable logging. Useful to see what the
+#                           application is doing, should it not be working correctly.
+[debug]
+logging = false
+
+# VERSION 0.5.4 #

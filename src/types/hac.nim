@@ -8,6 +8,7 @@ export console
 import ../assetsfile
 import ../configure
 import ../strings
+import ../logger
 
 const NacpCommand = """nacptool --create "$1" "$2" "$3" "$4.nacp""""
 const BinaryCommand = """elf2nro "$1" "$2.nro" --icon="$3" --nacp="$4.nacp" --romfsdir="$5""""
@@ -23,11 +24,12 @@ proc getConsoleName*(self: Hac): string = "Nintendo Switch"
 proc getElfBinaryName*(self: Hac): string = "Switch.elf"
 proc getIconExtension*(self: Hac): string = "jpg"
 
-proc publish*(self: Hac, source: string) =
+proc publish*(self: Hac, source: string): bool =
     ### Write the needed shaders to their proper directory
 
     os.createDir(ShadersDirectory)
     for key, value in HacShaders.items():
+        logger.info(fmt"Writing shader: {ShadersDirectory}/{key}.dksh")
         writeFile(fmt("{ShadersDirectory}/{key}.dksh"), value)
 
     let elfBinaryPath = self.getElfBinaryPath()
@@ -55,7 +57,7 @@ proc publish*(self: Hac, source: string) =
         ### Create `{SuperGame}.nro` in `build`
         console.runCommand(BinaryCommand.format(elfBinaryPath, outputPath, self.getIcon(), outputPath, head))
     except Exception as e:
-        echo(e.msg)
-        return
+        logger.error(fmt"{self.getConsoleName()} publishing failure: {e.msg}")
+        return false
 
-    self.packGameDirectory(fmt("{source}/"))
+    return self.packGameDirectory(fmt("{source}/"))

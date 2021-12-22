@@ -1,6 +1,10 @@
 import os
 import strutils
+import strformat
+import nre
 
+import assetsfile
+import logger
 import strings
 import types/target
 
@@ -25,6 +29,9 @@ type
         build*: string
         rawData*: bool
         romFS*: string
+
+        # Debug
+        logging*: bool
 
 var config*: Config
 
@@ -69,14 +76,60 @@ proc loadOutput(conf: var Config, toml: TomlValueRef) =
     conf.rawData = toml["rawData"].getBool(false)
     conf.romFS = toml["romFS"].getStr("game")
 
+proc loadDebug(conf: var Config, toml: TomlValueRef) =
+    conf.logging = toml["logging"].getBool(false)
+
+let compatible = @["0.5.4", "0.5.3", "0.5.2", "0.5.1", "0.5.0"]
+proc checkVersion(configVersion: string, outVersion: var string): bool =
+    let version_regex = re"# VERSION (.+) #"
+    let find_version = nre.find(assetsfile.DefaultConfigFile, version_regex)
+
+    var version: string
+    if find_version.isSome:
+        version = find_version.get.captures[0]
+
+    for item in compatible:
+        if configVersion != item:
+            continue
+
+        return true
+
+    outVersion = version
+    return false
+
 proc load*(): bool =
+    let tomlBuffer = readFile(ConfigFilePath)
+    let find_version = nre.find(tomlBuffer, re"# VERSION (.+) #")
+
+    var compatible: bool
+    var configVersion: string
+
+    if find_version.isSome:
+        configVersion = find_version.get.captures[0]
+
+    var outVersion: string
+
+    if not configVersion.isEmptyOrWhitespace():
+        compatible = checkVersion(configVersion, outVersion)
+
+    if not compatible:
+        echo(strings.OutdatedConfg.format(configVersion, outVersion))
+        return false
+
     try:
         let toml = parseFile(ConfigFilePath)
 
         config.loadMetadata(toml["metadata"])
         config.loadBuild(toml["build"])
         config.loadOutput(toml["output"])
-    except Exception:
+
+        if "debug" in toml:
+            config.loadDebug(toml["debug"])
+    except IOError:
+        echo(strings.NoConfig)
         return false
+
+    if config.logging:
+        logger.load(fmt"{ConfigDirectory}/lovebrew.log", true)
 
     return true

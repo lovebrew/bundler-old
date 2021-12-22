@@ -6,6 +6,7 @@ import strutils
 import ../configure
 import ../assetsfile
 import ../strings
+import ../logger
 
 import iface
 import zippy/ziparchives
@@ -21,7 +22,7 @@ iface *Console:
     proc getConsoleName(): string
     proc getElfBinaryName(): string
     proc getIconExtension(): string
-    proc publish(source: string)
+    proc publish(source: string): bool
 
 proc getElfBinaryPath*(self: Console): string =
     ## Return the full path to the ELF binary
@@ -48,6 +49,8 @@ proc getOutputBinaryPath(self: Console): string =
 proc preBuildCleanup*() =
     if not config.clean:
         return
+
+    echo("Cleaning build directory..")
 
     for _, path in os.walkDir(config.build, relative = true):
         let (_, _, extension) = splitFile(path)
@@ -80,7 +83,7 @@ proc getIcon*(self: Console): string =
 
     return filename
 
-proc packGameDirectory*(self: Console, romFS: string) =
+proc packGameDirectory*(self: Console, romFS: string): bool =
     ## Pack the game directory to the binary
 
     let content = fmt("{config.romFS}.love")
@@ -96,7 +99,10 @@ proc packGameDirectory*(self: Console, romFS: string) =
 
         console.postBuildCleanup()
     except Exception as e:
-        echo(strings.GamePackFailure.format(config.name, e.msg))
+        logger.error(strings.GamePackFailure.format(config.name, e.msg))
+        return false
+
+    return true
 
 proc getRomFSDirectory*(): string =
     ## Return the relative "RomFS" directory
@@ -108,4 +114,4 @@ proc runCommand*(command: string) =
     let result = osproc.execCmdEx(command)
 
     if result.exitCode != 0:
-        echo("Command Error: \"" .. command .. " \"" .. result.output)
+        logger.warning(fmt"Command Error: {command} - {result.output}")

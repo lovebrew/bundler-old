@@ -23,6 +23,12 @@ configuration file for misspellings or errors."""
 const NoConfig* = """
 Config not found! Try creating one with the init argument."""
 
+const OutdatedConfg* = """
+Config is incompatible! Config is version $1, expected $2.
+You may need to create a new config, depending on factors.
+See https://github.com/lovebrew/lovebrew/releases/latest
+"""
+
 const BinaryNotFound* = """
 Binary '$1' is not in your PATH environment. Please ensure that the
 package '$2' is installed from devkitpro-pacman.
@@ -39,7 +45,8 @@ $4"""
 
 const BuildSuccess* = """
 Build for $1 was successful. Please check the directory
-'$2' for your files."""
+'$2' for your files.
+"""
 
 const BuildFailure* = """
 Build for $1 failed. Please check logs."""
