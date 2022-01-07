@@ -25,12 +25,17 @@ proc getElfBinaryName*(self: Hac): string = "Switch.elf"
 proc getIconExtension*(self: Hac): string = "jpg"
 
 proc publish*(self: Hac, source: string): bool =
+    logger.info(fmt"== [{self.getConsoleName()}] ==")
+
     ### Write the needed shaders to their proper directory
 
     os.createDir(ShadersDirectory)
     for key, value in HacShaders.items():
-        logger.info(fmt"Writing shader: {ShadersDirectory}/{key}.dksh")
-        writeFile(fmt("{ShadersDirectory}/{key}.dksh"), value)
+        if not fileExists(fmt"{ShadersDirectory}/{key}.dksh"):
+            logger.info(fmt"Writing shader: {ShadersDirectory}/{key}.dksh")
+            writeFile(fmt("{ShadersDirectory}/{key}.dksh"), value)
+        else:
+            logger.info(fmt"Shader '{key}.dksh' already exists. Skipping.")
 
     let elfBinaryPath = self.getElfBinaryPath()
 
@@ -38,7 +43,7 @@ proc publish*(self: Hac, source: string): bool =
         echo(strings.ElfBinaryNotFound.format(
                 config.name, self.getConsoleName(), self.getElfBinaryName(),
                 config.binSearchPath))
-        return
+        return false
 
     let outputPath = self.getGenericOutputBinaryPath()
 
@@ -47,15 +52,20 @@ proc publish*(self: Hac, source: string): bool =
 
         # Copy RomFS graphics content to directory
         for name, content in HacGraphics.items():
-            writeFile(fmt"{RomFSDirectory}/{name}", content)
+            if not fileExists(fmt"{RomFSDirectory}/{name}"):
+                writeFile(fmt"{RomFSDirectory}/{name}", content)
+            else:
+                logger.info(fmt"Messagebox texture '{name}' already exists. Skipping.")
 
         let (head, _) = splitPath(RomFSDirectory)
 
         ### Create `{SuperGame}.nacp` in `build`
-        console.runCommand(NacpCommand.format(config.name, config.author, config.version, outputPath))
+        if not console.runCommand(NacpCommand.format(config.name, config.author, config.version, outputPath)):
+            return false
 
         ### Create `{SuperGame}.nro` in `build`
-        console.runCommand(BinaryCommand.format(elfBinaryPath, outputPath, self.getIcon(), outputPath, head))
+        if not console.runCommand(BinaryCommand.format(elfBinaryPath, outputPath, self.getIcon(), outputPath, head)):
+            return false
     except Exception as e:
         logger.error(fmt"{self.getConsoleName()} publishing failure: {e.msg}")
         return false

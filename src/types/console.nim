@@ -85,6 +85,7 @@ proc getIcon*(self: Console): string =
 
 proc packGameDirectory*(self: Console, romFS: string): bool =
     ## Pack the game directory to the binary
+    stdout.write(strings.PackGameFiles.format(self.getConsoleName()))
 
     let content = fmt("{config.romFS}.love")
     let binaryPath = self.getOutputBinaryPath()
@@ -102,6 +103,7 @@ proc packGameDirectory*(self: Console, romFS: string): bool =
         logger.error(strings.GamePackFailure.format(config.name, e.msg))
         return false
 
+    echo("Done!")
     return true
 
 proc getRomFSDirectory*(): string =
@@ -109,9 +111,13 @@ proc getRomFSDirectory*(): string =
 
     return config.build / config.romFS
 
-proc runCommand*(command: string) =
+proc runCommand*(command: string): bool =
     ## Runs a specified command
-    let result = osproc.execCmdEx(command)
 
-    if result.exitCode != 0:
-        logger.warning(fmt"Command Error: {command} - {result.output}")
+    let res = osproc.execCmdEx(command)
+
+    if res.exitCode != 0:
+        logger.warning(fmt"Command Error: {command} -> {res.output}")
+        return false
+
+    return true

@@ -6,7 +6,6 @@ var isEnabled: bool = false
 proc load*(filepath: string, enabled: bool) =
     if enabled:
         logger = newFileLogger(filepath, fmWrite, levelThreshold=lvlAll, fmtStr="$datetime | $levelname | ")
-        info("Initializing logger..")
 
     isEnabled = enabled
 
@@ -29,3 +28,4 @@ proc error*(message: string) =
         return
 
     logger.log(lvlError, message)
+    flushFile(logger.file)

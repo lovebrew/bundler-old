@@ -44,8 +44,8 @@ $4"""
 ### Build Status
 
 const BuildSuccess* = """
-Build for $1 was successful. Please check the directory
-'$2' for your files.
+Build for $1 was successful.
+Please check your configured build directory.
 """
 
 const BuildFailure* = """
@@ -53,13 +53,9 @@ Build for $1 failed. Please check logs."""
 
 ### Building Information
 
-const ConvertCopyingFiles* = """
-Converting and copying files, please wait...
-"""
+const ConvertCopyingFiles* = """Converting and copying files, please wait... """
 
-const PackGameFiles* = """
-Packing game content, please wait...
-"""
+const PackGameFiles* = """Packing game content ($1), please wait... """
 
 ### Others
 

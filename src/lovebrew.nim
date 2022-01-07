@@ -61,7 +61,7 @@ proc build() =
         success = TargetClasses[target].publish(config.source)
 
         if success:
-            echo(strings.BuildSuccess.format(TargetClasses[target].getConsoleName(), config.build))
+            echo(strings.BuildSuccess.format(TargetClasses[target].getConsoleName()))
         else:
             echo(strings.BuildFailure.format(TargetClasses[target].getConsoleName()))
 
