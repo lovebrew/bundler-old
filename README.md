@@ -1,11 +1,12 @@
+[![CI](https://github.com/lovebrew/lovebrew/actions/workflows/CI.yml/badge.svg)](https://github.com/lovebrew/lovebrew/actions/workflows/CI.yml)
+
 ## Installation
 
 The easiest way to "install" LÖVEBrew is from the [releases page](https://github.com/TurtleP/lovebrew/releases). Download the respective platform's release and put it in the following directory for your operating system:
 
 * Windows: `%appdata%/lovebrew/bin`
+* macOS/Linux: `~/.config/lovebrew/bin`
   + Create this directory and add it to your PATH!
-* Linux: `/usr/bin`
-* macOS: TBD
 
 ## Building a Project
 
