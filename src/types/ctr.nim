@@ -11,7 +11,7 @@ import ../logger
 
 import ../assetsfile
 
-const TextureCommand = """tex3ds "$1" --format=rgba8888 -z=auto --border -o "$2.t3x""""
+const TextureCommand = """tex3ds "$1" --format=rgba8888 -z=auto --border=transparent -o "$2.t3x""""
 const FontCommand = """mkbcfnt "$1" -o "$2.bcfnt""""
 
 const SmdhCommand = """smdhtool --create "$1" "$2" "$3" "$4" "$5.smdh""""
@@ -30,7 +30,8 @@ proc getConsoleName*(self: Ctr): string = "Nintendo 3DS"
 proc getElfBinaryName*(self: Ctr): string = "3DS.elf"
 proc getIconExtension*(self: Ctr): string = "png"
 
-proc shouldHandleFile(self: Ctr, source: string, destination: string, ext: string): bool =
+proc shouldHandleFile(self: Ctr, source: string, destination: string,
+        ext: string): bool =
     let checked_file = fmt"{destination}.{ext}"
 
     try:
@@ -81,7 +82,8 @@ proc convertFiles(self: Ctr, source: string): bool =
                     if not runCommand(conversion_command):
                         return false
             else:
-                if not self.shouldHandleFile(relativePath, destinationPath, extension.substr(1)):
+                if not self.shouldHandleFile(relativePath, destinationPath,
+                        extension.substr(1)):
                     continue
 
                 os.copyFileToDir(relativePath, destination)
@@ -101,7 +103,8 @@ proc publish*(self: Ctr, source: string): bool =
     let elfBinaryPath = self.getElfBinaryPath()
 
     if not os.fileExists(elfBinaryPath) and not config.rawData:
-        echo(strings.ElfBinaryNotFound.format(config.name, self.getConsoleName(), self.getElfBinaryName(), config.binSearchPath))
+        echo(strings.ElfBinaryNotFound.format(config.name, self.getConsoleName(),
+                self.getElfBinaryName(), config.binSearchPath))
         return false
 
     let properDescription = fmt("{config.description} • {config.version}")
@@ -120,11 +123,13 @@ proc publish*(self: Ctr, source: string): bool =
         let (head, _) = splitPath(RomFSDirectory)
 
         # Output {SuperGame}.smdh to `build` directory
-        if not console.runCommand(SmdhCommand.format(config.name, properDescription, config.author, self.getIcon(), outputPath)):
+        if not console.runCommand(SmdhCommand.format(config.name,
+                properDescription, config.author, self.getIcon(), outputPath)):
             return false
 
         # Output {SuperGame}.3dsx to `build` directory
-        if not console.runCommand(BinaryCommand.format(self.getElfBinaryPath(), outputPath, head)):
+        if not console.runCommand(BinaryCommand.format(self.getElfBinaryPath(),
+                outputPath, head)):
             return false
     except Exception as e:
         logger.error(fmt"{self.getConsoleName()} publishing failure: {e.msg}")
