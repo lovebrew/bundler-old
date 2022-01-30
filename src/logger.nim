@@ -1,31 +1,24 @@
 import logging
 
-var logger: FileLogger
-var isEnabled: bool = false
+var logger: FileLogger = nil
+const FormatString = "$datetime | $levelname | "
 
 proc load*(filepath: string, enabled: bool) =
     if enabled:
-        logger = newFileLogger(filepath, fmWrite, levelThreshold=lvlAll, fmtStr="$datetime | $levelname | ")
+        logger = newFileLogger(filepath, fmWrite, lvlAll, FormatString)
 
-    isEnabled = enabled
+proc log(level: Level, message: string) =
+    if logger == nil:
+        return
+
+    logger.log(level, message)
+    io.flushFile(logger.file)
 
 proc info*(message: string) =
-    if not isEnabled:
-        return
-
-    logger.log(lvlInfo, message)
-    flushFile(logger.file)
+    log(lvlInfo, message)
 
 proc warning*(message: string) =
-    if not isEnabled:
-        return
-
-    logger.log(lvlWarn, message)
-    flushFile(logger.file)
+    log(lvlWarn, message)
 
 proc error*(message: string) =
-    if not isEnabled:
-        return
-
-    logger.log(lvlError, message)
-    flushFile(logger.file)
+    log(lvlError, message)

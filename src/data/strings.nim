@@ -5,6 +5,8 @@ This software is not endorsed nor maintained by devkitPro.
 If there are issues, please report them to the GitHub repository:
 https://github.com/lovebrew/lovebrew"""
 
+const NimblePkgVersion* {.strdefine.} = ""
+
 ### Errors
 
 const NoDevkitPro* = """
@@ -56,6 +58,8 @@ Build for $1 failed. Please check logs."""
 const ConvertCopyingFiles* = """Converting and copying files, please wait... """
 
 const PackGameFiles* = """Packing game content ($1), please wait... """
+
+const CopyConvertError* = """"Copy or conversion error! $1: $2 -> $3"""
 
 ### Others
 

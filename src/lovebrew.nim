@@ -3,86 +3,78 @@ import rdstdin
 import strutils
 import strformat
 
-import cligen
-
-import assetsfile
-import configure
 import environment
-
+import data/strings
+import data/assets
+import types/config
+import enums/target
 import types/console
 import types/ctr
-import types/hac
-import types/target
 
-import strings
+import cligen
 
-import tables
-
-const AppVersion = staticRead("../lovebrew.nimble").fromNimble("version")
+let FirstRunFile = config.ConfigDirectory / ".first_run"
 
 proc init() =
     ## Initializes a new config file
 
-    if not os.fileExists(configure.ConfigFilePath):
-        writeFile(configure.ConfigFilePath, assetsfile.DefaultConfigFile)
-        return
+    if not os.fileExists(config.ConfigFilePath):
+        try:
+            io.writeFile(config.ConfigFilePath, assets.DefaultConfigFile)
+        except IOError as e:
+            echo(fmt("{strings.ConfigOverwriteFailed} {e.msg}"))
+        finally:
+            return
 
     var answer: string
-    discard readLineFromStdin(strings.ConfigExists, line = answer)
+    discard rdstdin.readLineFromStdin(strings.ConfigExists, line = answer)
 
     if answer.toLower() == "y":
-        try:
-            writeFile(configure.ConfigFilePath, assetsfile.DefaultConfigFile)
-        except Exception as e:
-            echo(strings.ConfigOverwriteFailed & " " & e.msg)
+        os.removeFile(config.ConfigFilePath)
+        lovebrew.init()
 
 proc build() =
     ## Build the project for the current targets in the config file
 
-    if not configure.load():
+    var configData = Config()
+    if not configData.initialize():
         return
 
-    if not dirExists(config.source):
-        raise newException(Exception, strings.NoSource.format(config.source))
-
-    if not environment.checkToolchainInstall():
+    if not environment.checkToolchainInstall(configData.getTargets()):
         return
 
-    var TargetClasses: Table[Target, Console]
+    os.createDir(configData.output.buildDir)
 
-    TargetClasses[Target_Ctr] = Ctr()
-    TargetClasses[Target_Hac] = Hac()
+    for target in configData.build.targets:
+        let console = Ctr()
 
-    os.createDir(config.build)
-    console.preBuildCleanup()
-
-    var success: bool
-    for target in config.targets:
-        success = TargetClasses[target].publish(config.source)
-
-        if success:
-            echo(strings.BuildSuccess.format(TargetClasses[target].getConsoleName()))
+        console.initialize(configData)
+        if console.publish():
+            echo(strings.BuildSuccess.format(console.getConsoleName()))
         else:
-            echo(strings.BuildFailure.format(TargetClasses[target].getConsoleName()))
+            echo(strings.BuildFailure.format(console.getConsoleName()))
 
 proc clean() =
     ## Clean the set output directory
 
-    if not configure.load():
-        raise newException(Exception, strings.NoConfig)
-
-    let root = split(config.build, "/", 1)[0]
-    removeDir(fmt("./{root}/"))
+    return
 
 proc version() =
     ## Show program version and exit
 
-    echo(AppVersion)
+    echo(strings.NimblePkgVersion)
 
 when defined(gcc) and defined(windows):
     {.link: "res/icon.o".}
 
 when isMainModule:
+    if not fileExists(FirstRunFile):
+        os.createDir(ConfigDirectory)
+        writeFile(FirstRunFile, "")
+
+        echo(FirstRun)
+        quit(0)
+
     try:
         dispatchMulti([init], [build], [clean], [version])
     except Exception as e:
