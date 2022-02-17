@@ -30,31 +30,31 @@ version = "0.1.0"
 #                           Default: ""
 [build]
 clean = false
-targets = ["3ds", "switch"]
+targets = ["3ds"]
 source = "game"
 icon = "icon"
-binSearchPath = ""
+searchPath = ""
 
 ## --- Output Options --- ##
 
-# [string] @buildDir : Output directory for compilation; relative to the config
-#                      file. When false, it will use current directory.
-#                      Default: "build".
+# [string] @buildDir  : Output directory for compilation; relative to the config
+#                       file. When false, it will use current directory.
+#                       Default: "build".
 #
-# [bool]   @rawData  : Whether or not to properly build a 3DS project binary.
-#                      This will not build a 3DS application. See @build.targets.
-#                      When false, outputs as a 3dsx; when true, output only
-#                      as the "raw" game folder used for testing purposes.
-#                      Default: false.
+# [bool]   @noBinary  : Whether or not to properly build a project binary.
+#                       This will not build a 3dsx application. See @build.targets.
+#                       When false, outputs as a 3dsx; when true, output only
+#                       as the game folder used for testing purposes.
+#                       Default: false.
 #
-# [string] @gameDir  : The directory within the build directory which gets
-#                      zipped and appended to the resulting binary. Default: "game".
-#                      NOTE: if "rawData" is true, this does not get zipped and can
-#                      be used for quick testing. However, the directory must be named
-#                      as the default, "game".
+# [string] @gameDir   : The directory within the build directory which gets
+#                       zipped and appended to the resulting binary. Default: "game".
+#                       NOTE: if "rawData" is true, this does not get zipped and can
+#                       be used for quick testing. However, the directory must be named
+#                       as the default, "game".
 [output]
 buildDir = "build"
-rawData = false
+noBinary = false
 gameDir = "game"
 
 ## --- Debug Options --- ##
@@ -63,5 +63,6 @@ gameDir = "game"
 #                           application is doing, should it not be working correctly.
 [debug]
 logging = true
-
-# VERSION 0.6.0 #
+# DO NOT MODIFY #
+version = "0.6.0"
+# ------------- #

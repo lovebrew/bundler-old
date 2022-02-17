@@ -3,11 +3,12 @@ import rdstdin
 import strutils
 import strformat
 
-import environment
+import setup
 import data/strings
 import data/assets
 import types/config
 import enums/target
+
 import types/console
 import types/ctr
 
@@ -22,7 +23,7 @@ proc init() =
         try:
             io.writeFile(config.ConfigFilePath, assets.DefaultConfigFile)
         except IOError as e:
-            echo(fmt("{strings.ConfigOverwriteFailed} {e.msg}"))
+            raiseError(Error.ConfigOverwrite, e.msg)
         finally:
             return
 
@@ -36,23 +37,25 @@ proc init() =
 proc build() =
     ## Build the project for the current targets in the config file
 
-    var configData = Config()
-    if not configData.initialize():
+    let configFile = config.initialize()
+
+    if not setup.check(configFile.build.targets):
         return
 
-    if not environment.checkToolchainInstall(configData.getTargets()):
-        return
+    os.createDir(configFile.output.buildDir)
 
-    os.createDir(configData.output.buildDir)
+    for target in configFile.build.targets:
+        let console = case target:
+            of TARGET_CTR:
+                Ctr()
+            of TARGET_HAC:
+                nil
 
-    for target in configData.build.targets:
-        let console = Ctr()
-
-        console.initialize(configData)
-        if console.publish():
-            echo(strings.BuildSuccess.format(console.getConsoleName()))
-        else:
-            echo(strings.BuildFailure.format(console.getConsoleName()))
+        if not console.isNil():
+            if console.publish(configFile):
+                displayBuildStatus(BuildStatus.Success, console.getConsoleName())
+            else:
+                displayBuildStatus(BuildStatus.Failure, console.getConsoleName())
 
 proc clean() =
     ## Clean the set output directory
@@ -65,7 +68,7 @@ proc version() =
     echo(strings.NimblePkgVersion)
 
 when defined(gcc) and defined(windows):
-    {.link: "res/icon.o".}
+    {.link: "res/icon/icon.o".}
 
 when isMainModule:
     if not fileExists(FirstRunFile):

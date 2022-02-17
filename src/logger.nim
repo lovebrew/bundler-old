@@ -1,24 +1,24 @@
 import logging
 
 var logger: FileLogger = nil
-const FormatString = "$datetime | $levelname | "
+const FormatString = "$levelname [$time] -- $appname: "
 
-proc load*(filepath: string, enabled: bool) =
-    if enabled:
-        logger = newFileLogger(filepath, fmWrite, lvlAll, FormatString)
+proc initialize*(path: string) =
+    logger = newFileLogger(path, fmWrite, lvlAll, FormatString)
+    logging.log(logger, lvlInfo, "Initialize..")
 
-proc log(level: Level, message: string) =
-    if logger == nil:
+proc log(level: Level, args: varargs[string, `$`]) =
+    if logger.isNil():
         return
 
-    logger.log(level, message)
+    logging.log(logger, level, args)
     io.flushFile(logger.file)
 
-proc info*(message: string) =
-    log(lvlInfo, message)
+proc info*(args: varargs[string, `$`]) =
+    logger.log(lvlInfo, args)
 
-proc warning*(message: string) =
-    log(lvlWarn, message)
+proc warning*(args: varargs[string, `$`]) =
+    logger.log(lvlWarn, args)
 
-proc error*(message: string) =
-    log(lvlError, message)
+proc error*(args: varargs[string, `$`]) =
+    logger.log(lvlError, args)

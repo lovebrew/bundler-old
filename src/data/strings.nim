@@ -1,3 +1,6 @@
+import strutils
+import strformat
+
 ### String for prompts/errors
 
 const FirstRun* = """
@@ -7,68 +10,55 @@ https://github.com/lovebrew/lovebrew"""
 
 const NimblePkgVersion* {.strdefine.} = ""
 
-### Errors
+### Error Enums
 
-const NoDevkitPro* = """
-The DEVKITPRO environment variable is not set.
-Linux/macOS Users: install the devkit-env package from devkitpro-pacman.
-If you are on Windows, add DEVKITPRO to your PATH environment variable instead."""
+type
+    Error* = enum
+        DevkitPro = "The DEVKITPRO environment variable is not set."
+        NoTargets = "No targets were specified."
+        Source = "Source directory `$1` does not exist."
+        NoConfig = "Configuration file not found. Create one with the `init` argument."
+        OutdatedConfig = "Invalid config version. Found version $1, expected $2."
+        InvalidConfig = "Configuration file is invalid: $1"
+        ConfigOverwrite = "Config file was not overwritten due to an error: $1"
+        ToolNotFound = "Tool `$1` could not be found. Ensure that `$2` is installed from devkitpro-pacman."
+        ToolFoundNotInPath = "The tool `$1` exists, but is not in your PATH environment."
+        CompileBinaryNotfound = "Binary `$1` was not found, ensure it exists at `$2`"
 
-const NoTargets* = """
-Cannot compile. Targets were not specified in lovebrew.toml!"""
+proc displayError*(error: Error, args: varargs[string, `$`]) =
+    echo(fmt("Error: {($error).format(args)}."))
 
-const NoSource* = """
-Cannot compile. Source directory '$1' does not exist or config
-variable is empty in lovebrew.toml! Please double check your
-configuration file for misspellings or errors."""
+proc raiseError*(error: Error, args: varargs[string, `$`]) =
+    raise newException(Exception, fmt("Error: {($error).format(args)}. Aborting."))
 
-const NoConfig* = """
-Config not found! Try creating one with the init argument."""
+### Build Enums
 
-const OutdatedConfg* = """
-Config is incompatible! Config is version $1, expected $2.
-You may need to create a new config, depending on factors.
-See https://github.com/lovebrew/lovebrew/releases/latest
-"""
+type
+    BuildStatus* = enum
+        Success = "Build for $1 was successful."
+        Failure = "Build for $1 failed. Please check logs."
 
-const BinaryNotFound* = """
-Binary '$1' is not in your PATH environment. Please ensure that the
-package '$2' is installed from devkitpro-pacman.
+proc displayBuildStatus*(status: BuildStatus, args: varargs[string, `$`]) =
+    echo(($status).format(args))
 
-On macOS and Linux, install the devkit-env package. Windows users need
-to add the path 'C:\devkitPro\tools\bin' to their PATH."""
+type
+    LogData* = enum
+        InitializeBuild = "-- $1 --"
 
-const ElfBinaryNotFound* = """
-Could not build the project '$1' for $2!
-Ensure the ELF binary ($3) is at the following path:
-$4"""
+        PackingGameContent = "Packing game content"
+        PackingGameContentError = "Error packing game content: $1"
 
-### Build Status
+        CopyConvertFiles = "Copying & Converting Files, please wait..."
+        CopyConvertWhat = "  $1 -> $2"
+        SourceUnchanged = "  Source file $1 is not newer. Skipping."
+        CopyConvertError = "Failed to handle file $1: $2"
 
-const BuildSuccess* = """
-Build for $1 was successful.
-Please check your configured build directory.
-"""
+        CommandError = "Command Error: $1: $2"
 
-const BuildFailure* = """
-Build for $1 failed. Please check logs."""
-
-### Building Information
-
-const ConvertCopyingFiles* = """Converting and copying files, please wait... """
-
-const PackGameFiles* = """Packing game content ($1), please wait... """
-
-const CopyConvertError* = """"Copy or conversion error! $1: $2 -> $3"""
+proc formatLog*(data: LogData, args: varargs[string, `$`]): string =
+    return ($data).format(args)
 
 ### Others
 
 const ConfigExists* = """
 Config file already exists in this directory. Overwrite? [y/N]:"""
-
-const ConfigOverwriteFailed* = """
-Config file was not overwritten due to an error:"""
-
-const GamePackFailure* = """
-Error packing game content for $1! ($2)
-"""

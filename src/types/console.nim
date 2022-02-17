@@ -1,58 +1,57 @@
 import os
-import strutils
 import strformat
-import osproc
+import strutils
 
+import ../data/strings
 import ../logger
 import config
 
-import iface
 import zippy/ziparchives
 
-const BinaryExtensions = @[".3dsx", ".nro"]
-const MetadataExtensions = @[".smdh", ".nacp"]
-
 type
-    ConsoleBase* = ref object of RootObj
-        config*: Config
+    Console* = ref object of RootObj
 
-iface(*Console):
-    proc getBinaryExtension(): string
-    proc getConsoleName(): string
-    proc getIconExtension(): string
-    proc publish(): bool
+proc notImplemented() =
+    raise newException(Exception, "method not implemented")
 
-method initialize*(this: ConsoleBase, config: Config) {.base.} =
-    this.config = config
+method getBinaryExtension(this: Console): string {.base.} =
+    notImplemented()
 
-method getDescription*(this: ConsoleBase): string {.base.} =
-    return this.config.metadata.description
+method getConsoleName(this: Console): string {.base.} =
+    notImplemented()
 
-proc handleFile*(source: string, dest: string): bool =
+method getIconExtension(this: Console): string {.base.} =
+    notImplemented()
+
+method getFileExtensions(this: Console): array[0x02, string] {.base.} =
+    notImplemented()
+
+method publish*(this: Console, cfg: Config): bool {.base.} =
+    notImplemented()
+
+method getDescription(this: Console, data: seq[string]): string {.base.} =
+    return data.join(" • ")
+
+method getBinaryName(this: Console): string {.base.} =
+    return fmt("LOVEPotion.{this.getBinaryExtension()}")
+
+method handleFile(this: Console, source: string, dest: string): bool {.base.} =
     try:
         if not os.fileExists(dest) or fileNewer(source, dest):
-            logger.info(fmt("Copying/converting file {source} to {dest}."))
+            logger.info(formatLog(LogData.CopyConvertWhat, source, dest))
             return true
     except Exception as e:
-        logger.error(fmt("Something went wrong: {e.msg} ({dest})"))
+        logger.error(formatLog(LogData.CopyConvertError, source, e.msg))
 
-    logger.info(fmt("File source {source} for {dest} is not newer. Skipping."))
+    logger.info(formatLog(LogData.SourceUnchanged, source))
     return false
 
-proc execute*(command: string): bool =
-    let execResult = osproc.execCmdEx(command)
-
-    if execResult.exitCode != 0:
-        logger.warning(fmt("Command Error: {command} -> {execResult.output}"))
+method packGameFiles(this: Console, name, source,
+        buildDir: string): bool {.base.} =
+    try:
+        ziparchives.createZipArchive(fmt("{source}/"), buildDir / fmt("{name}.love"))
+    except Exception as e:
+        logger.error(formatLog(LogData.PackingGameContentError, e.msg))
         return false
 
     return true
-
-proc getBinaryName*(this: Console): string =
-    return fmt("LOVEPotion.{this.getBinaryExtension()}")
-
-proc getBinaryPath*(this: Console): string =
-    return this.to(ConsoleBase).config.build.searchPath / this.getBinaryName()
-
-proc checkBinaryExists*(this: Console): bool =
-    return os.fileExists(this.getBinaryPath())

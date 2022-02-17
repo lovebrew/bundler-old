@@ -1,13 +1,15 @@
 import os
 import strutils
+import typetraits
+import macros, sequtils
 
 import ../enums/target
-import ../environment
 import ../logger
 import ../data/strings
 
 import parsetoml
-import regex
+
+# --------------------------------------- #
 
 type
     Metadata = object
@@ -27,17 +29,21 @@ type
 type
     Output = object
         buildDir*: string
-        asRaw*: bool
+        noBinary*: bool
         gameDir*: string
 
 type
     Debug = object
         logging*: bool
+        version: string
 
 # --------------------------------------- #
 
+
 let ConfigFilePath* = os.normalizedPath(os.getCurrentDir() / "lovebrew.toml")
 let ConfigDirectory* = os.normalizedPath(os.getConfigDir() / "lovebrew")
+
+let LogFilePath = os.normalizedPath(ConfigDirectory / "lovebrew.log")
 
 type
     Config* = object
@@ -46,78 +52,105 @@ type
         output*: Output
         debug*: Debug
 
-proc getTargets*(cfg: Config): seq[Target] =
-    return cfg.build.targets
+macro parseFields(tomlField: TomlValueRef, config: typed): untyped =
+    result = newStmtList()
+    var configType = config.getType
 
-proc checkCompatibility(fileBuffer: string): bool =
-    var match: RegexMatch
-    let findVersion = regex.find(fileBuffer, re"# VERSION (.+) #", match)
-
-    if findVersion:
-        let configVersion = match.groupFirstCapture(0, fileBuffer)
-
-        var outVersion: string
-        if not environment.isCompatible(configVersion, outVersion):
-            echo(strings.OutdatedConfg.format(configVersion, outVersion))
-            return false
-
-    return true
-
-proc fetchMetdata(metadata: var Metadata, section: TomlValueRef) =
-    metadata.name = section["name"].getStr()
-    metadata.author = section["author"].getStr()
-    metadata.description = section["description"].getStr()
-    metadata.version = section["version"].getStr()
-
-proc fetchBuild(build: var Build, section: TomlValueRef) =
-    build.clean = section["clean"].getBool()
-
-    let targets = section["targets"].getElems()
-
-    if len(targets) == 0:
-        raise newException(Exception, strings.NoTargets)
+    case configType.kind:
+    of nnkObjectTy:
+        for field in configType[2]:
+            var
+                name = field.strVal
+                configField = nnkDotExpr.newTree(config, field)
+                fieldType = field.getType
+            case fieldType.kind:
+            of nnkObjectTy:
+                result.add quote do:
+                    parseFields(`tomlField`[`name`], `configField`)
+            of nnkSym:
+                case fieldType.strVal:
+                of "string":
+                    result.add quote do:
+                        `configField` = `tomlField`[`name`].getStr()
+                of "int":
+                    result.add quote do:
+                        `configField` = `tomlField`[`name`].getInt()
+                of "bool":
+                    result.add quote do:
+                        `configField` = `tomlField`[`name`].getBool()
+                else: assert false, "Unknown field type: " & fieldType.strVal
+            of nnkBracketExpr:
+                assert(fieldType[0].kind == nnkSym and fieldType[0].strVal ==
+                        "seq", "Unknown type for bracket expr: " & fieldType[0].strVal)
+                result.add quote do:
+                    parseFields(`tomlField`[`name`], `configField`)
+            else:
+                continue
+    of nnkBracketExpr:
+        var fieldType = configType[1].getType
+        case fieldType.kind:
+        of nnkSym:
+            case fieldType.strVal:
+                of "string":
+                    result.add quote do:
+                        `config` = `tomlField`.getElems().mapIt(it.getString())
+                of "int":
+                    result.add quote do:
+                        `config` = `tomlField`.getElems().mapIt(it.getInt())
+                of "bool":
+                    result.add quote do:
+                        `config` = `tomlField`.getElems().mapIt(it.getBool())
+                else:
+                    assert(false, "Unknown field type: " & fieldType.strVal)
+        of nnkEnumTy:
+            var typename = config.getTypeImpl[1]
+            result.add quote do:
+                `config` = `tomlField`.getElems().mapIt(`typename`(it.getInt()))
+        else:
+            assert(false, "Unknown type in sequence: " & fieldType.repr)
     else:
-        for targetValue in targets:
-            let targetName = targetValue.getStr()
-            if target.isValid(targetName) and len(build.targets) <= 2:
-                build.targets.insert(target.asEnum(targetName))
+        echo(configType.kind)
+        echo(result.repr)
 
-    build.source = section["source"].getStr()
-    build.icon = section["icon"].getStr()
 
-    build.searchPath = section["binSearchPath"].getStr()
-    if isEmptyOrWhitespace(build.searchPath):
-        build.searchPath = ConfigDirectory
+# ----------------------------------------------------------------------- #
 
-proc fetchOutput(output: var Output, section: TomlValueRef) =
-    output.buildDir = section["buildDir"].getStr()
-    output.asRaw = section["rawData"].getBool()
-    output.gameDir = section["gameDir"].getStr()
+const Compatible = @[strings.NimblePkgVersion]
 
-proc initialize*(cfg: var Config): bool =
-    try:
-        let fileBuffer = io.readFile(config.ConfigFilePath)
+proc isCompatible*(configVersion: string, outVersion: var string): bool =
+    for item in Compatible:
+        if configVersion != item:
+            continue
 
-        if not config.checkCompatibility(fileBuffer):
-            return false
-    except IOError:
-        echo(strings.NoConfig)
-        return false
+        return true
+
+    return false
+
+proc checkCompatibility(version: string) {.raises: [Exception].} =
+    var outVersion: string
+    if not isCompatible(version, outVersion):
+        raiseError(Error.OutdatedConfig, version, strings.NimblePkgVersion)
+
+proc initialize*(): Config =
+    var configFile: Config
 
     try:
-        let tomlFile = parsetoml.parseFile(ConfigFilePath)
+        var toml = parseFile(config.ConfigFilePath)
 
-        fetchMetdata(cfg.metadata, tomlFile["metadata"])
-        fetchBuild(cfg.build, tomlFile["build"])
-        fetchOutput(cfg.output, tomlFile["output"])
+        parseFields(toml, configFile)
+        checkCompatibility(configFile.debug.version)
 
-        if "debug" in tomlFile:
-            cfg.debug.logging = tomlFile["debug"]["logging"].getBool()
+        if len(configFile.build.targets) == 0:
+            raiseError(Error.NoTargets)
 
+        if isEmptyOrWhitespace(configFile.build.searchPath):
+            configFile.build.searchPath = ConfigDirectory
     except IOError:
-        echo(strings.NoConfig)
-        return false
+        raiseError(Error.NoConfig)
+    except TomlError as e:
+        raiseError(Error.InvalidConfig, e.msg)
 
-    logger.load(ConfigDirectory / "lovebrew.log", cfg.debug.logging)
+    if configFile.debug.logging:
+        logger.initialize(LogFilePath)
 
-    return true
+    return configFile

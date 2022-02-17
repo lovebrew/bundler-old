@@ -1,14 +1,24 @@
+import os
+
 type
     Extension* = enum
-        T3X = "t3x", BCFNT = "bcfnt", OTHER = "other"
+        T3x = "t3x"
+        Bcfnt = "bcfnt"
+        Other = "other"
 
-const TextureExtensions = @[".png", ".jpg", ".jpeg"]
-const FontExtensions = @[".ttf", ".otf"]
+proc fromExtension*(filename: string): Extension =
+    let (_, _, extension) = os.splitFile(filename)
 
-proc getExtension*(fileExt: string): Extension =
-    if fileExt in TextureExtensions:
-        return T3X
-    elif fileExt in FontExtensions:
-        return BCFNT
-    else:
-        return OTHER
+    case extension
+        of ".png", ".jpg", ".jpeg":
+            return Extension.T3x
+        of ".ttf", ".otf":
+            return Extension.Bcfnt
+        else:
+            return Extension.Other
+
+proc replace*(filename: string): string =
+    if (let a = fromExtension(filename); a != Extension.Other):
+        return os.changeFileExt(filename, $a)
+
+    return filename

@@ -2,93 +2,76 @@ import os
 import strutils
 import strformat
 
-import console
-import config
+include console
+
 import ../data/assets
-import ../data/strings
-import ../logger
+import ../enums/command
 import ../enums/extension
 
 type
-    Ctr* = ref object of ConsoleBase
+    Ctr* = ref object of Console
 
-const TextureCommand = """tex3ds "$1" --format=rgba8888 -z=auto --border=transparent -o "$2"""
-const FontCommand = """mkbcfnt "$1" -o "$2""""
+method getBinaryExtension(this: Ctr): string = "3dsx"
+method getConsoleName*(this: Ctr): string = "Nintendo 3DS"
+method getIconExtension(this: Ctr): string = "png"
+method getFileExtensions(this: Ctr): array[0x02, string] = [".3dsx", ".smdh"]
 
-proc getBinaryExtension*(this: Ctr): string = "3dsx"
-proc getConsoleName*(this: Ctr): string = "Nintendo 3DS"
-proc getIconExtension*(this: Ctr): string = "png"
-
-proc getDescription(this: Ctr): string =
-    fmt("{ConsoleBase(this).getDescription()} • {this.config.metadata.version}")
-
-proc convertFiles(this: Ctr): bool =
-    let source = this.config.build.source
-    let output = this.config.output.buildDir
+method convertFiles(this: Ctr, source: string,
+        buildDir: string): bool {.base.} =
+    logger.info($LogData.CopyConvertFiles)
 
     for filepath in os.walkDirRec(source, relative = true):
         if os.isHidden(filepath):
             continue
 
-        let (dir, _, fileExt) = os.splitFile(filepath)
+        let parent = os.parentDir(filepath)
 
-        let relativePath = normalizedPath(source / filepath)
-        let destinationDir = normalizedPath(output / dir)
+        let relativePath = (source / filepath)
+        let destinationDir = (buildDir / parent)
 
         let filename = os.extractFilename(filepath)
-
         var destination: string
 
         try:
             os.createDir(destinationDir)
-            destination = normalizedPath(destinationDir / filename)
 
-            let newExtension = extension.getExtension(fileExt)
+            # Replace the filename extension as needed
+            destination = destinationDir / extension.replace(filename)
 
-            if newExtension != Extension.OTHER:
-                destination = os.changeFileExt(destination, $newExtension)
-
-            if not console.handleFile(relativePath, destination):
+            # Check if the file is newer
+            if not this.handleFile(relativePath, destination):
                 continue
 
-            var success: bool
-            case newExtension:
-                of T3X:
-                    success = console.execute(TextureCommand.format(
-                            relativePath, destination))
-                of BCFNT:
-                    success = console.execute(FontCommand.format(relativePath, destination))
+            var success: bool = true
+            # Handle copy or convert
+            case fromExtension(filepath):
+                of Extension.T3x:
+                    success = command.run($Command.Tex3ds, relativePath, destination)
+                of Extension.Bcfnt:
+                    success = command.run($Command.MkBcfnt, relativePath, destination)
                 else:
-                    os.copyFileToDir(relativePath, destinationDir)
+                    os.copyFile(relativePath, destination)
 
             if not success:
                 return false
 
         except IOError as e:
-            logger.error(strings.CopyConvertError.format(e.msg, relativePath,
-                    destinationDir / destination))
+            logger.error(formatLog(LogData.CopyConvertError, relativePath, e.msg))
             return false
 
     return true
 
-proc isRawOutput(this: Ctr): bool =
-    return this.config.output.asRaw
+method publish*(this: Ctr, cfg: Config): bool =
+    logger.info(formatLog(LogData.InitializeBuild, this.getConsoleName()))
 
-proc publish*(this: Ctr): bool =
-    logger.info(fmt("== [{this.getConsoleName()}] =="))
+    let buildDir = cfg.output.buildDir / cfg.output.gameDir
 
-    if not this.convertFiles():
+    # Convert and/or copy files
+    if not this.convertFiles(cfg.build.source, buildDir):
         return false
 
-    let name = this.config.metadata.name
-    let searchPath = this.config.build.searchPath
-
-    if not this.checkBinaryExists() and not this.isRawOutput():
-        echo(strings.ElfBinaryNotFound.format(name, this.getConsoleName(
-            ), this.getBinaryName(), searchPath))
+    # Build the zip file
+    if not this.packGameFiles(cfg.metadata.name, buildDir, cfg.output.buildDir):
         return false
-
-    let description = this.getDescription()
-    echo("Description: " & description)
 
     return true
