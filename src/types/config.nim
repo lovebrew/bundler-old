@@ -42,6 +42,7 @@ type
 
 let ConfigFilePath* = os.normalizedPath(os.getCurrentDir() / "lovebrew.toml")
 let ConfigDirectory* = os.normalizedPath(os.getConfigDir() / "lovebrew")
+let FirstRunFile* = config.ConfigDirectory / ".first_run"
 
 let LogFilePath = os.normalizedPath(ConfigDirectory / "lovebrew.log")
 

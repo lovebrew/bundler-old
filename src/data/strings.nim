@@ -3,11 +3,6 @@ import strformat
 
 ### String for prompts/errors
 
-const FirstRun* = """
-This software is not endorsed nor maintained by devkitPro.
-If there are issues, please report them to the GitHub repository:
-https://github.com/lovebrew/lovebrew"""
-
 const NimblePkgVersion* {.strdefine.} = ""
 
 ### Error Enums
@@ -17,19 +12,20 @@ type
         DevkitPro = "The DEVKITPRO environment variable is not set."
         NoTargets = "No targets were specified."
         Source = "Source directory `$1` does not exist."
-        NoConfig = "Configuration file not found. Create one with the `init` argument."
-        OutdatedConfig = "Invalid config version. Found version $1, expected $2."
+        NoConfig = "Configuration file not found."
+        OutdatedConfig = "Incompatible config version `$1`."
         InvalidConfig = "Configuration file is invalid: $1"
-        ConfigOverwrite = "Config file was not overwritten due to an error: $1"
-        ToolNotFound = "Tool `$1` could not be found. Ensure that `$2` is installed from devkitpro-pacman."
+        ConfigOverwrite = "Config file was not created: $1"
+        ToolNotFound = "Tool `$1` could not be found."
         ToolFoundNotInPath = "The tool `$1` exists, but is not in your PATH environment."
-        CompileBinaryNotfound = "Binary `$1` was not found, ensure it exists at `$2`"
+        CompileBinaryNotfound = "Binary `$1` was not found."
+        FirstRun = "This software is not endorsed nor maintained by devkitPro.\nPlease report issues to the GitHub repository:\nhttps://github.com/lovebrew/lovebrew"
 
 proc displayError*(error: Error, args: varargs[string, `$`]) =
     echo(fmt("Error: {($error).format(args)}."))
 
 proc raiseError*(error: Error, args: varargs[string, `$`]) =
-    raise newException(Exception, fmt("Error: {($error).format(args)}. Aborting."))
+    raise newException(Exception, fmt("Error: {($error).format(args)} Aborting."))
 
 ### Build Enums
 

@@ -1,7 +1,6 @@
 import os
 import rdstdin
 import strutils
-import strformat
 
 import setup
 import data/strings
@@ -9,12 +8,9 @@ import data/assets
 import types/config
 import enums/target
 
-import types/console
 import types/ctr
 
 import cligen
-
-let FirstRunFile = config.ConfigDirectory / ".first_run"
 
 proc init() =
     ## Initializes a new config file
@@ -58,9 +54,10 @@ proc build() =
                 displayBuildStatus(BuildStatus.Failure, console.getConsoleName())
 
 proc clean() =
-    ## Clean the set output directory
+    ## Clean the output directory
 
-    return
+    let configFile = config.initialize()
+    os.removeDir(configFile.output.buildDir)
 
 proc version() =
     ## Show program version and exit
@@ -71,14 +68,8 @@ when defined(gcc) and defined(windows):
     {.link: "res/icon/icon.o".}
 
 when isMainModule:
-    if not fileExists(FirstRunFile):
-        os.createDir(ConfigDirectory)
-        writeFile(FirstRunFile, "")
-
-        echo(FirstRun)
-        quit(0)
-
     try:
+        setup.initialize()
         dispatchMulti([init], [build], [clean], [version])
     except Exception as e:
         echo(e.msg)

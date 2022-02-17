@@ -26,7 +26,7 @@ method getIconExtension(this: Console): string {.base.} =
 method getFileExtensions(this: Console): array[0x02, string] {.base.} =
     notImplemented()
 
-method publish*(this: Console, cfg: Config): bool {.base.} =
+method publish*(this: Console, cfg: Config): bool {.base locks: "unknown".} =
     notImplemented()
 
 method getDescription(this: Console, data: seq[string]): string {.base.} =
