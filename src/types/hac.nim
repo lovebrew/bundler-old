@@ -24,8 +24,10 @@ method publish*(this: Hac, cfg: Config): bool =
         logger.error(formatError(Error.CompileBinaryNotfound, check.path))
         return false
 
+    let outputName = this.getOutputBinaryName(cfg)
+
     # Build the zip file
-    if (not this.packGameFiles(cfg.metadata.name, buildDir, cfg.output.buildDir)):
+    if (not this.packGameFiles(outputName, buildDir, cfg.output.buildDir)):
         return false
 
     # Get the icon
@@ -33,14 +35,14 @@ method publish*(this: Hac, cfg: Config): bool =
 
     # Set the args for hbupdater
     let args = @[check.path, cfg.metadata.name, cfg.metadata.author, icon,
-                 cfg.output.buildDir / cfg.metadata.name, icon]
+                 cfg.output.buildDir / fmt("{outputName}.nro")]
 
-    if not command.run($Command.HacUpdate, args):
+    if (not command.run($Command.HacUpdate, args)):
         return false
 
     # Append the zip file to the nro
-    let file = io.open(fmt("{cfg.output.buildDir / cfg.metadata.name}.nro"), fmAppend)
-    file.write(io.readFile(fmt("{cfg.output.buildDir / cfg.metadata.name}.love")))
+    let file = io.open(fmt("{cfg.output.buildDir / outputName}.nro"), fmAppend)
+    file.write(io.readFile(fmt("{cfg.output.buildDir / outputName}.love")))
 
     # Cleanup
     this.clean(cfg.output.buildDir)

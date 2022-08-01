@@ -44,9 +44,9 @@ proc displayBuildStatus*(status: BuildStatus, args: varargs[string, `$`]) =
 
     if (status == BuildStatus.Failure):
         if (logger.isActive()):
-            echo(fmt("Check log for details:\n{logger.getFilepath()}"))
+            echo(fmt("Check log for details."))
         else:
-            echo("Please enable logging and review log.")
+            echo("Please enable logging and re-run.")
 
 type
     LogData* = enum
@@ -56,6 +56,7 @@ type
         CommandRunning = "  $1"
         CommandError = "Command Error: $1"
         CommandSuccess = "Command executed successfully."
+        CommandOSError = "Command Error:\n$1"
 
         PackingGameContent = "Packing game content..."
         PackingGameContentSuccess = "Content packed successfully."

@@ -72,8 +72,5 @@ when defined(gcc) and defined(windows):
     {.link: "res/icon/icon.o".}
 
 when isMainModule:
-    try:
-        setup.initialize()
-        dispatchMulti([init], [build], [clean], [version])
-    except Exception as e:
-        echo(e.msg)
+    setup.initialize()
+    dispatchMulti([init], [build], [clean], [version])

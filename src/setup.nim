@@ -29,8 +29,8 @@ proc check*(targets: seq[Target]): bool =
 
     ## Check for 3DS and Switch requirements
 
-    let ctrBinaries = @[Tool.Tex3ds, Tool.CtrUpdate]
-    let hacBinaries = @[Tool.HacUpdate]
+    let ctrBinaries = @[Tool.Tex3ds, Tool.HbUpdater]
+    let hacBinaries = @[Tool.HbUpdater]
 
     var pass = false
 

@@ -1,5 +1,7 @@
 include console
 
+import sequtils
+
 type
     Ctr* = ref object of Console
 
@@ -39,19 +41,22 @@ method publish*(this: Ctr, cfg: Config): bool =
     # set the args for hbupdater
     let newDescription = this.getDescription(description)
 
-    let args = @[check.path, cfg.metadata.name, cfg.metadata.author,
-                 icon, newDescription, cfg.output.buildDir / outputName]
+    var args = @[check.path, cfg.metadata.name, cfg.metadata.author,
+                 newDescription, icon, cfg.output.buildDir / fmt("{outputName}.3dsx")]
 
-    if (not command.run($Command.CtrUpdate, args)):
+    var execCmd = Command.CtrUpdate
+    if (not os.fileExists(icon)):
+        delete(args, 4 .. 4)
+        execCmd = Command.CtrUpdateNoIcon
+
+    if (not command.run($execCmd, args)):
         return false
 
-    # Append the zip file to the 3dsx
-    let gameContent = io.readFile(fmt("{cfg.output.buildDir / outputName}.love"))
+    Append the zip file to the 3dsx
+    let file = io.open(fmt("{cfg.output.buildDir / outputName}.3dsx"), fmAppend)
+    file.write(io.readFile(fmt("{cfg.output.buildDir / outputName}.love")))
 
-    let output = io.open(fmt("{cfg.output.buildDir / outputName}.3dsx"), fmAppend)
-    output.write(gameContent)
-
-    # Cleanup
+    Cleanup
     this.clean(cfg.output.buildDir)
 
     return true

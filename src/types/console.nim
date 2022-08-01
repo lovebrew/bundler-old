@@ -119,22 +119,20 @@ method checkBinary(this: Console, path: string): tuple[path: string,
 method getOutputBinaryName(this: Console, config: Config): string {.base.} =
     var name = config.metadata.name
 
-    if os.isValidFilename(name):
-        return name
+    if not (os.isValidFilename(name)):
+        for invalid in os.invalidFilenameChars:
+            let index = name.find(invalid)
 
-    for invalid in os.invalidFilenameChars:
-        let index = name.find(invalid)
-
-        if index != -1:
-            delete(name, index .. index)
+            if index != -1:
+                delete(name, index .. index)
 
     return name
 
-method packGameFiles(this: Console, name, source,
-        buildDir: string): bool {.base.} =
+method packGameFiles(this: Console, name, source, buildDir: string): bool {.base.} =
     logger.info(formatLog(LogData.PackingGameContent))
 
     try:
+        logger.info(fmt("Zipping {source} to {name}.love"))
         ziparchives.createZipArchive(fmt("{source}/"), buildDir / fmt("{name}.love"))
     except Exception as e:
         logger.error(formatLog(LogData.PackingGameContentError, e.msg))
