@@ -1,6 +1,7 @@
 import os
 import rdstdin
 import strutils
+import tables
 
 import setup
 import data/strings
@@ -8,7 +9,10 @@ import data/assets
 import types/config
 import enums/target
 
+import logger
+
 import types/ctr
+import types/hac
 
 import cligen
 
@@ -30,6 +34,12 @@ proc init() =
         os.removeFile(config.ConfigFilePath)
         lovebrew.init()
 
+proc compile(item: auto, configFile: Config) =
+    if item.publish(configFile):
+        displayBuildStatus(BuildStatus.Success, item.getConsoleName())
+    else:
+        displayBuildStatus(BuildStatus.Failure, item.getConsoleName())
+
 proc build() =
     ## Build the project for the current targets in the config file
 
@@ -41,20 +51,14 @@ proc build() =
     os.createDir(configFile.output.buildDir)
 
     for target in configFile.build.targets:
-        let console = case target:
-            of TARGET_CTR:
-                Ctr()
-            of TARGET_HAC:
-                nil
-
-        if not console.isNil():
-            if console.publish(configFile):
-                displayBuildStatus(BuildStatus.Success, console.getConsoleName())
-            else:
-                displayBuildStatus(BuildStatus.Failure, console.getConsoleName())
+        if target == TARGET_CTR:
+            compile(Ctr(), configFile)
+        elif target == TARGET_HAC:
+            compile(Hac(), configFile)
 
 proc clean() =
     ## Clean the output directory
+    logger.info(formatLog(LogData.Cleaning))
 
     let configFile = config.initialize()
     os.removeDir(configFile.output.buildDir)

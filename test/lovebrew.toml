@@ -30,7 +30,7 @@ version = "0.1.0"
 #                           Default: ""
 [build]
 clean = false
-targets = ["3ds"]
+targets = ["3ds", "switch"]
 source = "game"
 icon = "icon"
 searchPath = ""

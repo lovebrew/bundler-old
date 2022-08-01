@@ -17,7 +17,7 @@ proc initialize*() =
         writeFile(FirstRunFile, "")
         raise newException(Exception, $Error.FirstRun)
 
-proc findDevkitProBinary(name: Tool): bool =
+proc findBinary(name: Tool): bool =
     if isEmptyOrWhitespace(os.findExe($name)):
         strings.raiseError(Error.ToolNotFound, $name)
 
@@ -36,15 +36,15 @@ proc check*(targets: seq[Target]): bool =
     ## nacptool and elf2nro are provided by switch-tools
     ## so we only need to check for one of them
 
-    let ctrBinaries = @[Tool.Tex3ds, Tool.Smdhtool]
-    let hacBinaries = @[Tool.Nacptool]
+    let ctrBinaries = @[Tool.Tex3ds, Tool.Smdhtool, Tool.N3dsxupdate]
+    let hacBinaries = @[Tool.Nacptool, Tool.Nroupdate]
 
     var pass = false
 
     if TARGET_CTR in targets:
-        pass = ctrBinaries.allIt(it.findDevkitProBinary)
+        pass = ctrBinaries.allIt(it.findBinary)
 
     if TARGET_HAC in targets:
-        pass = hacBinaries.anyIt(it.findDevkitProBinary)
+        pass = hacBinaries.anyIt(it.findBinary)
 
     return pass

@@ -39,7 +39,6 @@ type
 
 # --------------------------------------- #
 
-
 let ConfigFilePath* = os.normalizedPath(os.getCurrentDir() / "lovebrew.toml")
 let ConfigDirectory* = os.normalizedPath(os.getConfigDir() / "lovebrew")
 let FirstRunFile* = config.ConfigDirectory / ".first_run"
@@ -106,7 +105,8 @@ macro parseFields(tomlField: TomlValueRef, config: typed): untyped =
         of nnkEnumTy:
             var typename = config.getTypeImpl[1]
             result.add quote do:
-                `config` = `tomlField`.getElems().mapIt(`typename`(it.getInt()))
+                `config` = `tomlField`.getElems().mapIt(`typename`(parseEnum[
+                        `typename`](it.getStr())))
         else:
             assert(false, "Unknown type in sequence: " & fieldType.repr)
     else:
@@ -143,6 +143,8 @@ proc initialize*(): Config =
 
         if len(configFile.build.targets) == 0:
             raiseError(Error.NoTargets)
+        else:
+            configFile.build.targets = deduplicate(configFile.build.targets)
 
         if isEmptyOrWhitespace(configFile.build.searchPath):
             configFile.build.searchPath = ConfigDirectory

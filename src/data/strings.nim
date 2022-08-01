@@ -1,6 +1,8 @@
 import strutils
 import strformat
 
+import ../logger
+
 ### String for prompts/errors
 
 const NimblePkgVersion* {.strdefine.} = ""
@@ -27,29 +29,47 @@ proc displayError*(error: Error, args: varargs[string, `$`]) =
 proc raiseError*(error: Error, args: varargs[string, `$`]) =
     raise newException(Exception, fmt("Error: {($error).format(args)} Aborting."))
 
+proc formatError*(error: Error, args: varargs[string, `$`]): string =
+    return fmt("{($error).format(args)} Aborting.")
+
 ### Build Enums
 
 type
     BuildStatus* = enum
         Success = "Build for $1 was successful."
-        Failure = "Build for $1 failed. Please check logs."
+        Failure = "Build for $1 failed."
 
 proc displayBuildStatus*(status: BuildStatus, args: varargs[string, `$`]) =
     echo(($status).format(args))
+
+    if (status == BuildStatus.Failure):
+        if (logger.isActive()):
+            echo(fmt("Check log for details:\n{logger.getFilepath()}"))
+        else:
+            echo("Please enable logging and review log.")
 
 type
     LogData* = enum
         InitializeBuild = "-- $1 --"
 
-        PackingGameContent = "Packing game content"
+        ExecuteCommand = "Executing command..."
+        CommandRunning = "  $1"
+        CommandError = "Command Error: $1"
+        CommandSuccess = "Command executed successfully."
+
+        PackingGameContent = "Packing game content..."
+        PackingGameContentSuccess = "Content packed successfully."
         PackingGameContentError = "Error packing game content: $1"
 
-        CopyConvertFiles = "Copying & Converting Files, please wait..."
-        CopyConvertWhat = "  $1 -> $2"
-        SourceUnchanged = "  Source file $1 is not newer. Skipping."
-        CopyConvertError = "Failed to handle file $1: $2"
+        ConvertFile = "Converting file..."
+        CopyFile = "Copying file..."
 
-        CommandError = "Command Error: $1: $2"
+        HandleFile = "  $1 -> $2"
+        SourceUnchanged = "  Source file $1 is not newer than $2. Skipping."
+        HandleFileError = "Failed to handle file $1: $2"
+
+        Cleaning = "Cleaning build directory..."
+        CleanFile = "  $1"
 
 proc formatLog*(data: LogData, args: varargs[string, `$`]): string =
     return ($data).format(args)
