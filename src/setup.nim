@@ -28,16 +28,9 @@ proc check*(targets: seq[Target]): bool =
         strings.raiseError(Error.DevkitPro)
 
     ## Check for 3DS and Switch requirements
-    ##
-    ## 3dsxtool and smdhtool are provided by 3dstools
-    ## so we only need to check for one of them
-    ## tex3ds and mkbcfnt are provided by tex3ds
-    ##
-    ## nacptool and elf2nro are provided by switch-tools
-    ## so we only need to check for one of them
 
-    let ctrBinaries = @[Tool.Tex3ds, Tool.Smdhtool, Tool.N3dsxupdate]
-    let hacBinaries = @[Tool.Nacptool, Tool.Nroupdate]
+    let ctrBinaries = @[Tool.Tex3ds, Tool.CtrUpdate]
+    let hacBinaries = @[Tool.HacUpdate]
 
     var pass = false
 
