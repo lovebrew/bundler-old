@@ -52,11 +52,11 @@ method publish*(this: Ctr, cfg: Config): bool =
     if (not command.run($execCmd, args)):
         return false
 
-    Append the zip file to the 3dsx
+    # Append the zip file to the 3dsx
     let file = io.open(fmt("{cfg.output.buildDir / outputName}.3dsx"), fmAppend)
     file.write(io.readFile(fmt("{cfg.output.buildDir / outputName}.love")))
 
-    Cleanup
+    # Cleanup
     this.clean(cfg.output.buildDir)
 
     return true
