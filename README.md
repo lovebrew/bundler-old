@@ -14,7 +14,6 @@ Some things are required to be installed/added for LÖVEBrew to function properl
 
 Building for Nintendo 3DS:
 
-- `3dstools`
 - `tex3ds`
 
 One binary not provided by devkitpro-pacman:
