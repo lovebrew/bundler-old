@@ -1,5 +1,7 @@
 include console
 
+import sequtils
+
 type
     Hac* = ref object of Console
 
@@ -34,8 +36,13 @@ method publish*(this: Hac, cfg: Config): bool =
     let icon = fmt("{cfg.build.icon}.{this.getIconExtension()}")
 
     # Set the args for hbupdater
-    let args = @[check.path, cfg.metadata.name, cfg.metadata.author, icon,
+    var args = @[check.path, cfg.metadata.name, cfg.metadata.author, icon,
                  cfg.output.buildDir / fmt("{outputName}.nro")]
+
+    var execCmd = Command.HacUpdate
+    if (not os.fileExists(icon)):
+        delete(args, 3 .. 3)
+        execCmd = Command.HacUpdateNoIcon
 
     if (not command.run($Command.HacUpdate, args)):
         return false
