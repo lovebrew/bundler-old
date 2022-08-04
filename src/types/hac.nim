@@ -1,73 +1,50 @@
-import os
-import strutils
-import strformat
-
-import console
-export console
-
-import ../assetsfile
-import ../configure
-import ../strings
-import ../logger
-
-const NacpCommand = """nacptool --create "$1" "$2" "$3" "$4.nacp""""
-const BinaryCommand = """elf2nro "$1" "$2.nro" --icon="$3" --nacp="$4.nacp" --romfsdir="$5""""
-
-const ShadersDirectory = "romfs/hac/shaders"
-const RomFSDirectory = "romfs/hac/graphics"
+include console
 
 type
-    Hac* = ref object of ConsoleBase
+    Hac* = ref object of Console
 
-proc getBinaryExtension*(self: Hac): string = "nro"
-proc getConsoleName*(self: Hac): string = "Nintendo Switch"
-proc getElfBinaryName*(self: Hac): string = "Switch.elf"
-proc getIconExtension*(self: Hac): string = "jpg"
+method getBinaryExtension(this: Hac): string = "nro"
+method getConsoleName*(this: Hac): string = "Nintendo Switch"
+method getIconExtension(this: Hac): string = "jpg"
+method getFileExtensions(this: Hac): array[0x02, string] = [".nro", ".nacp"]
 
-proc publish*(self: Hac, source: string): bool =
-    logger.info(fmt"== [{self.getConsoleName()}] ==")
+method publish*(this: Hac, cfg: Config): bool =
+    logger.info(formatLog(LogData.InitializeBuild, this.getConsoleName()))
 
-    ### Write the needed shaders to their proper directory
+    let buildDir = cfg.output.buildDir / cfg.output.gameDir
 
-    os.createDir(ShadersDirectory)
-    for key, value in HacShaders.items():
-        if not fileExists(fmt"{ShadersDirectory}/{key}.dksh"):
-            logger.info(fmt"Writing shader: {ShadersDirectory}/{key}.dksh")
-            writeFile(fmt("{ShadersDirectory}/{key}.dksh"), value)
-        else:
-            logger.info(fmt"Shader '{key}.dksh' already exists. Skipping.")
-
-    let elfBinaryPath = self.getElfBinaryPath()
-
-    if not os.fileExists(elfBinaryPath):
-        echo(strings.ElfBinaryNotFound.format(
-                config.name, self.getConsoleName(), self.getElfBinaryName(),
-                config.binSearchPath))
+    # Copy files
+    if (not this.convertFiles(cfg.build.source, buildDir)):
         return false
 
-    let outputPath = self.getGenericOutputBinaryPath()
+    # Check if the binary exists
+    let check = this.checkBinary(cfg.build.searchPath)
 
-    try:
-        os.createDir(RomFSDirectory)
-
-        # Copy RomFS graphics content to directory
-        for name, content in HacGraphics.items():
-            if not fileExists(fmt"{RomFSDirectory}/{name}"):
-                writeFile(fmt"{RomFSDirectory}/{name}", content)
-            else:
-                logger.info(fmt"Messagebox texture '{name}' already exists. Skipping.")
-
-        let (head, _) = splitPath(RomFSDirectory)
-
-        ### Create `{SuperGame}.nacp` in `build`
-        if not console.runCommand(NacpCommand.format(config.name, config.author, config.version, outputPath)):
-            return false
-
-        ### Create `{SuperGame}.nro` in `build`
-        if not console.runCommand(BinaryCommand.format(elfBinaryPath, outputPath, self.getIcon(), outputPath, head)):
-            return false
-    except Exception as e:
-        logger.error(fmt"{self.getConsoleName()} publishing failure: {e.msg}")
+    if (not check.exists):
+        logger.error(formatError(Error.CompileBinaryNotfound, check.path))
         return false
 
-    return self.packGameDirectory(fmt("{source}/"))
+    let outputName = this.getOutputBinaryName(cfg)
+
+    # Build the zip file
+    if (not this.packGameFiles(outputName, buildDir, cfg.output.buildDir)):
+        return false
+
+    # Get the icon
+    let icon = fmt("{cfg.build.icon}.{this.getIconExtension()}")
+
+    # Set the args for hbupdater
+    let args = @[check.path, cfg.metadata.name, cfg.metadata.author, icon,
+                 cfg.output.buildDir / fmt("{outputName}.nro")]
+
+    if (not command.run($Command.HacUpdate, args)):
+        return false
+
+    # Append the zip file to the nro
+    let file = io.open(fmt("{cfg.output.buildDir / outputName}.nro"), fmAppend)
+    file.write(io.readFile(fmt("{cfg.output.buildDir / outputName}.love")))
+
+    # Cleanup
+    this.clean(cfg.output.buildDir)
+
+    return true

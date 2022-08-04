@@ -1,31 +1,34 @@
 import logging
 
-var logger: FileLogger
-var isEnabled: bool = false
+var logger: FileLogger = nil
 
-proc load*(filepath: string, enabled: bool) =
-    if enabled:
-        logger = newFileLogger(filepath, fmWrite, levelThreshold=lvlAll, fmtStr="$datetime | $levelname | ")
+var filepath: string = ""
+const FormatString = "$levelname [$time] -- $appname: "
 
-    isEnabled = enabled
+proc initialize*(path: string) =
+    filepath = path
 
-proc info*(message: string) =
-    if not isEnabled:
+    logger = newFileLogger(path, fmWrite, lvlAll, FormatString)
+    logging.log(logger, lvlInfo, "Initialize..")
+
+proc getFilepath*(): string =
+    return filepath
+
+proc isActive*(): bool =
+    return (logger.isNil == false)
+
+proc logLevel(level: Level, args: varargs[string, `$`]) =
+    if not isActive():
         return
 
-    logger.log(lvlInfo, message)
-    flushFile(logger.file)
+    logging.log(logger, level, args)
+    io.flushFile(logger.file)
 
-proc warning*(message: string) =
-    if not isEnabled:
-        return
+proc info*(arg: string) =
+    logLevel(lvlInfo, arg)
 
-    logger.log(lvlWarn, message)
-    flushFile(logger.file)
+proc warning*(arg: string) =
+    logLevel(lvlWarn, arg)
 
-proc error*(message: string) =
-    if not isEnabled:
-        return
-
-    logger.log(lvlError, message)
-    flushFile(logger.file)
+proc error*(arg: string) =
+    logLevel(lvlError, arg)

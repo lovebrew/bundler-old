@@ -1,139 +1,62 @@
-import os
-import strutils
-import strformat
+include console
 
-import console
-export console
-
-import ../configure
-import ../strings
-import ../logger
-
-import ../assetsfile
-
-const TextureCommand = """tex3ds "$1" --format=rgba8888 -z=auto --border=transparent -o "$2.t3x""""
-const FontCommand = """mkbcfnt "$1" -o "$2.bcfnt""""
-
-const SmdhCommand = """smdhtool --create "$1" "$2" "$3" "$4" "$5.smdh""""
-const BinaryCommand = """3dsxtool "$1" "$2.3dsx" --romfs=$3 --smdh="$2.smdh""""
-
-const Textures = @[".png", ".jpg", ".jpeg"]
-const Fonts = @[".ttf", ".otf"]
-
-const RomFSDirectory = "romfs/ctr/graphics"
+import sequtils
 
 type
-    Ctr* = ref object of ConsoleBase
+    Ctr* = ref object of Console
 
-proc getBinaryExtension*(self: Ctr): string = "3dsx"
-proc getConsoleName*(self: Ctr): string = "Nintendo 3DS"
-proc getElfBinaryName*(self: Ctr): string = "3DS.elf"
-proc getIconExtension*(self: Ctr): string = "png"
+method getBinaryExtension(this: Ctr): string = "3dsx"
+method getConsoleName*(this: Ctr): string = "Nintendo 3DS"
+method getIconExtension(this: Ctr): string = "png"
+method getFileExtensions(this: Ctr): array[0x02, string] = [".3dsx", ".smdh"]
 
-proc shouldHandleFile(self: Ctr, source: string, destination: string,
-        ext: string): bool =
-    let checked_file = fmt"{destination}.{ext}"
+method publish*(this: Ctr, cfg: Config): bool =
+    logger.info(formatLog(LogData.InitializeBuild, this.getConsoleName()))
 
-    try:
-        if not fileExists(checked_file) or fileNewer(source, checked_file):
-            logger.info(fmt"Copying/Converting file {source} to {checked_file}.")
-            return true
-    except Exception as e:
-        logger.error(fmt"Something went wrong: {e.msg} ({checked_file})")
+    let buildDir = cfg.output.buildDir / cfg.output.gameDir
 
-    logger.info(fmt"File source {source} for {checked_file} is not newer. Skipping.")
-    return false
+    # Convert and/or copy files
+    if (not this.convertFiles(cfg.build.source, buildDir, convert = true)):
+        return false
 
-proc convertFiles(self: Ctr, source: string): bool =
-    stdout.write(strings.ConvertCopyingFiles)
+    # Check if the binary exists and if we want only converted files
+    let check = this.checkBinary(cfg.build.searchPath)
 
-    let romFS = console.getRomFSDirectory()
+    if (not check.exists and not cfg.output.noBinary):
+        logger.error(formatError(Error.CompileBinaryNotfound, check.path))
+        return false
 
-    for path in os.walkDirRec(source, relative = true):
-        if os.isHidden(path):
-            continue
+    # Build the zip file
+    let outputName = this.getOutputBinaryName(cfg)
 
-        let (dir, name, extension) = os.splitFile(path)
+    if (not this.packGameFiles(outputName, buildDir, cfg.output.buildDir)):
+        return false
 
-        let relativePath = normalizedPath(fmt("{source}/{path}"))
-        let destination = fmt("{romFS}/{dir}")
+    # Get the icon path
+    let icon = fmt("{cfg.build.icon}.{this.getIconExtension()}")
 
-        var destinationPath: string = ""
+    # Create our description Sequence
+    let description = @[cfg.metadata.description, cfg.metadata.version]
 
-        try:
-            os.createDir(destination)
+    # set the args for hbupdater
+    let newDescription = this.getDescription(description)
 
-            destinationPath = normalizedPath(fmt("{destination}/{name}"))
+    var args = @[check.path, cfg.metadata.name, cfg.metadata.author,
+                 newDescription, icon, cfg.output.buildDir / fmt("{outputName}.3dsx")]
 
-            if extension in Textures or extension in Fonts:
-                let ext = if extension in Textures: "t3x" else: "bcfnt"
+    var execCmd = Command.CtrUpdate
+    if (not os.fileExists(icon)):
+        delete(args, 4 .. 4)
+        execCmd = Command.CtrUpdateNoIcon
 
-                if not self.shouldHandleFile(relativePath, destinationPath, ext):
-                    continue
+    if (not command.run($execCmd, args)):
+        return false
 
-                var conversion_command: string = ""
+    # Append the zip file to the 3dsx
+    let file = io.open(fmt("{cfg.output.buildDir / outputName}.3dsx"), fmAppend)
+    file.write(io.readFile(fmt("{cfg.output.buildDir / outputName}.love")))
 
-                if extension in Textures:
-                    conversion_command = TextureCommand.format(relativePath, destinationPath)
-                elif extension in Fonts:
-                    conversion_command = FontCommand.format(relativePath, destinationPath)
+    # Cleanup
+    this.clean(cfg.output.buildDir)
 
-                if not conversion_command.isEmptyOrWhitespace():
-                    if not runCommand(conversion_command):
-                        return false
-            else:
-                if not self.shouldHandleFile(relativePath, destinationPath,
-                        extension.substr(1)):
-                    continue
-
-                os.copyFileToDir(relativePath, destination)
-        except Exception as e:
-            logger.error(fmt"Copy or conversion error! {e.msg}: {relativePath} -> {destination}/{destinationPath}")
-            return false
-
-    echo("Done!")
     return true
-
-proc publish*(self: Ctr, source: string): bool =
-    logger.info(fmt"== [{self.getConsoleName()}] ==")
-
-    if not self.convertFiles(source):
-        return false
-
-    let elfBinaryPath = self.getElfBinaryPath()
-
-    if not os.fileExists(elfBinaryPath) and not config.rawData:
-        echo(strings.ElfBinaryNotFound.format(config.name, self.getConsoleName(),
-                self.getElfBinaryName(), config.binSearchPath))
-        return false
-
-    let properDescription = fmt("{config.description} • {config.version}")
-    let outputPath = self.getGenericOutputBinaryPath()
-
-    try:
-        os.createDir(RomFSDirectory)
-
-        # Copy RomFS graphics content to directory
-        for name, content in CtrGraphics.items():
-            if not fileExists(fmt"{RomFSDirectory}/{name}"):
-                writeFile(fmt"{RomFSDirectory}/{name}", content)
-            else:
-                logger.info(fmt"Messagebox texture '{name}' already exists. Skipping.")
-
-        let (head, _) = splitPath(RomFSDirectory)
-
-        # Output {SuperGame}.smdh to `build` directory
-        if not console.runCommand(SmdhCommand.format(config.name,
-                properDescription, config.author, self.getIcon(), outputPath)):
-            return false
-
-        # Output {SuperGame}.3dsx to `build` directory
-        if not console.runCommand(BinaryCommand.format(self.getElfBinaryPath(),
-                outputPath, head)):
-            return false
-    except Exception as e:
-        logger.error(fmt"{self.getConsoleName()} publishing failure: {e.msg}")
-        return false
-
-    let directory = config.build / config.romFS
-    return self.packGameDirectory(fmt("{directory}/"))

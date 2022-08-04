@@ -1,41 +1,63 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "Clean",
-            "type": "shell",
-            "command": "rm -Recurse res/*.o , dist"
-        },
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Compile",
+      "type": "shell",
+      "command": "nimble build",
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
 
-        {
-            "label": "Build Icon",
-            "type": "shell",
-            "windows":
-            {
-                "command": "cmd.exe /c 'windres res/icon.rc -o res/icon.o'"
-            },
-        },
+    {
+      "label": "Install",
+      "type": "shell",
+      "command": "nimble install",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
 
-        {
-            "label": "Prettify",
-            "type": "shell",
-            "command": "nimpretty ${relativeFile}"
-        },
-
-        {
-            "dependsOn": ["Build Icon"],
-
-            "label": "Compile",
-            "type": "shell",
-            "command": "nimble build",
-            "problemMatcher": [],
-            "group":
-            {
-                "kind": "build",
-                "isDefault": true
-            }
-        }
-    ]
+    {
+      "label": "Run Test",
+      "type": "shell",
+      "command": "lovebrew build",
+      "options": { "cwd": "test" },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    }
+  ]
 }
