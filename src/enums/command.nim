@@ -6,7 +6,7 @@ import ../data/strings
 
 type
     Command* = enum
-        Tex3ds = "tex3ds $1 --border=transparent -o $2"
+        Tex3ds = "tex3ds $1 -o $2"
         Mkbcfnt = "mkbcfnt $1 -o $2"
 
         CtrUpdate = "hbupdater ctr --filepath $1 --title \"$2\" --author \"$3\" --description \"$4\" --iconPath $5 --output $6"
