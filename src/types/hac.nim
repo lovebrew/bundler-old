@@ -44,7 +44,7 @@ method publish*(this: Hac, cfg: Config): bool =
         delete(args, 3 .. 3)
         execCmd = Command.HacUpdateNoIcon
 
-    if (not command.run($Command.HacUpdate, args)):
+    if (not command.run($execCmd, args)):
         return false
 
     # Append the zip file to the nro
