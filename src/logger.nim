@@ -1,24 +1,14 @@
 import logging
 
 var logger: FileLogger = nil
-
-var filepath: string = ""
 const FormatString = "$levelname [$time] -- $appname: "
 
-proc initialize*(path: string) =
-    filepath = path
-
-    logger = newFileLogger(path, fmWrite, lvlAll, FormatString)
-    logging.log(logger, lvlInfo, "Initialize..")
-
-proc getFilepath*(): string =
-    return filepath
-
-proc isActive*(): bool =
-    return (logger.isNil == false)
+proc init*(path: string, enable: bool) =
+    if enable:
+        logger = newFileLogger(path, fmWrite, lvlAll, FormatString)
 
 proc logLevel(level: Level, args: varargs[string, `$`]) =
-    if not isActive():
+    if logger.isNil:
         return
 
     logging.log(logger, level, args)
