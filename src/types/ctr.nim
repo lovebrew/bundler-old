@@ -26,6 +26,9 @@ method publish*(this: Ctr, cfg: Config): bool =
         logger.error(formatError(Error.CompileBinaryNotfound, check.path))
         return false
 
+    if (cfg.output.noBinary):
+        return true
+
     # Build the zip file
     let outputName = this.getOutputBinaryName(cfg)
 

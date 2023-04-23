@@ -42,8 +42,8 @@ searchPath = ""
 #                       Default: "build".
 #
 # [bool]   @noBinary  : Whether or not to properly build a project binary.
-#                       This will not build a 3dsx application. See @build.targets.
-#                       When false, outputs as a 3dsx; when true, output only
+#                       This will not build a 3dsx/nro application. See @build.targets.
+#                       When false, outputs as a 3dsx/nro; when true, output only
 #                       as the game folder used for testing purposes.
 #                       Default: false.
 #
