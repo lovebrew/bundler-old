@@ -27,13 +27,13 @@ proc init() =
         os.removeFile(config.configFilePath)
         lovebrew.init()
 
-proc build() =
+proc build(app_version: string = "2") =
     let configFile = config.init()
 
     os.createDir(configFile.build.saveDir)
 
     for target in configFile.build.targets:
-        client.send_data(target, $configFile.metadata, configFile.build.source)
+        client.send_data(target, app_version, $configFile.metadata, configFile.build.source)
 
 proc version() =
     ## Show program version and exit
