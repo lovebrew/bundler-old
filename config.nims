@@ -9,3 +9,4 @@ when defined(Windows) or defined(Linux):
 switch("passL", "-s")
 # Change to release mode
 switch("d", "release")
+switch("d", "ssl")
