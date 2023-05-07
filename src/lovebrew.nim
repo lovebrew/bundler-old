@@ -6,15 +6,18 @@ import client
 import config
 import assets
 import strings
+import logger
 
 import cligen
+import strformat
+
 
 proc init() =
     ## Initialize a new config file, if applicable
 
-    if not os.fileExists(config.configFilePath):
+    if not os.fileExists(config.ConfigFilePath):
         try:
-            io.writeFile(config.configFilePath, assets.DefaultConfigFile)
+            io.writeFile(config.ConfigFilePath, assets.DefaultConfigFile)
         except IOError as e:
             raiseError(Error.ConfigOverwrite, e.msg)
 
@@ -24,7 +27,7 @@ proc init() =
     discard rdstdin.readLineFromStdin(strings.ConfigExists, answer)
 
     if answer.toLower() == "y":
-        os.removeFile(config.configFilePath)
+        os.removeFile(config.ConfigFilePath)
         lovebrew.init()
 
 proc build(app_version: string = "2") =
@@ -33,7 +36,14 @@ proc build(app_version: string = "2") =
     os.createDir(configFile.build.saveDir)
 
     for target in configFile.build.targets:
-        client.send_data(target, app_version, $configFile.metadata, configFile.build.source)
+        logger.info(&"Building for target: {target}")
+        let (success, filename, content) = client.send_data(target, app_version,
+                $configFile.metadata, configFile.build.source)
+
+        if success:
+            io.writeFile(&"{configFile.build.saveDir}/{filename}", content)
+        else:
+            logger.error(content)
 
 proc version() =
     ## Show program version and exit

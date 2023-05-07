@@ -41,7 +41,10 @@ type
 
 const CompatibleVersions = @[strings.NimblePkgVersion]
 
-let configFilePath* = os.normalizedPath(os.getCurrentDir() / "lovebrew.toml")
+let ConfigFilePath* = os.normalizedPath(os.getCurrentDir() / "lovebrew.toml")
+
+let ConfigDirectory = os.normalizedPath(os.getConfigDir() / "lovebrew")
+let LogFilePath = os.normalizedPath(ConfigDirectory / "lovebrew.log")
 
 proc checkCompatible(configValue: string) {.raises: [Exception].} =
     if not CompatibleVersions.anyIt(it == configValue):
@@ -62,17 +65,19 @@ let FriendlyNameMappings = {
 }.toTable()
 
 proc init*(): Config =
-    if not os.fileExists(configFilePath):
+    if not os.fileExists(ConfigFilePath):
         raiseError(Error.NoConfig)
 
-    var contents = readFile(configFilePath)
+    var contents = readFile(ConfigFilePath)
     var config: Config
 
     try:
         config = Toml.decode(contents, Config)
+        checkCompatible(config.debug.version)
 
-        config.build.targets.applyIt(FriendlyNameMappings[it])
+        config.build.targets = config.build.targets.mapIt(FriendlyNameMappings.getOrDefault(it, it))
+        logger.init(LogFilePath, config.debug.logging)
 
         return config
     except TomlError as e:
-        raiseError(Error.InvalidConfig)
+        raiseError(Error.InvalidConfig, e.msg)

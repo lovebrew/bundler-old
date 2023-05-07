@@ -7,10 +7,10 @@ const NimblePkgVersion* {.strdefine.} = ""
 
 type
     Error* = enum
-        OutdatedConfig = "Incompatible config version `$1`."
+        OutdatedConfig = "Incompatible configuration version `$1`."
         NoConfig = "Configuration file not found."
-        InvalidConfig = "Configuration file is invalid."
-        ConfigOverwrite = "Config file was not created: $1"
+        InvalidConfig = "Configuration file is invalid: $1"
+        ConfigOverwrite = "Configuration file was not created: $1"
 
 proc raiseError*(error: Error, args: varargs[string, `$`]) =
     raise newException(Exception, &"Error: {($error).format(args)} Aborting.")

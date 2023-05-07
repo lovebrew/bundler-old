@@ -2,7 +2,6 @@ import std/[asyncdispatch, httpclient]
 import tables
 import strutils
 import strformat
-import os
 
 import logger
 
@@ -11,22 +10,21 @@ import zippy/ziparchives
 const PostUrl = "https://www.bundle.lovebrew.org/"
 var dataEndPoint = "/data?title=$title&description=$description&author=$author&version=$version&mode=$mode&app_version=$app_version"
 
-proc asyncProc(filename: string, endpoint: string, zipFilePath: string,
-        iconFilePath: string): Future[string] {.async.} =
-    var client = newHttpClient()
+proc asyncProc(endpoint: string, zipFilePath: string,
+        iconFilePath: string): Future[AsyncResponse] {.async.} =
 
+    var client = newAsyncHttpClient()
     var data = newMultipartData()
 
     data.addFiles({"game": zipFilePath})
-    data.addFiles({"icon": iconFilePath})
 
-    let response = client.post(endpoint, multipart = data)
+    if not iconFilePath.isEmptyOrWhitespace:
+        data.addFiles({"icon": iconFilePath})
 
-    if response.code == HttpCode(200):
-        io.writeFile(filename, response.body)
+    return await client.post(endpoint, multipart = data)
 
 proc sendData*(mode: string, app_version: string, metadata: Table[string, string],
-        gameDir: string) =
+        gameDir: string): (bool, string, string) =
     var copy = dataEndPoint
     for key, value in metadata.pairs():
         copy = copy.replace(&"${key}", value)
@@ -44,13 +42,24 @@ proc sendData*(mode: string, app_version: string, metadata: Table[string, string
         return
 
     var extension = "3dsx"
+
     case mode:
-        of "switch":
+        of "hac":
             extension = "nro"
-        of "wiiu":
+        of "cafe":
             extension = "wuhb"
 
     var filename = &"{name}.{extension}"
 
-    discard waitFor asyncProc(filename, &"{PostUrl}{copy}", &"{name}.love", metadata["icon"])
-    os.removeFile(&"{name}.love")
+    try:
+        let response = waitFor asyncProc(&"{PostUrl}{copy}", &"{name}.love", metadata["icon"])
+        let content = waitFor response.body()
+
+        if response.code() == HttpCode(200):
+            return (true, filename, content)
+        else:
+            return (false, "", content)
+    except ValueError as e:
+        echo e.msg
+
+    return (false, "", "failed to build")
