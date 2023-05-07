@@ -1,6 +1,6 @@
 # Package
 
-version = "0.6.0"
+version = "0.7.0"
 author = "TurtleP"
 description = "LÖVE Potion Game Distribution Helper"
 license = "MIT"
@@ -12,6 +12,6 @@ binDir = "dist"
 # Dependencies
 
 requires "nim >= 1.6.0"
-requires "zippy"
-requires "parsetoml"
 requires "cligen"
+requires "toml_serialization"
+requires "zippy"

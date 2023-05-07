@@ -6,7 +6,7 @@
     {
       "label": "Compile",
       "type": "shell",
-      "command": "nimble build",
+      "command": "nimble build -d:ssl",
       "problemMatcher": [],
       "group": {
         "kind": "build",
@@ -21,7 +21,6 @@
         "clear": false
       }
     },
-
     {
       "label": "Install",
       "type": "shell",
@@ -30,26 +29,6 @@
         "kind": "build",
         "isDefault": true
       },
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
-        "panel": "shared",
-        "showReuseMessage": true,
-        "clear": false
-      }
-    },
-
-    {
-      "label": "Run Test",
-      "type": "shell",
-      "command": "lovebrew build",
-      "options": { "cwd": "test" },
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      },
-      "problemMatcher": [],
       "presentation": {
         "echo": true,
         "reveal": "always",

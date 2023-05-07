@@ -4,28 +4,9 @@
 
 The easiest way to "install" LÖVEBrew is from the [releases page](https://github.com/TurtleP/lovebrew/releases). Download the respective platform's release and put it in the following directory for your operating system:
 
-- Windows: `%appdata%/lovebrew/bin`
-- macOS/Linux: `~/.config/lovebrew/bin`
+- Windows: `%appdata%/lovebrew/`
+- macOS/Linux: `~/.config/lovebrew/`
   - Create this directory and add it to your PATH!
-
-## Dependencies
-
-Some things are required to be installed/added for LÖVEBrew to function properly. Specifically install these packages [from devkitpro-pacman](https://devkitpro.org/wiki/devkitPro_pacman):
-
-Building for Nintendo 3DS:
-
-- `tex3ds`
-
-One binary not provided by devkitpro-pacman:
-
-- [`hbupdater`](https://github.com/TurtleP/hbupdater)
-
-## Building a Project
-
-LÖVEBrew will look for the LÖVE Potion binaries by default in the OS configuration directory. However, you _can_ override this setting inside the config file and it will search relative to the project's root. The config directory is at the following locations:
-
-- Windows: `%appdata%/lovebrew`
-- Linux and macOS: `~/.config/lovebrew`
 
 ## Options
 
