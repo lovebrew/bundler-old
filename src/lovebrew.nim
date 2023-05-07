@@ -34,6 +34,7 @@ proc build(app_version: string = "2") =
     let configFile = config.init()
 
     os.createDir(configFile.build.saveDir)
+    var successful = true
 
     for target in configFile.build.targets:
         logger.info(&"Building for target: {target}")
@@ -42,8 +43,17 @@ proc build(app_version: string = "2") =
 
         if success:
             io.writeFile(&"{configFile.build.saveDir}/{filename}", content)
+            echo(&"Build for {target} was successful.")
         else:
             logger.error(content)
+            successful = false
+
+    if not successful:
+        var message = "Some builds were not successful. Enable logging an re-run."
+        if configFile.debug.logging:
+            message = &"Some builds were not successful. Please check logs at\n{config.LogFilePath}"
+
+        echo(message)
 
 proc version() =
     ## Show program version and exit

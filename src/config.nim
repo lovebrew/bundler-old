@@ -44,7 +44,7 @@ const CompatibleVersions = @[strings.NimblePkgVersion]
 let ConfigFilePath* = os.normalizedPath(os.getCurrentDir() / "lovebrew.toml")
 
 let ConfigDirectory = os.normalizedPath(os.getConfigDir() / "lovebrew")
-let LogFilePath = os.normalizedPath(ConfigDirectory / "lovebrew.log")
+let LogFilePath* = os.normalizedPath(ConfigDirectory / "lovebrew.log")
 
 proc checkCompatible(configValue: string) {.raises: [Exception].} =
     if not CompatibleVersions.anyIt(it == configValue):

@@ -25,6 +25,10 @@ proc asyncProc(endpoint: string, zipFilePath: string,
 
 proc sendData*(mode: string, app_version: string, metadata: Table[string, string],
         gameDir: string): (bool, string, string) =
+
+    if mode == "cafe" and parseInt(app_version) < 3:
+        return (false, "", "Wii U is not supported on app versions < 3")
+
     var copy = dataEndPoint
     for key, value in metadata.pairs():
         copy = copy.replace(&"${key}", value)
@@ -38,8 +42,7 @@ proc sendData*(mode: string, app_version: string, metadata: Table[string, string
         logger.info(&"Zipping {gameDir} to {name}.love")
         ziparchives.createZipArchive(&"{gameDir}/", &"{name}.love")
     except ZippyError as e:
-        logger.error(e.msg)
-        return
+        return (false, "", e.msg)
 
     var extension = "3dsx"
 
@@ -59,7 +62,7 @@ proc sendData*(mode: string, app_version: string, metadata: Table[string, string
             return (true, filename, content)
         else:
             return (false, "", content)
-    except ValueError as e:
-        echo e.msg
+    except CatchableError as e:
+        return (false, "", e.msg)
 
     return (false, "", "failed to build")
