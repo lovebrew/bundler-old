@@ -1,0 +1,14 @@
+[project]
+authors = [{ name = "TurtleP", email = "jpostelnek@outlook.com" }]
+name = "lovebrew"
+description = "LÖVE Potion game distribution helper (client)"
+version = "0.7.0"
+dependencies = ["requests"]
+requires-python = ">= 3.8"
+license = { text = "MIT License" }
+
+[project.urls]
+Homepage = "https://github.com/lovebrew/lovebrew"
+
+[project.scripts]
+lovebrew = "lovebrew:main"

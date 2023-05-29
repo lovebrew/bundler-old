@@ -1,4 +1,3 @@
 dist/
-test/build
-test/romfs
-test/icon.*
+.egg-info/
+dev/
