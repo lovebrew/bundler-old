@@ -6,9 +6,9 @@ name: CI
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -16,60 +16,77 @@ on:
 jobs:
   Windows:
     runs-on: windows-latest
-    
+
     steps:
-      - uses: actions/checkout@v2
-      
+      - uses: actions/checkout@v3
+
       - id: commit
         uses: pr-mpt/actions-commit-hash@v1
-      
-      - name: Setup Nim environment
-        uses: jiro4989/setup-nim-action@v1.3.31
-        
-      - run: nimble build -Y
-      
+
+      - name: Setup python environment
+        uses: actions/setup-python@v4
+
+      - name: Build
+        run: python -m build
+
+      - name: Create venv
+        run: python -m venv github-ci
+
+      - name: Use venv
+        run: github-ci/Scripts/activate
+
+      - name: Install dependencies
+        run: pip install requirements.txt
+
+      - name: Create executable
+        run: pyinstaller lovebrew.spc
+
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v2.3.1
+        uses: actions/upload-artifact@v3
         with:
           name: Windows-${{ steps.commit.outputs.short }}
-          path: dist/*.exe
+          path: |
+            dist/*.whl
+            dist/*.exe
+
   macOS:
     runs-on: macos-latest
-    
+
     steps:
-      - uses: actions/checkout@v2
-      
+      - uses: actions/checkout@v3
+
       - id: commit
         uses: pr-mpt/actions-commit-hash@v1
-        
-      - name: Setup Nim environment
-        uses: jiro4989/setup-nim-action@v1.3.31
-        
-      - run: nimble build -Y
-      
+
+      - name: Setup python environment
+        uses: actions/setup-python@v4
+
+      - name: Build
+        run: python -m build
+
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v2.3.1
+        uses: actions/upload-artifact@v3
         with:
           name: macOS-${{ steps.commit.outputs.short }}
-          path: dist/*
-          
+          path: dist/*.whl
+
   Linux:
     runs-on: ubuntu-latest
-    
+
     steps:
-      - uses: actions/checkout@v2
-      
+      - uses: actions/checkout@v3
+
       - id: commit
         uses: pr-mpt/actions-commit-hash@v1
-        
-      - name: Setup Nim environment
-        uses: jiro4989/setup-nim-action@v1.3.31
-        
-      - run: nimble build -Y
-      
+
+      - name: Setup python environment
+        uses: actions/setup-python@v4
+
+      - name: Build
+        run: python -m build
+
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v2.3.1
+        uses: actions/upload-artifact@v3
         with:
           name: Linux-${{ steps.commit.outputs.short }}
-          path: dist/*
-          
+          path: dist/*.whl
