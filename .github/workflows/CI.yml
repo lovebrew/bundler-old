@@ -26,6 +26,9 @@ jobs:
       - name: Setup python environment
         uses: actions/setup-python@v4
 
+      - name: Install dependencies (main)
+        run: pip install -r requirements.txt
+
       - name: Build
         run: python -m build
 
@@ -35,8 +38,8 @@ jobs:
       - name: Use venv
         run: github-ci/Scripts/activate
 
-      - name: Install dependencies
-        run: pip install requirements.txt
+      - name: Install dependencies (venv)
+        run: pip install -r requirements.txt
 
       - name: Create executable
         run: pyinstaller lovebrew.spc
@@ -61,6 +64,9 @@ jobs:
       - name: Setup python environment
         uses: actions/setup-python@v4
 
+      - name: Install dependencies (main)
+        run: pip install -r requirements.txt
+
       - name: Build
         run: python -m build
 
@@ -81,6 +87,9 @@ jobs:
 
       - name: Setup python environment
         uses: actions/setup-python@v4
+
+      - name: Install dependencies (main)
+        run: pip install -r requirements.txt
 
       - name: Build
         run: python -m build
