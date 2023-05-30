@@ -5,7 +5,7 @@ block_cipher = None
 
 
 a = Analysis(
-    ['src\\lovebrew\\__main__.py'],
+    ['src/lovebrew/__main__.py'],
     pathex=[],
     binaries=[],
     datas=[("src/lovebrew/resources/lovebrew.toml", "lovebrew")],
