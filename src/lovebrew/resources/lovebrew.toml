@@ -19,6 +19,7 @@ icon = ""
 #                           Default: false.
 #
 # [array]  @targts        : Target console(s) to build for. Default: ["ctr", "hac", "cafe"].
+#                           These correspond to 3DS, Switch, and Wii U respectively.
 #
 # [string] @source        : Game source directory; relative to the config
 #                           file. Default: "game".
