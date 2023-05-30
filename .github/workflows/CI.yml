@@ -38,7 +38,7 @@ jobs:
         run: python -m venv github-ci
 
       - name: Use venv
-        run: github-ci/Scripts/activate
+        run: source github-ci/Scripts/activate
 
       - name: Install dependencies (venv)
         run: pip install -r requirements.txt
@@ -78,7 +78,7 @@ jobs:
         run: python -m venv github-ci
 
       - name: Use venv
-        run: github-ci/bin/activate
+        run: source github-ci/bin/activate
 
       - name: Install dependencies (venv)
         run: pip install -r requirements.txt
