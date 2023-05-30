@@ -74,11 +74,25 @@ jobs:
       - name: Build
         run: python -m build
 
+      - name: Create venv
+        run: python -m venv github-ci
+
+      - name: Use venv
+        run: github-ci/Scripts/activate
+
+      - name: Install dependencies (venv)
+        run: pip install -r requirements.txt
+
+      - name: Create executable
+        run: pyinstaller lovebrew.spec
+
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3
         with:
           name: macOS-${{ steps.commit.outputs.short }}
-          path: dist/*.whl
+          path: |
+            dist/*.whl
+            dist/lovebrew
 
   Linux:
     runs-on: ubuntu-latest
@@ -100,8 +114,22 @@ jobs:
       - name: Build
         run: python -m build
 
+      - name: Create venv
+        run: python -m venv github-ci
+
+      - name: Use venv
+        run: github-ci/Scripts/activate
+
+      - name: Install dependencies (venv)
+        run: pip install -r requirements.txt
+
+      - name: Create executable
+        run: pyinstaller lovebrew.spec
+
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3
         with:
           name: Linux-${{ steps.commit.outputs.short }}
-          path: dist/*.whl
+          path: |
+            dist/*.whl
+            dist/lovebrew
