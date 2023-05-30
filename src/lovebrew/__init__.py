@@ -3,6 +3,8 @@ from argparse import ArgumentParser
 
 import requests
 
+from lovebrew.config import Config
+
 _DISTRIBUTION_METADATA = importlib.metadata.metadata("lovebrew")
 
 _APP_NAME = _DISTRIBUTION_METADATA["name"]
@@ -11,10 +13,18 @@ _APP_DESCRIPTION = _DISTRIBUTION_METADATA["description"]
 
 
 def init():
-    return
+    if Config.exists():
+        result = input("Config exists. Overwrite? [y/N]: ")
+
+        if result.lower() != "y":
+            return
+
+    Config.create()
 
 
 def build():
+    config = Config()
+
     response = requests.post("https://www.bundle.lovebrew.org/")
     print(response.content, response.status_code)
 

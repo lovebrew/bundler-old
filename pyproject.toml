@@ -12,3 +12,6 @@ Homepage = "https://github.com/lovebrew/lovebrew"
 
 [project.scripts]
 lovebrew = "lovebrew:main"
+
+[tool.setuptools.package-data]
+lovebrew = ["**/*.toml"]

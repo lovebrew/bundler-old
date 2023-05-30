@@ -8,7 +8,7 @@ a = Analysis(
     ['src\\lovebrew\\__main__.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[("src/lovebrew/resources/lovebrew.toml", "lovebrew")],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
