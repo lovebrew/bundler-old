@@ -14,10 +14,14 @@ class Config:
         if not Config.exists():
             return  # TODO: error
 
+        self.data = dict()
         with open(Config.Filepath, "rb") as config:
-            dict.update(self.__dict__, tomllib.load(config))
+            dict.update(self.data, tomllib.load(config))
 
-        print(self.__dict__)
+        Path(self["build"]["saveDir"]).mkdir(exist_ok=True)
+
+    def __getitem__(self, item) -> any:
+        return self.data[item]
 
     @staticmethod
     def create() -> None:

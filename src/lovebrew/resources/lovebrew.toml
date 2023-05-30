@@ -18,14 +18,14 @@ icon = ""
 #                           This helps reduce chances of cluttering the built data.
 #                           Default: false.
 #
-# [array]  @targts        : Target console(s) to build for. Default: ["3ds", "switch"].
+# [array]  @targts        : Target console(s) to build for. Default: ["ctr", "hac", "cafe"].
 #
 # [string] @source        : Game source directory; relative to the config
 #                           file. Default: "game".
 #
 [build]
 clean = false
-targets = ["3ds", "switch", "wiiu"]
+targets = ["ctr", "hac", "cafe"]
 source = "game"
 saveDir = "build"
 

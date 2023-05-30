@@ -25,6 +25,8 @@ jobs:
 
       - name: Setup python environment
         uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
 
       - name: Install dependencies (main)
         run: pip install -r requirements.txt
@@ -42,7 +44,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Create executable
-        run: pyinstaller lovebrew.spc
+        run: pyinstaller lovebrew.spec
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3
@@ -63,6 +65,8 @@ jobs:
 
       - name: Setup python environment
         uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
 
       - name: Install dependencies (main)
         run: pip install -r requirements.txt
@@ -87,6 +91,8 @@ jobs:
 
       - name: Setup python environment
         uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
 
       - name: Install dependencies (main)
         run: pip install -r requirements.txt
