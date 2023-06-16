@@ -1,4 +1,5 @@
 dist/
-test/build
-test/romfs
-test/icon.*
+*.egg-info/
+dev/
+build/
+__pycache__/
