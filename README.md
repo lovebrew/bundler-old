@@ -11,19 +11,14 @@ The easiest way to "install" LÖVEBrew is from the [releases page](https://githu
 ## Options
 
 ```
-Usage:
-  lovebrew {SUBCMD}  [sub-command options & parameters]
-where {SUBCMD} is one of:
-  help     print comprehensive or per-cmd help
-  init     Initializes a new config file
-  build    Build the project for the current targets in the config file
-  clean    Clean the output directory
-  version  Show program version and exit
+usage: lovebrew [-h] [-init] [-build [APP_VERSION]] [--version]
 
-lovebrew {-h|--help} or with no args at all prints this message.
-lovebrew --help-syntax gives general cligen syntax help.
-Run "lovebrew {help SUBCMD|SUBCMD --help}" to see help for just SUBCMD.
-Run "lovebrew help" to get *comprehensive* help.
+options:
+  -h, --help            show this help message and exit
+  -init, -i             create a new config
+  -build [APP_VERSION], -b [APP_VERSION]
+                        build a project
+  --version             show program's version number and exit
 ```
 
 ## Development
